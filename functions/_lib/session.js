@@ -4,10 +4,26 @@ const encoder = new TextEncoder();
 const COOKIE_NAME = "__Host-tcm_session";
 
 const ROLE_PERMISSIONS = {
-  owner: ["read", "write", "manage_users", "manage_system"],
-  admin: ["read", "write"],
-  editor: ["read", "write"],
-  viewer: ["read"]
+  owner: [
+    "read",
+    "write",
+    "publish",
+    "manage_users",
+    "manage_system"
+  ],
+  admin: [
+    "read",
+    "write",
+    "publish",
+    "manage_editors"
+  ],
+  editor: [
+    "read",
+    "write"
+  ],
+  viewer: [
+    "read"
+  ]
 };
 
 function getSessionToken(request) {
