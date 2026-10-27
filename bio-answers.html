@@ -246,6 +246,11 @@ footer { max-width: 1240px; margin: 0 auto; padding: 20px; border-top: 1px solid
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .a-text > .ans-lab, :root:not([data-theme="light"]) .fill-key, :root:not([data-theme="light"]) .doc .mcq-ans .ans-key { color: #1b1f1d; } }
 :root[data-theme="dark"] .a-text > .ans-lab, :root[data-theme="dark"] .fill-key, :root[data-theme="dark"] .doc .mcq-ans .ans-key { color: #1b1f1d; }
 @media print { .opt.correct { background: #ddd; color: #000; } .fill-key, .doc .mcq-ans .ans-key, .ans-lab { background: #000 !important; color: #fff !important; } }
+.zh-g { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 5px; background: var(--accent); color: var(--accent-ink); font-size: 13px; font-weight: 700; }
+#zhBtn[disabled] { opacity: .6; cursor: wait; }
+html[lang="zh-Hant"] .opt.correct::after { content: "  ✓ 正確答案"; }
+.doc p.related { margin: 10px 0 0; padding: 10px 16px; background: var(--surface-2); border-radius: 10px; font-weight: 600; }
+.doc p.related a { text-decoration: none; }
 </style>
 </head>
 <body>
@@ -253,6 +258,7 @@ footer { max-width: 1240px; margin: 0 auto; padding: 20px; border-top: 1px solid
   <div class="bar">
     <a class="logo" href="/"><span class="seal">醫</span><span class="logo-text"><span>2026福建中醫</span><span>台灣班網站</span></span></a>
     <div class="actions">
+      <button class="tool-btn" id="zhBtn" type="button"><span class="zh-g">繁</span><span class="label">切換繁體</span></button>
       <button class="tool-btn" id="theme" type="button"></button>
       <a class="tool-btn" href="/" aria-label="回到網站"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg><span class="label">回到網站</span></a>
     </div>
@@ -272,7 +278,7 @@ footer { max-width: 1240px; margin: 0 auto; padding: 20px; border-top: 1px solid
     </section>
     <article class="doc">
 
-<dl class="info"><dt>课程</dt><dd>医学生物学（福建中医药大学，中医骨伤／护理专业）</dd><dt>授课</dt><dd>刘艳老师（细胞学）、王珊珊老师（遗传学）</dd><dt>来源</dt><dd>课程作业原题（<strong>v10 起依原卷 .doc 全文与系谱图校对</strong>）＋ 三次课堂录音（10-17、10-24、10-25）＋<strong>三份官方 PPT</strong> （单基因遗传、多基因病与线粒体病、染色体畸变与染色体病）＋ <span class="tag tag-book">教材</span> 教材 CH3／CH4</dd><dt>用法</dt><dd>按题号顺序直接作答；<span class="tag tag-ok">课堂确认</span>＝课堂确认、<span class="tag tag-ppt">PPT</span>＝官方 PPT 原文（<strong>与课堂口述冲突时以 PPT 为准</strong>）；带 <span class="tag tag-warn">存疑</span> 者先核对</dd></dl>
+<dl class="info"><dt>课程</dt><dd>医学生物学（福建中医药大学，中医骨伤／护理专业）</dd><dt>授课</dt><dd>刘艳老师（细胞学）、王珊珊老师（遗传学）</dd><dt>来源</dt><dd>课程作业原题（<strong>v10 起依原卷 .doc 全文与系谱图校对</strong>）＋ 三次课堂录音（10-17、10-24、10-25）＋<strong>三份官方 PPT</strong> （单基因遗传、多基因病与线粒体病、染色体畸变与染色体病）＋ <span class="tag tag-book">教材</span> 教材 CH3／CH4</dd><dt>用法</dt><dd>按题号顺序直接作答；<span class="tag tag-ok">课堂确认</span>＝课堂确认、<span class="tag tag-ppt">PPT</span>＝官方 PPT 原文（<strong>与课堂口述冲突时以 PPT 为准</strong>）；带 <span class="tag tag-warn">存疑</span> 者先核对</dd></dl><p class="related">相关页面：<a href="karyotype.html">染色体核型分析图 · 作答页 →</a></p>
 <h4 id="s-图例">图例</h4>
 <div class="table-wrap"><table>
 <thead>
@@ -2053,6 +2059,60 @@ targets.forEach(t => obs.observe(t));
 const toTop = document.getElementById('toTop');
 addEventListener('scroll', () => toTop.classList.toggle('show', scrollY > 600), { passive: true });
 toTop.onclick = () => scrollTo({ top: 0 });
+</script>
+<script>
+/* 繁／簡切換：只轉字形（OpenCC cn→tw），不改用詞，保留大陸醫學名詞（如 线粒体→線粒體，不會改成「粒線體」） */
+(function () {
+  const btn = document.getElementById('zhBtn');
+  const SRC = 'https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/cn2t.js';
+  const orig = new Map();          // 文字節點 → 原始簡體
+  let conv = null, isTrad = false, loading = null;
+  const roots = () => [document.querySelector('.layout'), document.querySelector('footer')].filter(Boolean);
+  function paint() {
+    btn.querySelector('.zh-g').textContent = isTrad ? '简' : '繁';
+    btn.querySelector('.label').textContent = isTrad ? '切换简体' : '切換繁體';
+    btn.setAttribute('aria-label', isTrad ? '切换为简体中文' : '切換為繁體中文');
+    document.documentElement.lang = isTrad ? 'zh-Hant' : 'zh-Hans';
+  }
+  function load() {
+    if (conv) return Promise.resolve(conv);
+    if (loading) return loading;
+    loading = new Promise((ok, bad) => {
+      const s = document.createElement('script'); s.src = SRC;
+      s.onload = () => { conv = OpenCC.Converter({ from: 'cn', to: 'tw' }); ok(conv); };
+      s.onerror = () => { loading = null; bad(new Error('load')); };
+      document.head.appendChild(s);
+    });
+    return loading;
+  }
+  function walk(fn) {
+    roots().forEach(r => {
+      const w = document.createTreeWalker(r, NodeFilter.SHOW_TEXT, { acceptNode: n => n.nodeValue.trim() && !n.parentElement.closest('script,style') ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT });
+      let n; while ((n = w.nextNode())) fn(n);
+    });
+  }
+  async function toTrad() {
+    btn.disabled = true; btn.querySelector('.label').textContent = '轉換中…';
+    try { await load(); } catch (e) { btn.disabled = false; paint(); btn.querySelector('.label').textContent = '載入失敗，請重試'; return; }
+    walk(n => { if (!orig.has(n)) orig.set(n, n.nodeValue); n.nodeValue = conv(orig.get(n)); });
+    document.title = conv(document.title);
+    isTrad = true; btn.disabled = false; paint();
+  }
+  function toSimp() {
+    orig.forEach((v, n) => { n.nodeValue = v; });
+    document.title = window.__zhTitle;
+    isTrad = false; paint();
+  }
+  window.__zhTitle = document.title;
+  btn.onclick = () => {
+    const next = isTrad ? 's' : 't';
+    try { localStorage.setItem('tcm-zh', next); } catch (e) {}
+    next === 't' ? toTrad() : toSimp();
+  };
+  paint();
+  let saved = null; try { saved = localStorage.getItem('tcm-zh'); } catch (e) {}
+  if (saved === 't') toTrad();
+})();
 </script>
 </body>
 </html>
