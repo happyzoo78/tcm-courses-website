@@ -8,6 +8,62 @@ import { createSession } from "../_lib/session.js";
 
 const encoder = new TextEncoder();
 
+// 登入失敗次數限制（防止有人一直猜密碼）
+const WINDOW_MINUTES = 15;          // 計算期間：15 分鐘
+const MAX_FAILS_PER_ACCOUNT = 5;    // 同一個 Email 最多失敗 5 次
+const MAX_FAILS_PER_IP = 20;        // 同一個網路位置最多失敗 20 次
+
+async function sha256Hex(value) {
+  const digest = await crypto.subtle.digest("SHA-256", encoder.encode(value));
+  return Array.from(new Uint8Array(digest), b => b.toString(16).padStart(2, "0")).join("");
+}
+
+// 記錄一次登入嘗試（記錄失敗不影響登入流程）
+async function recordAttempt(env, identifierHash, ipHash, success) {
+  try {
+    await env.DB.prepare(`
+      INSERT INTO admin_login_attempts (identifier_hash, ip_hash, success)
+      VALUES (?, ?, ?)
+    `).bind(identifierHash, ipHash, success ? 1 : 0).run();
+  } catch (error) {
+    console.error("Login attempt logging failed", error);
+  }
+}
+
+// 檢查是否已超過失敗次數上限
+async function isRateLimited(env, identifierHash, ipHash) {
+  const since = `-${WINDOW_MINUTES} minutes`;
+
+  // 同一個 Email：只計算「最近一次成功登入之後」的失敗
+  const account = await env.DB.prepare(`
+    SELECT COUNT(*) AS fails
+    FROM admin_login_attempts
+    WHERE identifier_hash = ?
+      AND success = 0
+      AND attempted_at > datetime('now', ?)
+      AND id > COALESCE((
+        SELECT MAX(id) FROM admin_login_attempts
+        WHERE identifier_hash = ? AND success = 1
+      ), 0)
+  `).bind(identifierHash, since, identifierHash).first();
+
+  if ((account?.fails || 0) >= MAX_FAILS_PER_ACCOUNT) return true;
+
+  if (ipHash) {
+    const ip = await env.DB.prepare(`
+      SELECT COUNT(*) AS fails
+      FROM admin_login_attempts
+      WHERE ip_hash = ?
+        AND success = 0
+        AND attempted_at > datetime('now', ?)
+    `).bind(ipHash, since).first();
+
+    if ((ip?.fails || 0) >= MAX_FAILS_PER_IP) return true;
+  }
+
+  return false;
+}
+
 export async function onRequestPost({ request, env }) {
   // 1. 確認 D1 綁定存在
   if (!env.DB) {
@@ -62,7 +118,23 @@ export async function onRequestPost({ request, env }) {
     return jsonResponse({ error: "Invalid credentials" }, 401);
   }
 
-  // 7. 查詢管理員帳號
+  // 7. 檢查失敗次數（在耗時的密碼運算之前就擋下）
+  const identifierHash = await sha256Hex(`login:${normalizedEmail}`);
+  const clientIp = request.headers.get("CF-Connecting-IP") || "";
+  const ipHash = clientIp ? await sha256Hex(`ip:${clientIp}`) : null;
+
+  try {
+    if (await isRateLimited(env, identifierHash, ipHash)) {
+      const response = jsonResponse({ error: "Too many attempts" }, 429);
+      response.headers.set("Retry-After", String(WINDOW_MINUTES * 60));
+      return response;
+    }
+  } catch (error) {
+    console.error("Rate limit check failed", error);
+    return jsonResponse({ error: "Login failed" }, 500);
+  }
+
+  // 8. 查詢管理員帳號
   let admin;
 
   try {
@@ -87,10 +159,11 @@ export async function onRequestPost({ request, env }) {
 
   // 不透露帳號是否存在
   if (!admin || admin.status !== "active") {
+    await recordAttempt(env, identifierHash, ipHash, false);
     return jsonResponse({ error: "Invalid credentials" }, 401);
   }
 
-  // 8. 驗證密碼
+  // 9. 驗證密碼
   let passwordValid = false;
 
   try {
@@ -104,10 +177,11 @@ export async function onRequestPost({ request, env }) {
   }
 
   if (!passwordValid) {
+    await recordAttempt(env, identifierHash, ipHash, false);
     return jsonResponse({ error: "Invalid credentials" }, 401);
   }
 
-  // 9. 建立 Session
+  // 10. 建立 Session
   let session;
 
   try {
@@ -117,7 +191,23 @@ export async function onRequestPost({ request, env }) {
     return jsonResponse({ error: "Login failed" }, 500);
   }
 
-  // 10. 回傳登入結果並設定安全 Cookie
+  // 11. 記錄成功登入、更新最後登入時間、清除 30 天前的舊紀錄
+  await recordAttempt(env, identifierHash, ipHash, true);
+
+  try {
+    await env.DB.batch([
+      env.DB.prepare(
+        "UPDATE admin_users SET last_login_at = CURRENT_TIMESTAMP WHERE id = ?"
+      ).bind(admin.id),
+      env.DB.prepare(
+        "DELETE FROM admin_login_attempts WHERE attempted_at < datetime('now', '-30 days')"
+      )
+    ]);
+  } catch (error) {
+    console.error("Post-login bookkeeping failed", error);
+  }
+
+  // 12. 回傳登入結果並設定安全 Cookie
   const response = jsonResponse(
     {
       success: true,

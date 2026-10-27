@@ -419,6 +419,7 @@ function friendly(err) {
   if (err.status === 401) return '登入已過期，請重新登入。';
   if (err.status === 403) return '你的帳號沒有這項權限。';
   if (err.status === 413) return '資料太大，請改用較小的圖片。';
+  if (err.status === 429) return '登入失敗次數太多，請 15 分鐘後再試。';
   if (err.status >= 500 && !/[一-鿿]/.test(err.message)) return '伺服器暫時無法處理，請稍後再試。';
   return err.message;
 }
