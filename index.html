@@ -295,6 +295,18 @@ input:focus, textarea:focus, select:focus { border-color: var(--accent); }
 
 .empty { color: var(--muted); padding: 22px; }
 
+/* 訊息框、登入框 */
+.msg { margin: 12px 0; padding: 10px 14px; border-radius: 8px; font-size: 15px; border: 1px solid var(--line); background: var(--surface); }
+.msg.error { color: var(--red); border-color: var(--red); }
+.msg.ok { color: var(--accent); border-color: var(--accent); }
+.login-box { max-width: 420px; margin: 8px auto; }
+.login-box h2 { margin-top: 0; }
+.admin-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px 16px; flex-wrap: wrap; margin-bottom: 14px; }
+.admin-bar .who { color: var(--muted); font-size: 15px; }
+.check { display: flex; align-items: center; gap: 8px; font-size: 15px; }
+.check input { width: auto; }
+button:disabled { opacity: .6; cursor: progress; }
+
 footer {
   max-width: 1120px; margin: 0 auto; padding: 22px;
   border-top: 1px solid var(--line);
@@ -367,48 +379,67 @@ footer {
 
 <main id="app" tabindex="-1"></main>
 
-<footer>中醫學堂 · 課程圖卡總目錄　｜　此版本為本機互動原型，資料僅儲存在此瀏覽器。</footer>
+<footer>中醫學堂 · 課程圖卡總目錄　｜　學習用網站，請尊重教材著作權。</footer>
 
 <script>
 /* =========================================================
-   一、預設資料（第一次開啟時使用；之後以瀏覽器儲存的資料為準）
+   一、資料來源：Cloudflare D1 雲端資料庫（透過 /api/content 讀取）
    ========================================================= */
-const defaults = {
-  courses: [
-    { id: 1, title: '組織學與胚胎學', lessons: 2, cards: 41, latest: '上皮（二）與結締組織（一）', icon: '組織' },
-    { id: 2, title: '醫學生物學',     lessons: 2, cards: 37, latest: '染色體異常與染色體病',       icon: '生物' },
-    { id: 3, title: '人體解剖學',     lessons: 3, cards: 70, latest: '關節總論與軀幹骨的連結',     icon: '解剖' },
-    { id: 4, title: '中醫基礎理論',   lessons: 2, cards: 32, latest: '第一章 氣一元論、陰陽學說、五行學說', icon: '中基' }
-  ],
-  items: [
-    { id: 101, courseId: 4, title: '陰陽五行學說',         description: '陰陽、五行、相生相剋的基本概念與學習重點。', image: '', date: '2026-10-25' },
-    { id: 102, courseId: 2, title: '染色體異常與染色體病', description: '醫學生物學課程重點整理。',                   image: '', date: '2026-10-24' },
-    { id: 103, courseId: 3, title: '關節總論與軀幹骨的連結', description: '人體解剖學圖卡與重點筆記。',               image: '', date: '2026-10-21' }
-  ],
-  projects: [
-    { id: 201, title: '中醫基礎理論複習計畫', description: '整理各章節圖卡與核心概念，建立循序複習架構。', image: '', date: '2026-10-25' }
-  ]
-};
+let data = { courses: [], items: [], projects: [] };
+let loadState = 'loading';   // loading 載入中 | ready 完成 | error 失敗
+let loadError = '';
+let admin = null;            // 目前登入的管理員；null＝未登入
+let adminChecked = false;    // 是否已向伺服器確認過登入狀態
+let adminFlash = '';         // 管理後台的提示訊息（例如「已儲存」）
 
-/* =========================================================
-   二、資料讀取與儲存（與舊版相同，沿用原本的儲存位置）
-   ========================================================= */
-const STORE_KEY = 'tcm-site-v1';
-let data;
-try {
-  data = JSON.parse(localStorage.getItem(STORE_KEY)) || structuredClone(defaults);
-} catch {
-  data = structuredClone(defaults);
+// 呼叫後端 API 的共用函式：自動處理 JSON 與錯誤訊息
+async function api(path, options = {}) {
+  const opts = { method: 'GET', credentials: 'same-origin', ...options, headers: {} };
+  if (options.body !== undefined) {
+    opts.headers['Content-Type'] = 'application/json';
+    opts.body = JSON.stringify(options.body);
+  }
+  let res;
+  try {
+    res = await fetch(path, opts);
+  } catch {
+    throw Object.assign(new Error('網路連線失敗，請檢查網路後再試一次。'), { status: 0 });
+  }
+  let body = null;
+  try { body = await res.json(); } catch {}
+  if (!res.ok) {
+    throw Object.assign(new Error(body?.error || `伺服器錯誤（${res.status}）`), { status: res.status });
+  }
+  return body;
 }
 
-function save() {
+// 把伺服器的錯誤轉成看得懂的中文
+function friendly(err) {
+  if (err.status === 401) return '登入已過期，請重新登入。';
+  if (err.status === 403) return '你的帳號沒有這項權限。';
+  if (err.status === 413) return '資料太大，請改用較小的圖片。';
+  if (err.status >= 500 && !/[一-鿿]/.test(err.message)) return '伺服器暫時無法處理，請稍後再試。';
+  return err.message;
+}
+
+async function loadContent() {
   try {
-    localStorage.setItem(STORE_KEY, JSON.stringify(data));
-    return true;
-  } catch {
-    alert('瀏覽器儲存空間不足，請改用較小的圖片。');
-    return false;
+    data = await api('/api/content');
+    loadState = 'ready';
+  } catch (err) {
+    loadState = 'error';
+    loadError = friendly(err);
   }
+  render();
+}
+
+async function checkLogin() {
+  try {
+    admin = (await api('/api/me')).admin;
+  } catch {
+    admin = null;
+  }
+  adminChecked = true;
 }
 
 /* 小工具 */
@@ -574,26 +605,50 @@ function aboutPage() {
 }
 
 /* =========================================================
-   五、管理後台（功能與舊版相同）
+   五、管理後台（登入後才能編輯，資料直接存進雲端資料庫）
    ========================================================= */
 const TYPE_NAME = { courses: '課程', items: '圖卡', projects: '活動專案' };
+const ROLE_NAME = { owner: '擁有者', admin: '管理員', editor: '編輯者', viewer: '檢視者' };
+
+function loginHtml() {
+  return `
+  <div class="panel prose login-box">
+    <h2>管理員登入</h2>
+    <form id="loginform">
+      <div class="field"><label for="l-email">Email</label><input id="l-email" name="email" type="email" autocomplete="username" required></div>
+      <div class="field"><label for="l-pw">密碼</label><input id="l-pw" name="password" type="password" autocomplete="current-password" required></div>
+      <div id="loginmsg"></div>
+      <button class="btn" type="submit">登入</button>
+    </form>
+  </div>`;
+}
 
 function adminPage() {
+  if (!adminChecked) return '<p class="empty">確認登入狀態中…</p>';
+  if (!admin) return loginHtml();
+
   const rows = data[adminType] || [];
+  const flash = adminFlash ? `<div class="msg ok">${esc(adminFlash)}</div>` : '';
+  adminFlash = '';
   return `
-  <h2 class="section">管理後台 <small>本機示範模式</small></h2>
-  <div class="notice"><b>重要：</b>這是無伺服器的功能原型，並非安全的正式後台。資料只保存在目前瀏覽器，無登入驗證、雲端同步或跨裝置共享；正式上線須串接 Cloudflare 後端及身分驗證。</div>
-  <div class="admin-tabs" role="tablist">
+  <div class="admin-bar">
+    <h2 class="section" style="margin:0;border:0;padding:0">管理後台</h2>
+    <div><span class="who">${esc(admin.displayName)}（${ROLE_NAME[admin.role] || admin.role}）</span>
+      <button type="button" class="btn secondary" id="logout">登出</button></div>
+  </div>
+  <div class="notice">在這裡新增、修改或刪除的內容，會<b>立即儲存到雲端資料庫</b>，所有訪客都會看到。${admin.canDelete ? '' : '你的帳號可以新增與修改，但不能刪除。'}</div>
+  ${flash}
+  <div class="admin-tabs">
     ${Object.keys(TYPE_NAME).map(t => `<button type="button" class="btn ${adminType === t ? '' : 'secondary'}" data-admin-type="${t}" aria-pressed="${adminType === t}">${TYPE_NAME[t]}管理</button>`).join('')}
   </div>
-  <button type="button" class="btn" id="add">＋ 新增${TYPE_NAME[adminType]}</button>
+  ${admin.canWrite ? `<button type="button" class="btn" id="add">＋ 新增${TYPE_NAME[adminType]}</button>` : '<p class="empty">你的帳號只能檢視。</p>'}
   <div class="adminlist">
     ${rows.map(i => `
       <div class="adminrow">
-        <div><b>${esc(i.title)}</b><br><small>${adminType === 'courses' ? `${i.lessons} 堂 · ${i.cards} 張` : esc(i.date || '')}</small></div>
+        <div><b>${esc(i.title)}</b><br><small>${adminType === 'courses' ? `${i.lessons} 堂 · ${i.cards} 張` : esc(i.date || '')}${adminType === 'items' ? ' · ' + esc(courseName(i.courseId)) : ''}</small></div>
         <div class="row-actions">
-          <button type="button" class="btn secondary" data-edit="${i.id}">編輯</button>
-          <button type="button" class="btn secondary danger" data-delete="${i.id}">刪除</button>
+          ${admin.canWrite ? `<button type="button" class="btn secondary" data-edit="${i.id}">編輯</button>` : ''}
+          ${admin.canDelete ? `<button type="button" class="btn secondary danger" data-delete="${i.id}">刪除</button>` : ''}
         </div>
       </div>`).join('') || '<p class="empty">尚無資料</p>'}
   </div>
@@ -604,10 +659,10 @@ function editorHtml(i) {
   i = i || {};
   const isCourse = adminType === 'courses';
   const courseFields = `
-    <div class="field"><label for="f-icon">封面文字</label><input id="f-icon" name="icon" value="${esc(i.icon || '')}"></div>
+    <div class="field"><label for="f-icon">封面文字（最多 10 字）</label><input id="f-icon" name="icon" maxlength="10" value="${esc(i.icon || '')}"></div>
     <div class="field"><label for="f-lessons">課堂數</label><input id="f-lessons" name="lessons" type="number" min="0" value="${i.lessons ?? 0}"></div>
     <div class="field"><label for="f-cards">圖卡數</label><input id="f-cards" name="cards" type="number" min="0" value="${i.cards ?? 0}"></div>
-    <div class="field"><label for="f-latest">最新課程名稱</label><input id="f-latest" name="latest" value="${esc(i.latest || '')}"></div>`;
+    <div class="field"><label for="f-latest">最新課程名稱</label><input id="f-latest" name="latest" maxlength="200" value="${esc(i.latest || '')}"></div>`;
   const entryFields = `
     ${adminType === 'items' ? `
     <div class="field"><label for="f-course">所屬科目</label>
@@ -615,18 +670,91 @@ function editorHtml(i) {
     </div>` : ''}
     <div class="field"><label for="f-date">日期</label><input id="f-date" name="date" type="date" value="${esc(i.date || new Date().toISOString().slice(0, 10))}"></div>
     <div class="field"><label for="f-desc">內容介紹</label><textarea id="f-desc" name="description">${esc(i.description || '')}</textarea></div>
-    <div class="field"><label for="f-img">圖片上傳（建議小於 500 KB；僅存於此瀏覽器）</label><input id="f-img" name="image" type="file" accept="image/*"></div>
-    ${i.image ? '<p>已設定圖片；未重新上傳將保留原圖。</p>' : ''}`;
+    <div class="field"><label for="f-img">圖片（PNG、JPG、WebP、GIF；大張照片會自動壓縮）</label><input id="f-img" name="image" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div>
+    ${i.image ? `<img src="${esc(i.image)}" alt="" style="max-height:120px;border-radius:6px">
+    <label class="check"><input type="checkbox" name="removeImage"> 移除目前的圖片</label>
+    <p class="meta-label">未重新上傳將保留原圖。</p>` : ''}`;
   return `
   <div class="panel prose" style="margin-top:20px">
     <h2>${i.id ? '編輯' : '新增'}${TYPE_NAME[adminType]}</h2>
     <form id="editform">
-      <div class="field"><label for="f-title">標題</label><input id="f-title" name="title" required value="${esc(i.title || '')}"></div>
+      <div class="field"><label for="f-title">標題</label><input id="f-title" name="title" required maxlength="200" value="${esc(i.title || '')}"></div>
       ${isCourse ? courseFields : entryFields}
+      <div id="formmsg"></div>
       <button class="btn" type="submit">儲存資料</button>
       <button class="btn secondary" type="button" id="cancel">取消</button>
     </form>
   </div>`;
+}
+
+/* 圖片處理：大於 600 KB 或邊長超過 1600 像素的照片，自動縮小並轉成 JPG */
+const MAX_IMAGE_BYTES = 600 * 1024;
+const MAX_IMAGE_SIDE = 1600;
+
+const readAsDataURL = blob => new Promise((resolve, reject) => {
+  const r = new FileReader();
+  r.onload = () => resolve(r.result);
+  r.onerror = () => reject(new Error('讀取圖片失敗'));
+  r.readAsDataURL(blob);
+});
+
+async function prepareImage(file) {
+  if (!/^image\/(png|jpeg|webp|gif)$/.test(file.type)) {
+    throw new Error('只支援 PNG、JPG、WebP、GIF 圖片。');
+  }
+  if (file.type === 'image/gif') { // 動圖無法壓縮，只檢查大小
+    if (file.size > MAX_IMAGE_BYTES) throw new Error('GIF 動圖請小於 600 KB。');
+    return readAsDataURL(file);
+  }
+  let bitmap;
+  try { bitmap = await createImageBitmap(file); } catch { throw new Error('無法讀取這張圖片，請換一張試試。'); }
+  const { width, height } = bitmap;
+  if (file.size <= MAX_IMAGE_BYTES && Math.max(width, height) <= MAX_IMAGE_SIDE) {
+    bitmap.close?.();
+    return readAsDataURL(file);
+  }
+  let scale = Math.min(1, MAX_IMAGE_SIDE / Math.max(width, height));
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  for (let attempt = 0; attempt < 6; attempt++) {
+    canvas.width = Math.max(1, Math.round(width * scale));
+    canvas.height = Math.max(1, Math.round(height * scale));
+    ctx.fillStyle = '#ffffff';               // 透明背景改成白色
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    for (const quality of [0.85, 0.75, 0.65]) {
+      const blob = await new Promise(r => canvas.toBlob(r, 'image/jpeg', quality));
+      if (blob && blob.size <= MAX_IMAGE_BYTES) { bitmap.close?.(); return readAsDataURL(blob); }
+    }
+    scale *= 0.75;
+  }
+  bitmap.close?.();
+  throw new Error('圖片太大，無法壓縮到 600 KB 以內。');
+}
+
+// 儲存或刪除後：重新讀取最新資料並更新畫面
+async function reloadAfterChange(message) {
+  adminFlash = message;
+  try {
+    data = await api('/api/content');
+    loadState = 'ready';
+  } catch (err) {
+    adminFlash = message + '（但重新載入失敗，請重新整理頁面）';
+  }
+  render();
+}
+
+// 處理錯誤：登入過期就回到登入畫面，其他錯誤顯示在指定位置
+function handleError(err, box) {
+  if (err.status === 401) {
+    admin = null;
+    render();
+    const m = document.getElementById('loginmsg');
+    if (m) m.innerHTML = `<div class="msg error">${esc(friendly(err))}</div>`;
+    return;
+  }
+  if (box) box.innerHTML = `<div class="msg error">${esc(friendly(err))}</div>`;
+  else alert(friendly(err));
 }
 
 function showEditor(i) {
@@ -634,29 +762,36 @@ function showEditor(i) {
   box.innerHTML = editorHtml(i);
   box.scrollIntoView({ behavior: 'smooth', block: 'start' });
   document.getElementById('cancel').onclick = () => { box.innerHTML = ''; };
-  document.getElementById('editform').onsubmit = async e => {
+
+  const form = document.getElementById('editform');
+  form.onsubmit = async e => {
     e.preventDefault();
-    const form = e.currentTarget;
-    const fd = new FormData(form);
-    const obj = i?.id ? { ...i } : { id: Date.now() };
-    for (const [k, v] of fd.entries()) {
-      if (k === 'image') continue;
-      obj[k] = ['lessons', 'cards', 'courseId'].includes(k) ? Number(v) : v;
+    const btn = form.querySelector('[type=submit]');
+    const msg = document.getElementById('formmsg');
+    msg.innerHTML = '';
+    btn.disabled = true;
+    btn.textContent = '儲存中…';
+    try {
+      const body = {};
+      for (const [k, v] of new FormData(form).entries()) {
+        if (k !== 'image' && k !== 'removeImage') body[k] = v;
+      }
+      const file = form.elements.image?.files[0];
+      if (file) {
+        btn.textContent = '處理圖片中…';
+        body.image = await prepareImage(file);
+        btn.textContent = '儲存中…';
+      } else if (form.elements.removeImage?.checked) {
+        body.image = '';
+      }
+      if (i?.id) await api(`/api/admin/${adminType}/${i.id}`, { method: 'PUT', body });
+      else await api(`/api/admin/${adminType}`, { method: 'POST', body });
+      await reloadAfterChange(`已儲存「${body.title}」`);
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = '儲存資料';
+      handleError(err, msg);
     }
-    const file = form.elements.image?.files[0];
-    if (file) {
-      if (file.size > 650000) { alert('為避免超出瀏覽器儲存限制，請選擇小於 650 KB 的圖片。'); return; }
-      obj.image = await new Promise((resolve, reject) => {
-        const r = new FileReader();
-        r.onload = () => resolve(r.result);
-        r.onerror = reject;
-        r.readAsDataURL(file);
-      });
-    }
-    const arr = data[adminType];
-    if (i?.id) arr[arr.findIndex(x => x.id === i.id)] = obj;
-    else arr.unshift(obj);
-    if (save()) render();
   };
 }
 
@@ -666,9 +801,15 @@ function showEditor(i) {
 const VIEWS = { home: homePage, courses: coursesPage, items: itemsPage, projects: projectsPage, detail: detailPage, about: aboutPage, admin: adminPage };
 
 function render() {
-  app.innerHTML = VIEWS[page]();
+  if (loadState === 'loading') {
+    app.innerHTML = '<p class="empty">資料載入中…</p>';
+  } else if (loadState === 'error') {
+    app.innerHTML = `<div class="msg error">無法載入資料：${esc(loadError)}</div><button type="button" class="btn" id="retry">重新載入</button>`;
+  } else {
+    app.innerHTML = VIEWS[page]();
+  }
   // 導覽列目前位置
-  const navKey = page === 'items' || page === 'detail' ? (detailTarget[0] === 'project' && page === 'detail' ? 'projects' : 'courses') : page;
+  const navKey = page === 'items' ? 'courses' : page === 'detail' ? (detailTarget[0] === 'project' ? 'projects' : 'courses') : page;
   document.querySelectorAll('[data-nav]').forEach(a => {
     if (a.dataset.nav === navKey) a.setAttribute('aria-current', 'page');
     else a.removeAttribute('aria-current');
@@ -677,12 +818,45 @@ function render() {
 }
 
 function bind() {
+  const retry = document.getElementById('retry');
+  if (retry) retry.onclick = () => { loadState = 'loading'; render(); loadContent(); };
+
   // 搜尋：只更新圖卡區，不重畫整頁（輸入不會跳掉）
   const s = document.getElementById('search');
   if (s) s.oninput = () => { query = s.value; document.getElementById('itemgrid').innerHTML = itemGridHtml(); };
 
   const f = document.getElementById('coursefilter');
   if (f) f.onchange = () => { location.hash = 'items/' + f.value; };
+
+  // 登入
+  const lf = document.getElementById('loginform');
+  if (lf) lf.onsubmit = async e => {
+    e.preventDefault();
+    const btn = lf.querySelector('[type=submit]');
+    const msg = document.getElementById('loginmsg');
+    btn.disabled = true;
+    btn.textContent = '登入中…';
+    msg.innerHTML = '';
+    try {
+      await api('/api/login', { method: 'POST', body: { email: lf.elements.email.value, password: lf.elements.password.value } });
+      await checkLogin();
+      if (!admin) throw new Error('登入沒有成功，請再試一次。');
+      render();
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = '登入';
+      msg.innerHTML = `<div class="msg error">${esc(err.status === 401 ? 'Email 或密碼錯誤。' : friendly(err))}</div>`;
+    }
+  };
+
+  // 登出
+  const lo = document.getElementById('logout');
+  if (lo) lo.onclick = async () => {
+    lo.disabled = true;
+    try { await api('/api/logout', { method: 'POST' }); } catch {}
+    admin = null;
+    render();
+  };
 
   document.querySelectorAll('[data-admin-type]').forEach(b => b.onclick = () => { adminType = b.dataset.adminType; render(); });
 
@@ -693,18 +867,31 @@ function bind() {
     showEditor(data[adminType].find(x => x.id == b.dataset.edit));
   });
 
-  document.querySelectorAll('[data-delete]').forEach(b => b.onclick = () => {
+  document.querySelectorAll('[data-delete]').forEach(b => b.onclick = async () => {
     const id = Number(b.dataset.delete);
     if (adminType === 'courses' && data.items.some(x => x.courseId === id)) {
       alert('請先刪除或調整此課程所屬的圖卡。');
       return;
     }
-    if (confirm('確定刪除此筆資料？')) {
-      data[adminType] = data[adminType].filter(x => x.id !== id);
-      save();
-      render();
+    const row = data[adminType].find(x => x.id === id);
+    if (!confirm(`確定刪除「${row?.title || ''}」？刪除後無法復原。`)) return;
+    b.disabled = true;
+    try {
+      await api(`/api/admin/${adminType}/${id}`, { method: 'DELETE' });
+      await reloadAfterChange(`已刪除「${row?.title || ''}」`);
+    } catch (err) {
+      b.disabled = false;
+      handleError(err, null);
     }
   });
+}
+
+// 進入管理後台時，先向伺服器確認登入狀態
+async function ensureAdminChecked() {
+  if (page === 'admin' && !adminChecked) {
+    await checkLogin();
+    render();
+  }
 }
 
 // 網址改變時切換頁面
@@ -713,6 +900,7 @@ window.addEventListener('hashchange', () => {
   readHash();
   if (page !== 'items') query = '';
   render();
+  ensureAdminChecked();
   if (page !== prev || page === 'detail') window.scrollTo(0, 0);
 });
 
@@ -743,6 +931,8 @@ sysDark.addEventListener?.('change', updateThemeButton);
 updateThemeButton();
 readHash();
 render();
+loadContent();
+ensureAdminChecked();
 </script>
 </body>
 </html>
