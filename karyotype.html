@@ -251,6 +251,21 @@ footer { max-width: 1240px; margin: 0 auto; padding: 20px; border-top: 1px solid
 html[lang="zh-Hant"] .opt.correct::after { content: "  ✓ 正確答案"; }
 .doc p.related { margin: 10px 0 0; padding: 10px 16px; background: var(--surface-2); border-radius: 10px; font-weight: 600; }
 .doc p.related a { text-decoration: none; }
+/* ===== 兩頁互連 ===== */
+.page-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.page-tabs a { flex: 1 1 220px; display: flex; align-items: center; gap: 8px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); text-decoration: none; font-weight: 600; }
+.page-tabs a:hover { background: var(--surface-2); }
+.page-tabs a[aria-current="page"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.page-tabs a[aria-current="page"]::after { content: "目前页面"; margin-left: auto; font-size: 12px; opacity: .85; }
+html[lang="zh-Hant"] .page-tabs a[aria-current="page"]::after { content: "目前頁面"; }
+.toc .toc-pages { display: grid; gap: 4px; margin: 8px 0 10px; padding-bottom: 10px; border-bottom: 1px dashed var(--line); }
+.toc .toc-pages a { display: flex; gap: 6px; padding: 5px 8px; border-radius: 6px; font-size: 13.5px; font-weight: 600; color: var(--accent); }
+.toc .toc-pages a[aria-current="page"] { background: var(--accent-soft); color: var(--accent-soft-ink); }
+.next-page { display: flex; flex-direction: column; gap: 2px; margin: 40px 0 10px; padding: 16px 20px; border: 1px solid var(--line); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface); text-decoration: none; }
+.next-page:hover { background: var(--surface-2); }
+.np-lab { font-size: 13px; color: var(--muted); }
+.np-name { font-size: 18px; font-weight: 700; color: var(--accent); }
+@media print { .page-tabs, .next-page { display: none; } }
 </style>
 </head>
 <body>
@@ -268,7 +283,7 @@ html[lang="zh-Hant"] .opt.correct::after { content: "  ✓ 正確答案"; }
 <div class="layout">
   <details class="toc" id="toc" open>
     <summary>本頁目錄</summary>
-    <ul class="toc-list"><li><a href="#s-老师的作业要求-原文">老师的作业要求（原文）</a></li><li><a href="#s-作业纸预览">作业纸预览</a></li><li><a href="#s-一-第二页-分析结果-填写答案">一、第二页「分析结果」填写答案</a></li><li><a href="#s-二-每条染色体贴在哪里-丹佛体制">二、每条染色体贴在哪里（丹佛体制）</a><ul><li><a href="#s-男性-图-a-贴好后的样子">男性（图 a）贴好后的样子</a></li><li><a href="#s-女性-图-b-贴好后的样子">女性（图 b）贴好后的样子</a></li></ul></li><li><a href="#s-三-怎么认出每一组-丹佛体制分组特征">三、怎么认出每一组（丹佛体制分组特征）</a></li><li><a href="#s-四-操作步骤">四、操作步骤</a></li><li><a href="#s-五-贴完后的自我核对">五、贴完后的自我核对</a></li></ul>
+    <nav class="toc-pages" aria-label="医学生物学页面切换"><a href="bio-answers.html"><span class="pt-ic">📝</span><span>医学生物学作业 · 答案卷</span></a><a href="karyotype.html" aria-current="page"><span class="pt-ic">🧬</span><span>染色体核型分析图 · 作答页</span></a></nav><ul class="toc-list"><li><a href="#s-老师的作业要求-原文">老师的作业要求（原文）</a></li><li><a href="#s-作业纸预览">作业纸预览</a></li><li><a href="#s-一-第二页-分析结果-填写答案">一、第二页「分析结果」填写答案</a></li><li><a href="#s-二-每条染色体贴在哪里-丹佛体制">二、每条染色体贴在哪里（丹佛体制）</a><ul><li><a href="#s-男性-图-a-贴好后的样子">男性（图 a）贴好后的样子</a></li><li><a href="#s-女性-图-b-贴好后的样子">女性（图 b）贴好后的样子</a></li></ul></li><li><a href="#s-三-怎么认出每一组-丹佛体制分组特征">三、怎么认出每一组（丹佛体制分组特征）</a></li><li><a href="#s-四-操作步骤">四、操作步骤</a></li><li><a href="#s-五-贴完后的自我核对">五、贴完后的自我核对</a></li></ul>
   </details>
 
   <main>
@@ -278,7 +293,7 @@ html[lang="zh-Hant"] .opt.correct::after { content: "  ✓ 正確答案"; }
     </section>
     <article class="doc">
 
-<dl class="info"><dt>课程</dt><dd>医学生物学实验报告（福建中医药大学，中医骨伤／护理专业）</dd><dt>授课</dt><dd>王珊珊老师（遗传学，10-24 课堂说明）；作业返校交刘艳老师</dd><dt>来源</dt><dd>《染色体核型分析图-要求》、实验报告作业纸（两页）、10-24 课堂录音</dd><dt>用法</dt><dd>先看「分析结果」填法，再照位置图剪贴，最后用核对表数一遍</dd></dl><p class="related">相关页面：<a href="bio-answers.html">← 医学生物学作业 · 答案卷（v10）</a></p>
+<nav class="page-tabs" aria-label="医学生物学页面切换"><a href="bio-answers.html"><span class="pt-ic">📝</span><span>医学生物学作业 · 答案卷</span></a><a href="karyotype.html" aria-current="page"><span class="pt-ic">🧬</span><span>染色体核型分析图 · 作答页</span></a></nav><dl class="info"><dt>课程</dt><dd>医学生物学实验报告（福建中医药大学，中医骨伤／护理专业）</dd><dt>授课</dt><dd>王珊珊老师（遗传学，10-24 课堂说明）；作业返校交刘艳老师</dd><dt>来源</dt><dd>《染色体核型分析图-要求》、实验报告作业纸（两页）、10-24 课堂录音</dd><dt>用法</dt><dd>先看「分析结果」填法，再照位置图剪贴，最后用核对表数一遍</dd></dl>
 <h4 id="s-老师的作业要求-原文">老师的作业要求（原文）</h4>
 <blockquote>
 <ul class="numlist"><li class="num"><span class="li-no">1</span>2 页文档打印出来，一人一份。</li><li class="num"><span class="li-no">2</span><strong>医学生物学实验报告（第一页）</strong>：选择其中任一性别的全部染色体，男性或女性均可，1–22 号染色体提前用数字标出来，做完数字不擦也没关系，为了好看可以标的远一些，标完后将染色体一一剪下来，染色体剪一个椭圆形就行，不用太细致，剪下的染色体贴到人类染色体核型分析图上（第二页），按照我们所讲的丹佛体制的要求。
@@ -469,6 +484,7 @@ html[lang="zh-Hant"] .opt.correct::after { content: "  ✓ 正確答案"; }
 <li>组内（例如 6～12 号之间）的先后顺序在非显带核型中本来就难以精确区分，<strong>按大小排列</strong>即符合丹佛体制要求。</li>
 </ul>
 
+<a class="next-page" href="bio-answers.html"><span class="np-lab">另一页</span><span class="np-name">📝 医学生物学作业 · 答案卷 →</span></a>
     </article>
   </main>
 </div>

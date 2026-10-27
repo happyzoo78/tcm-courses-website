@@ -251,6 +251,21 @@ footer { max-width: 1240px; margin: 0 auto; padding: 20px; border-top: 1px solid
 html[lang="zh-Hant"] .opt.correct::after { content: "  ✓ 正確答案"; }
 .doc p.related { margin: 10px 0 0; padding: 10px 16px; background: var(--surface-2); border-radius: 10px; font-weight: 600; }
 .doc p.related a { text-decoration: none; }
+/* ===== 兩頁互連 ===== */
+.page-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.page-tabs a { flex: 1 1 220px; display: flex; align-items: center; gap: 8px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); text-decoration: none; font-weight: 600; }
+.page-tabs a:hover { background: var(--surface-2); }
+.page-tabs a[aria-current="page"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.page-tabs a[aria-current="page"]::after { content: "目前页面"; margin-left: auto; font-size: 12px; opacity: .85; }
+html[lang="zh-Hant"] .page-tabs a[aria-current="page"]::after { content: "目前頁面"; }
+.toc .toc-pages { display: grid; gap: 4px; margin: 8px 0 10px; padding-bottom: 10px; border-bottom: 1px dashed var(--line); }
+.toc .toc-pages a { display: flex; gap: 6px; padding: 5px 8px; border-radius: 6px; font-size: 13.5px; font-weight: 600; color: var(--accent); }
+.toc .toc-pages a[aria-current="page"] { background: var(--accent-soft); color: var(--accent-soft-ink); }
+.next-page { display: flex; flex-direction: column; gap: 2px; margin: 40px 0 10px; padding: 16px 20px; border: 1px solid var(--line); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface); text-decoration: none; }
+.next-page:hover { background: var(--surface-2); }
+.np-lab { font-size: 13px; color: var(--muted); }
+.np-name { font-size: 18px; font-weight: 700; color: var(--accent); }
+@media print { .page-tabs, .next-page { display: none; } }
 </style>
 </head>
 <body>
@@ -268,7 +283,7 @@ html[lang="zh-Hant"] .opt.correct::after { content: "  ✓ 正確答案"; }
 <div class="layout">
   <details class="toc" id="toc" open>
     <summary>本頁目錄</summary>
-    <ul class="toc-list"><li><a href="#s-图例">图例</a></li><li><a href="#s-两句决定复习策略的教师原话">两句决定复习策略的教师原话</a></li><li><a href="#s-第一篇-答案卷">第一篇 答案卷</a><ul><li><a href="#s-第一部分-细胞学">第一部分 细胞学</a></li><li><a href="#s-第二部分-遗传学">第二部分 遗传学</a></li></ul></li><li><a href="#s-附录-A-细胞学必考补遗速记-10-25-课堂讲过-作业题未覆盖">附录 A：细胞学必考补遗速记（10-25 课堂讲过、作业题未覆盖）</a></li><li><a href="#s-附录-B-遗传学必考补遗速记-10-17-10-24-课堂讲过-作业题未覆盖">附录 B：遗传学必考补遗速记（10-17 / 10-24 课堂讲过、作业题未覆盖）</a></li><li><a href="#s-附录-C-成绩构成与作业提交形式">附录 C：成绩构成与作业提交形式</a><ul><li><a href="#s-成绩构成-两位老师口径一致">成绩构成（两位老师口径一致）</a></li><li><a href="#s-作业提交形式-教师三度强调">作业提交形式（教师三度强调）</a></li><li><a href="#s-版本信息">版本信息</a></li></ul></li><li><a href="#s-附录-D-单基因遗传总表-PPT-官方-PPT-填补此前最大空白">附录 D：单基因遗传总表（官方 PPT，填补此前最大空白）</a><ul><li><a href="#s-D1-五种遗传方式一览-系谱题-6-8-判定依据">D1 五种遗传方式一览（系谱题 6–8 判定依据）</a></li><li><a href="#s-D2-AD-为什么患者多为杂合子-Aa-PPT-标-问答常考">D2 AD 为什么患者多为杂合子 Aa（PPT 标 ★，问答常考）</a></li><li><a href="#s-D3-外显率-vs-表现度-一字之差-选择-名解必考">D3 外显率 vs 表现度（一字之差，选择/名解必考）</a></li><li><a href="#s-D4-亲缘系数与近亲婚配">D4 亲缘系数与近亲婚配</a></li><li><a href="#s-D5-ABO-血型遗传表-填空-5-选择-9-依据">D5 ABO 血型遗传表（填空 5、选择 9 依据）</a></li><li><a href="#s-D6-X-连锁两个核心概念">D6 X 连锁两个核心概念</a></li></ul></li><li><a href="#s-附录-E-线粒体遗传病-PPT-官方-PPT-新增章节-v3-0-完全缺失-教材-v09-已获教材-CH4-第六节印证">附录 E：线粒体遗传病（官方 PPT 新增章节，v3.0 完全缺失； v09 已获教材 CH4 第六节印证）</a><ul><li><a href="#s-E1-mtDNA-的六个遗传学特征">E1 mtDNA 的六个遗传学特征</a></li><li><a href="#s-E2-线粒体遗传病的特点">E2 线粒体遗传病的特点</a></li><li><a href="#s-E3-典型病例-Leber-遗传性视神经病-LHON">E3 典型病例：Leber 遗传性视神经病（LHON）</a></li></ul></li><li><a href="#s-附录-F-多基因病速查-PPT-官方-PPT-数据表">附录 F：多基因病速查（官方 PPT 数据表）</a><ul><li><a href="#s-F1-常见多基因病发病率与遗传度">F1 常见多基因病发病率与遗传度</a></li><li><a href="#s-F2-多基因病四大特点-简答常考">F2 多基因病四大特点（简答常考）</a></li><li><a href="#s-F3-本章重点-PPT-明示">F3 本章重点（PPT 明示）</a></li></ul></li><li><a href="#s-附录-G-教材补充速记-教材-人卫第-3-版-非作业范围-备查">附录 G：教材补充速记（人卫第 3 版，非作业范围·备查）</a><ul><li><a href="#s-G1-绪论-CH1-生物学大事年表-教材原文">G1 绪论（CH1）：生物学大事年表（教材原文）</a></li><li><a href="#s-G2-生命的化学基础-CH2">G2 生命的化学基础（CH2）</a></li><li><a href="#s-G3-生命科学的研究技术-CH6">G3 生命科学的研究技术（CH6）</a></li><li><a href="#s-G4-生命与环境-CH5">G4 生命与环境（CH5）</a></li></ul></li></ul>
+    <nav class="toc-pages" aria-label="医学生物学页面切换"><a href="bio-answers.html" aria-current="page"><span class="pt-ic">📝</span><span>医学生物学作业 · 答案卷</span></a><a href="karyotype.html"><span class="pt-ic">🧬</span><span>染色体核型分析图 · 作答页</span></a></nav><ul class="toc-list"><li><a href="#s-图例">图例</a></li><li><a href="#s-两句决定复习策略的教师原话">两句决定复习策略的教师原话</a></li><li><a href="#s-第一篇-答案卷">第一篇 答案卷</a><ul><li><a href="#s-第一部分-细胞学">第一部分 细胞学</a></li><li><a href="#s-第二部分-遗传学">第二部分 遗传学</a></li></ul></li><li><a href="#s-附录-A-细胞学必考补遗速记-10-25-课堂讲过-作业题未覆盖">附录 A：细胞学必考补遗速记（10-25 课堂讲过、作业题未覆盖）</a></li><li><a href="#s-附录-B-遗传学必考补遗速记-10-17-10-24-课堂讲过-作业题未覆盖">附录 B：遗传学必考补遗速记（10-17 / 10-24 课堂讲过、作业题未覆盖）</a></li><li><a href="#s-附录-C-成绩构成与作业提交形式">附录 C：成绩构成与作业提交形式</a><ul><li><a href="#s-成绩构成-两位老师口径一致">成绩构成（两位老师口径一致）</a></li><li><a href="#s-作业提交形式-教师三度强调">作业提交形式（教师三度强调）</a></li><li><a href="#s-版本信息">版本信息</a></li></ul></li><li><a href="#s-附录-D-单基因遗传总表-PPT-官方-PPT-填补此前最大空白">附录 D：单基因遗传总表（官方 PPT，填补此前最大空白）</a><ul><li><a href="#s-D1-五种遗传方式一览-系谱题-6-8-判定依据">D1 五种遗传方式一览（系谱题 6–8 判定依据）</a></li><li><a href="#s-D2-AD-为什么患者多为杂合子-Aa-PPT-标-问答常考">D2 AD 为什么患者多为杂合子 Aa（PPT 标 ★，问答常考）</a></li><li><a href="#s-D3-外显率-vs-表现度-一字之差-选择-名解必考">D3 外显率 vs 表现度（一字之差，选择/名解必考）</a></li><li><a href="#s-D4-亲缘系数与近亲婚配">D4 亲缘系数与近亲婚配</a></li><li><a href="#s-D5-ABO-血型遗传表-填空-5-选择-9-依据">D5 ABO 血型遗传表（填空 5、选择 9 依据）</a></li><li><a href="#s-D6-X-连锁两个核心概念">D6 X 连锁两个核心概念</a></li></ul></li><li><a href="#s-附录-E-线粒体遗传病-PPT-官方-PPT-新增章节-v3-0-完全缺失-教材-v09-已获教材-CH4-第六节印证">附录 E：线粒体遗传病（官方 PPT 新增章节，v3.0 完全缺失； v09 已获教材 CH4 第六节印证）</a><ul><li><a href="#s-E1-mtDNA-的六个遗传学特征">E1 mtDNA 的六个遗传学特征</a></li><li><a href="#s-E2-线粒体遗传病的特点">E2 线粒体遗传病的特点</a></li><li><a href="#s-E3-典型病例-Leber-遗传性视神经病-LHON">E3 典型病例：Leber 遗传性视神经病（LHON）</a></li></ul></li><li><a href="#s-附录-F-多基因病速查-PPT-官方-PPT-数据表">附录 F：多基因病速查（官方 PPT 数据表）</a><ul><li><a href="#s-F1-常见多基因病发病率与遗传度">F1 常见多基因病发病率与遗传度</a></li><li><a href="#s-F2-多基因病四大特点-简答常考">F2 多基因病四大特点（简答常考）</a></li><li><a href="#s-F3-本章重点-PPT-明示">F3 本章重点（PPT 明示）</a></li></ul></li><li><a href="#s-附录-G-教材补充速记-教材-人卫第-3-版-非作业范围-备查">附录 G：教材补充速记（人卫第 3 版，非作业范围·备查）</a><ul><li><a href="#s-G1-绪论-CH1-生物学大事年表-教材原文">G1 绪论（CH1）：生物学大事年表（教材原文）</a></li><li><a href="#s-G2-生命的化学基础-CH2">G2 生命的化学基础（CH2）</a></li><li><a href="#s-G3-生命科学的研究技术-CH6">G3 生命科学的研究技术（CH6）</a></li><li><a href="#s-G4-生命与环境-CH5">G4 生命与环境（CH5）</a></li></ul></li></ul>
   </details>
 
   <main>
@@ -278,7 +293,7 @@ html[lang="zh-Hant"] .opt.correct::after { content: "  ✓ 正確答案"; }
     </section>
     <article class="doc">
 
-<dl class="info"><dt>课程</dt><dd>医学生物学（福建中医药大学，中医骨伤／护理专业）</dd><dt>授课</dt><dd>刘艳老师（细胞学）、王珊珊老师（遗传学）</dd><dt>来源</dt><dd>课程作业原题（<strong>v10 起依原卷 .doc 全文与系谱图校对</strong>）＋ 三次课堂录音（10-17、10-24、10-25）＋<strong>三份官方 PPT</strong> （单基因遗传、多基因病与线粒体病、染色体畸变与染色体病）＋ <span class="tag tag-book">教材</span> 教材 CH3／CH4</dd><dt>用法</dt><dd>按题号顺序直接作答；<span class="tag tag-ok">课堂确认</span>＝课堂确认、<span class="tag tag-ppt">PPT</span>＝官方 PPT 原文（<strong>与课堂口述冲突时以 PPT 为准</strong>）；带 <span class="tag tag-warn">存疑</span> 者先核对</dd></dl><p class="related">相关页面：<a href="karyotype.html">染色体核型分析图 · 作答页 →</a></p>
+<nav class="page-tabs" aria-label="医学生物学页面切换"><a href="bio-answers.html" aria-current="page"><span class="pt-ic">📝</span><span>医学生物学作业 · 答案卷</span></a><a href="karyotype.html"><span class="pt-ic">🧬</span><span>染色体核型分析图 · 作答页</span></a></nav><dl class="info"><dt>课程</dt><dd>医学生物学（福建中医药大学，中医骨伤／护理专业）</dd><dt>授课</dt><dd>刘艳老师（细胞学）、王珊珊老师（遗传学）</dd><dt>来源</dt><dd>课程作业原题（<strong>v10 起依原卷 .doc 全文与系谱图校对</strong>）＋ 三次课堂录音（10-17、10-24、10-25）＋<strong>三份官方 PPT</strong> （单基因遗传、多基因病与线粒体病、染色体畸变与染色体病）＋ <span class="tag tag-book">教材</span> 教材 CH3／CH4</dd><dt>用法</dt><dd>按题号顺序直接作答；<span class="tag tag-ok">课堂确认</span>＝课堂确认、<span class="tag tag-ppt">PPT</span>＝官方 PPT 原文（<strong>与课堂口述冲突时以 PPT 为准</strong>）；带 <span class="tag tag-warn">存疑</span> 者先核对</dd></dl>
 <h4 id="s-图例">图例</h4>
 <div class="table-wrap"><table>
 <thead>
@@ -1228,7 +1243,7 @@ html[lang="zh-Hant"] .opt.correct::after { content: "  ✓ 正確答案"; }
 </tr>
 </tbody>
 </table></div>
-<p><strong>核型作业做法（王老师 10-24 说明）</strong>——共两页：</p>
+<p><strong>核型作业做法（王老师 10-24 说明）</strong>——共两页（完整作答指引、位置示意图与核对表见 <a href="karyotype.html">染色体核型分析图 · 作答页</a>）：</p>
 <ul class="numlist"><li class="num"><span class="li-no">1</span><strong>第一页</strong>：男性或女性染色体图（X、Y 已标好，无须再标）。先用铅笔把 1 号、2 号……逐号标出，再剪下。</li><li class="num"><span class="li-no">2</span><strong>第二页</strong>：核型分析图。填<strong>姓名</strong>、<strong>编号（学号）</strong>；<span class="tag tag-warn">存疑</span> <strong>分析材料</strong>：书面要求写「其他不填」，王老师 10-24 口头说可写「男性染色体／女性染色体」——按书面要求不填最稳妥，填了也不算错；门诊号不填。图已分好<strong>A～G 组</strong>，把染色体贴在对应组上方（着丝粒对齐图中的两个点）。
 <ul>
 <li>注意：<strong>X 染色体属 C 组，Y 染色体属 G 组</strong>。</li>
@@ -2009,6 +2024,7 @@ html[lang="zh-Hant"] .opt.correct::after { content: "  ✓ 正確答案"; }
 </tbody>
 </table></div>
 
+<a class="next-page" href="karyotype.html"><span class="np-lab">另一页</span><span class="np-name">🧬 染色体核型分析图 · 作答页 →</span></a>
     </article>
   </main>
 </div>
