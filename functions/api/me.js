@@ -1,5 +1,5 @@
 // GET /api/me
-// 查詢目前登入的管理員（未登入回傳 admin: null）
+// 查詢目前登入的使用者與權限（未登入回傳 admin: null）
 import { jsonResponse } from "../_lib/auth.js";
 import { getCurrentAdmin, hasPermission } from "../_lib/session.js";
 
@@ -25,7 +25,8 @@ export async function onRequestGet({ request, env }) {
       displayName: admin.display_name,
       role: admin.role,
       canWrite: hasPermission(admin, "write"),
-      canDelete: hasPermission(admin, "publish")
+      canDelete: hasPermission(admin, "publish"),
+      canManageMembers: hasPermission(admin, "manage_users")
     }
   });
 }

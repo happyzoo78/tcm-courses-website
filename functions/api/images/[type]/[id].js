@@ -1,6 +1,7 @@
 // GET /api/images/items/101  或  /api/images/projects/201
-// 把資料庫中的圖片轉成真正的圖片檔回傳，讓瀏覽器可以快取
+// 把資料庫中的圖片轉成真正的圖片檔回傳（必須是已登入的成員）
 import { Buffer } from "node:buffer";
+import { getCurrentAdmin, hasPermission } from "../../../_lib/session.js";
 
 const TABLES = { items: "items", projects: "projects" };
 const DATA_URL_RE = /^data:(image\/(?:png|jpeg|webp|gif));base64,([A-Za-z0-9+/]+={0,2})$/;
@@ -12,10 +13,23 @@ function notFound() {
   });
 }
 
-export async function onRequestGet({ params, env }) {
+export async function onRequestGet({ request, params, env }) {
   const table = TABLES[params.type];
   const id = Number(params.id);
   if (!table || !Number.isInteger(id) || id < 1 || !env.DB) return notFound();
+
+  let user = null;
+  try {
+    user = await getCurrentAdmin(request, env);
+  } catch (error) {
+    console.error("Session lookup failed", error);
+  }
+  if (!user || !hasPermission(user, "read")) {
+    return new Response("Login required", {
+      status: 401,
+      headers: { "Cache-Control": "no-store", "X-Robots-Tag": "noindex" }
+    });
+  }
 
   let row;
   try {
@@ -34,8 +48,9 @@ export async function onRequestGet({ params, env }) {
   return new Response(bytes, {
     headers: {
       "Content-Type": match[1],
+      // private：只允許「這位使用者自己的瀏覽器」快取，任何共用快取都不能保存
       // 網址帶有版本號（?v=更新時間），內容改變時網址也會變，所以可以長期快取
-      "Cache-Control": "public, max-age=31536000, immutable",
+      "Cache-Control": "private, max-age=31536000, immutable",
       "X-Content-Type-Options": "nosniff",
       "Content-Security-Policy": "default-src 'none'",
       "X-Robots-Tag": "noindex"

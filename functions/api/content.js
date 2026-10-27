@@ -1,6 +1,8 @@
 // GET /api/content
-// 公開讀取：所有課程、圖卡、活動專案（不含圖片本體，圖片另外用網址載入）
+// 讀取所有課程、圖卡、活動專案（必須是名單上的成員並已登入）
+// 圖片本體不在這裡，另外用網址載入
 import { jsonResponse } from "../_lib/auth.js";
+import { getCurrentAdmin, hasPermission } from "../_lib/session.js";
 
 function imageUrl(type, row) {
   return row.has_image
@@ -8,9 +10,20 @@ function imageUrl(type, row) {
     : "";
 }
 
-export async function onRequestGet({ env }) {
+export async function onRequestGet({ request, env }) {
   if (!env.DB) {
     return jsonResponse({ error: "Service unavailable" }, 503);
+  }
+
+  let user;
+  try {
+    user = await getCurrentAdmin(request, env);
+  } catch (error) {
+    console.error("Session lookup failed", error);
+    return jsonResponse({ error: "Service unavailable" }, 503);
+  }
+  if (!user || !hasPermission(user, "read")) {
+    return jsonResponse({ error: "Login required" }, 401);
   }
 
   try {

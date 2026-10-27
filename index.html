@@ -307,6 +307,31 @@ input:focus, textarea:focus, select:focus { border-color: var(--accent); }
 .check { display: flex; align-items: center; gap: 8px; font-size: 15px; }
 .check input { width: auto; }
 button:disabled { opacity: .6; cursor: progress; }
+[hidden] { display: none !important; }
+
+/* 未登入時：隱藏導覽列，只顯示登入畫面 */
+body.signed-out .nav { display: none; }
+.gate { min-height: 62vh; display: grid; place-items: center; }
+.gate .login-box { width: 100%; }
+.gate h2 { margin: 4px 0 8px; font-size: 26px; }
+.google-btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; margin: 18px 0 10px; padding: 12px 16px; font-size: 17px; font-weight: 600;
+  background: #ffffff; color: #1f1f1f; border: 1px solid #c9c4b8; border-radius: 10px;
+}
+.google-btn:hover { background: #f3f1ec; }
+.google-btn .g { font-family: Arial, sans-serif; font-weight: 700; color: #4f6b5c; font-size: 20px; }
+details.pw-login { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 12px; }
+details.pw-login summary { cursor: pointer; color: var(--muted); font-size: 15px; }
+details.pw-login[open] summary { margin-bottom: 10px; }
+
+/* 成員管理 */
+.role { display: inline-block; padding: 0 10px; border-radius: 999px; font-size: 13px; margin-left: 6px; vertical-align: 2px; background: var(--accent-soft); color: var(--accent-soft-ink); }
+.role.off { background: transparent; color: var(--red); border: 1px solid var(--red); }
+.member-form { display: grid; grid-template-columns: 2fr 1.4fr 1fr auto; gap: 10px; align-items: end; }
+.member-form .field { margin: 0; }
+.row-actions select { width: auto; padding: 8px 10px; }
+@media (max-width: 720px) { .member-form { grid-template-columns: 1fr; } }
 
 footer {
   max-width: 1120px; margin: 0 auto; padding: 22px;
@@ -373,7 +398,8 @@ footer {
     </nav>
     <div class="actions">
       <button class="tool-btn" id="theme" type="button"></button>
-      <a class="tool-btn" href="#admin" data-nav="admin">⚙<span class="label"> 管理後台</span></a>
+      <a class="tool-btn" href="#admin" data-nav="admin" id="admin-link" hidden>⚙<span class="label"> 管理後台</span></a>
+      <button class="tool-btn" id="logout-top" type="button" hidden>⎋<span class="label"> 登出</span></button>
     </div>
   </div>
 </header>
@@ -387,11 +413,13 @@ footer {
    一、資料來源：Cloudflare D1 雲端資料庫（透過 /api/content 讀取）
    ========================================================= */
 let data = { courses: [], items: [], projects: [] };
-let loadState = 'loading';   // loading 載入中 | ready 完成 | error 失敗
+let loadState = 'loading';   // loading 載入中 | ready 完成 | error 失敗 | login 需要登入
 let loadError = '';
-let admin = null;            // 目前登入的管理員；null＝未登入
-let adminChecked = false;    // 是否已向伺服器確認過登入狀態
+let admin = null;            // 目前登入的使用者（含權限）；null＝未登入
 let adminFlash = '';         // 管理後台的提示訊息（例如「已儲存」）
+let loginNotice = '';        // 登入畫面上要顯示的提示
+let members = null;          // 成員名單（只有擁有者會載入）
+let membersLoading = false;
 
 // 呼叫後端 API 的共用函式：自動處理 JSON 與錯誤訊息
 async function api(path, options = {}) {
@@ -424,24 +452,67 @@ function friendly(err) {
   return err.message;
 }
 
+// 回到登入畫面（例如登入過期、登出）
+function showLogin(notice = '') {
+  admin = null;
+  data = { courses: [], items: [], projects: [] };
+  members = null;
+  loginNotice = notice;
+  loadState = 'login';
+  render();
+}
+
 async function loadContent() {
   try {
     data = await api('/api/content');
     loadState = 'ready';
   } catch (err) {
+    if (err.status === 401) return showLogin('登入已過期，請重新登入。');
     loadState = 'error';
     loadError = friendly(err);
   }
   render();
 }
 
-async function checkLogin() {
+// Google 登入後跳回本站時，網址會帶著結果；讀取後把網址清乾淨
+const LOGIN_ERRORS = {
+  not_allowed: e => `這個 Google 帳號（${e}）還沒有被加入名單。請把這個 Gmail 提供給網站管理者，加入後再登入。`,
+  suspended: () => '這個帳號已被停用。如有疑問，請聯絡網站管理者。',
+  cancelled: () => '已取消 Google 登入。',
+  expired: () => '登入逾時，請再按一次「使用 Google 帳號登入」。',
+  google: () => 'Google 登入失敗，請再試一次。',
+  not_configured: () => 'Google 登入尚未設定完成，目前請使用管理員密碼登入。',
+  server: () => '伺服器暫時無法處理，請稍後再試。'
+};
+function readLoginResult() {
+  const url = new URL(location.href);
+  const code = url.searchParams.get('login_error');
+  const ok = url.searchParams.get('login') === 'ok';
+  if (code) loginNotice = (LOGIN_ERRORS[code] || LOGIN_ERRORS.google)(url.searchParams.get('email') || '');
+  if (code || ok || url.searchParams.has('openExternalBrowser')) {
+    let hash = location.hash;
+    if (ok) { // 回到登入前所在的頁面
+      try { hash = sessionStorage.getItem('tcm-return') || hash; sessionStorage.removeItem('tcm-return'); } catch {}
+    }
+    history.replaceState(null, '', location.pathname + hash);
+  }
+}
+
+// 開啟網站時：先確認登入狀態，有登入才載入內容
+async function boot() {
+  loadState = 'loading';
+  render();
   try {
     admin = (await api('/api/me')).admin;
-  } catch {
-    admin = null;
+  } catch (err) {
+    loadState = 'error';
+    loadError = friendly(err);
+    return render();
   }
-  adminChecked = true;
+  if (!admin) return showLogin(loginNotice);
+  loginNotice = '';
+  readHash();
+  await loadContent();
 }
 
 /* 小工具 */
@@ -610,39 +681,134 @@ function aboutPage() {
    五、管理後台（登入後才能編輯，資料直接存進雲端資料庫）
    ========================================================= */
 const TYPE_NAME = { courses: '課程', items: '圖卡', projects: '活動專案' };
-const ROLE_NAME = { owner: '擁有者', admin: '管理員', editor: '編輯者', viewer: '檢視者' };
+const ROLE_NAME = { owner: '擁有者', admin: '管理員', editor: '編輯者', viewer: '觀看者' };
 
-function loginHtml() {
+// 偵測是否在 LINE、Facebook 等 App 的內建瀏覽器裡（Google 不允許在這些地方登入）
+function inAppBrowser() {
+  const ua = navigator.userAgent || '';
+  if (/\bLine\//i.test(ua)) return 'line';
+  if (/FBAN|FBAV|Instagram|MicroMessenger/i.test(ua)) return 'other';
+  return null;
+}
+
+function loginGateHtml() {
+  const inApp = inAppBrowser();
+  const inAppMsg = inApp === 'line'
+    ? `<div class="msg error">你正在 <b>LINE</b> 裡開啟網頁，Google 不允許在這裡登入。<br>
+        <a class="btn" style="margin-top:8px" href="${location.origin}/?openExternalBrowser=1">改用手機瀏覽器開啟</a></div>`
+    : inApp === 'other'
+    ? `<div class="msg error">你正在 App 的內建瀏覽器裡開啟網頁，Google 不允許在這裡登入。請點右上角的「⋯」選單，選擇「在瀏覽器中開啟」。</div>`
+    : '';
   return `
-  <div class="panel prose login-box">
-    <h2>管理員登入</h2>
-    <form id="loginform">
-      <div class="field"><label for="l-email">Email</label><input id="l-email" name="email" type="email" autocomplete="username" required></div>
-      <div class="field"><label for="l-pw">密碼</label><input id="l-pw" name="password" type="password" autocomplete="current-password" required></div>
-      <div id="loginmsg"></div>
-      <button class="btn" type="submit">登入</button>
-    </form>
+  <div class="gate">
+    <div class="panel prose login-box">
+      <div class="eyebrow">福建台灣班 26 · 班級專用</div>
+      <h2>歡迎來到中醫學堂</h2>
+      <p>本站內容僅供班級成員學習使用，請先登入。</p>
+      ${inAppMsg}
+      ${loginNotice ? `<div class="msg error">${esc(loginNotice)}</div>` : ''}
+      <a class="google-btn" href="/api/auth/google/start" id="google-login"><span class="g">G</span> 使用 Google 帳號登入</a>
+      <p class="meta-label">還不能登入嗎？請把你的 Gmail 提供給網站管理者，加入名單後就可以使用。</p>
+      <details class="pw-login">
+        <summary>管理員密碼登入</summary>
+        <div class="notice" style="margin-top:0">⚠️ 為保護帳號安全，<b>密碼連續輸錯 5 次，將暫停登入 15 分鐘</b>。</div>
+        <form id="loginform">
+          <div class="field"><label for="l-email">Email</label><input id="l-email" name="email" type="email" autocomplete="username" required></div>
+          <div class="field"><label for="l-pw">密碼</label><input id="l-pw" name="password" type="password" autocomplete="current-password" required></div>
+          <div id="loginmsg"></div>
+          <button class="btn" type="submit">登入</button>
+        </form>
+      </details>
+    </div>
   </div>`;
 }
 
-function adminPage() {
-  if (!adminChecked) return '<p class="empty">確認登入狀態中…</p>';
-  if (!admin) return loginHtml();
+/* 成員管理（只有擁有者看得到） */
+function fmtTime(s) {
+  if (!s) return '尚未登入';
+  const d = new Date(String(s).replace(' ', 'T') + 'Z');
+  return isNaN(d) ? s : d.toLocaleString('zh-TW', { hour12: false, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+}
 
+function membersHtml() {
+  if (!members) return '<p class="empty">成員名單載入中…</p>';
+  const roleOptions = r => ['viewer', 'editor'].map(x => `<option value="${x}" ${r === x ? 'selected' : ''}>${ROLE_NAME[x]}</option>`).join('');
+  return `
+  <div class="panel prose" style="margin:6px 0 16px">
+    <h3 style="margin-top:0">加入新成員</h3>
+    <p class="meta-label" style="margin-top:0">請同學提供他要用來登入的 Gmail。加入後，對方按「使用 Google 帳號登入」就能進入網站。</p>
+    <form id="memberform" class="member-form">
+      <div class="field"><label for="m-email">Gmail</label><input id="m-email" name="email" type="email" required placeholder="例如 student@gmail.com"></div>
+      <div class="field"><label for="m-name">名稱（選填）</label><input id="m-name" name="displayName" maxlength="100" placeholder="例如 王小明"></div>
+      <div class="field"><label for="m-role">權限</label><select id="m-role" name="role">${roleOptions('viewer')}</select></div>
+      <button class="btn" type="submit">加入名單</button>
+    </form>
+    <div id="memberformmsg"></div>
+    <p class="meta-label">觀看者：只能看內容。編輯者：可以進後台新增、修改，但不能刪除。</p>
+  </div>
+  <div class="adminlist">
+    ${members.map(m => {
+      const locked = m.role === 'owner' || m.isSelf;
+      const off = m.status !== 'active';
+      return `
+      <div class="adminrow">
+        <div>
+          <b>${esc(m.displayName)}</b><span class="role">${ROLE_NAME[m.role] || esc(m.role)}</span>${off ? '<span class="role off">已停用</span>' : ''}
+          <br><small>${esc(m.email)} · 最後登入：${esc(fmtTime(m.lastLoginAt))}</small>
+        </div>
+        <div class="row-actions">
+          ${locked ? '<small>（你）</small>' : `
+            <select data-member-role="${m.id}" aria-label="變更權限">${roleOptions(m.role)}</select>
+            <button type="button" class="btn secondary ${off ? '' : 'danger'}" data-member-status="${m.id}" data-to="${off ? 'active' : 'suspended'}">${off ? '恢復' : '停用'}</button>
+            ${m.lastLoginAt ? '' : `<button type="button" class="btn secondary danger" data-member-delete="${m.id}">移除</button>`}`}
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+async function loadMembers() {
+  if (membersLoading) return;
+  membersLoading = true;
+  try {
+    members = (await api('/api/admin/members')).members;
+  } catch (err) {
+    membersLoading = false;
+    members = [];
+    return handleError(err, null);
+  }
+  membersLoading = false;
+  render();
+}
+
+// 先取得最新名單再更新畫面，避免提示訊息一閃而過
+async function reloadMembers(message) {
+  adminFlash = message;
+  members = null;
+  await loadMembers();
+}
+
+function adminPage() {
+  if (!admin?.canWrite) {
+    return '<h2 class="section">管理後台</h2><p class="empty">你的帳號是「觀看者」，沒有後台權限。如需上傳資料，請聯絡網站管理者。</p>';
+  }
+  if (adminType === 'members' && !admin.canManageMembers) adminType = 'items';
+
+  const tabs = { ...TYPE_NAME, ...(admin.canManageMembers ? { members: '成員' } : {}) };
   const rows = data[adminType] || [];
   const flash = adminFlash ? `<div class="msg ok">${esc(adminFlash)}</div>` : '';
   adminFlash = '';
   return `
   <div class="admin-bar">
     <h2 class="section" style="margin:0;border:0;padding:0">管理後台</h2>
-    <div><span class="who">${esc(admin.displayName)}（${ROLE_NAME[admin.role] || admin.role}）</span>
-      <button type="button" class="btn secondary" id="logout">登出</button></div>
+    <div><span class="who">${esc(admin.displayName)}（${ROLE_NAME[admin.role] || admin.role}）</span></div>
   </div>
-  <div class="notice">在這裡新增、修改或刪除的內容，會<b>立即儲存到雲端資料庫</b>，所有訪客都會看到。${admin.canDelete ? '' : '你的帳號可以新增與修改，但不能刪除。'}</div>
+  <div class="notice">在這裡新增、修改或刪除的內容，會<b>立即儲存到雲端資料庫</b>，所有成員都會看到。${admin.canDelete ? '' : '你的帳號可以新增與修改，但不能刪除。'}</div>
   ${flash}
   <div class="admin-tabs">
-    ${Object.keys(TYPE_NAME).map(t => `<button type="button" class="btn ${adminType === t ? '' : 'secondary'}" data-admin-type="${t}" aria-pressed="${adminType === t}">${TYPE_NAME[t]}管理</button>`).join('')}
+    ${Object.keys(tabs).map(t => `<button type="button" class="btn ${adminType === t ? '' : 'secondary'}" data-admin-type="${t}" aria-pressed="${adminType === t}">${tabs[t]}管理</button>`).join('')}
   </div>
+  ${adminType === 'members' ? membersHtml() : `
   ${admin.canWrite ? `<button type="button" class="btn" id="add">＋ 新增${TYPE_NAME[adminType]}</button>` : '<p class="empty">你的帳號只能檢視。</p>'}
   <div class="adminlist">
     ${rows.map(i => `
@@ -654,7 +820,7 @@ function adminPage() {
         </div>
       </div>`).join('') || '<p class="empty">尚無資料</p>'}
   </div>
-  <div id="editor"></div>`;
+  <div id="editor"></div>`}`;
 }
 
 function editorHtml(i) {
@@ -741,6 +907,7 @@ async function reloadAfterChange(message) {
     data = await api('/api/content');
     loadState = 'ready';
   } catch (err) {
+    if (err.status === 401) return showLogin('登入已過期，請重新登入。');
     adminFlash = message + '（但重新載入失敗，請重新整理頁面）';
   }
   render();
@@ -748,13 +915,7 @@ async function reloadAfterChange(message) {
 
 // 處理錯誤：登入過期就回到登入畫面，其他錯誤顯示在指定位置
 function handleError(err, box) {
-  if (err.status === 401) {
-    admin = null;
-    render();
-    const m = document.getElementById('loginmsg');
-    if (m) m.innerHTML = `<div class="msg error">${esc(friendly(err))}</div>`;
-    return;
-  }
+  if (err.status === 401) return showLogin('登入已過期，請重新登入。');
   if (box) box.innerHTML = `<div class="msg error">${esc(friendly(err))}</div>`;
   else alert(friendly(err));
 }
@@ -803,7 +964,13 @@ function showEditor(i) {
 const VIEWS = { home: homePage, courses: coursesPage, items: itemsPage, projects: projectsPage, detail: detailPage, about: aboutPage, admin: adminPage };
 
 function render() {
-  if (loadState === 'loading') {
+  document.body.classList.toggle('signed-out', !admin);
+  document.getElementById('admin-link').hidden = !admin?.canWrite;
+  document.getElementById('logout-top').hidden = !admin;
+
+  if (loadState === 'login') {
+    app.innerHTML = loginGateHtml();
+  } else if (loadState === 'loading') {
     app.innerHTML = '<p class="empty">資料載入中…</p>';
   } else if (loadState === 'error') {
     app.innerHTML = `<div class="msg error">無法載入資料：${esc(loadError)}</div><button type="button" class="btn" id="retry">重新載入</button>`;
@@ -821,7 +988,11 @@ function render() {
 
 function bind() {
   const retry = document.getElementById('retry');
-  if (retry) retry.onclick = () => { loadState = 'loading'; render(); loadContent(); };
+  if (retry) retry.onclick = () => boot();
+
+  // Google 登入前，記下目前所在的頁面，登入後回到這裡
+  const gl = document.getElementById('google-login');
+  if (gl) gl.onclick = () => { try { sessionStorage.setItem('tcm-return', location.hash); } catch {} };
 
   // 搜尋：只更新圖卡區，不重畫整頁（輸入不會跳掉）
   const s = document.getElementById('search');
@@ -841,26 +1012,79 @@ function bind() {
     msg.innerHTML = '';
     try {
       await api('/api/login', { method: 'POST', body: { email: lf.elements.email.value, password: lf.elements.password.value } });
-      await checkLogin();
-      if (!admin) throw new Error('登入沒有成功，請再試一次。');
-      render();
+      await boot();
     } catch (err) {
       btn.disabled = false;
       btn.textContent = '登入';
-      msg.innerHTML = `<div class="msg error">${esc(err.status === 401 ? 'Email 或密碼錯誤。' : friendly(err))}</div>`;
+      msg.innerHTML = `<div class="msg error">${esc(err.status === 401 ? 'Email 或密碼錯誤。請注意：連續輸錯 5 次將暫停登入 15 分鐘。' : friendly(err))}</div>`;
     }
   };
 
-  // 登出
-  const lo = document.getElementById('logout');
-  if (lo) lo.onclick = async () => {
-    lo.disabled = true;
-    try { await api('/api/logout', { method: 'POST' }); } catch {}
-    admin = null;
+  document.querySelectorAll('[data-admin-type]').forEach(b => b.onclick = () => {
+    adminType = b.dataset.adminType;
+    if (adminType === 'members') members = null; // 每次進入都讀取最新名單
     render();
+  });
+
+  // 成員管理
+  if (page === 'admin' && adminType === 'members' && admin?.canManageMembers && !members && !membersLoading) loadMembers();
+
+  const mf = document.getElementById('memberform');
+  if (mf) mf.onsubmit = async e => {
+    e.preventDefault();
+    const btn = mf.querySelector('[type=submit]');
+    const msg = document.getElementById('memberformmsg');
+    msg.innerHTML = '';
+    btn.disabled = true;
+    const body = Object.fromEntries(new FormData(mf).entries());
+    try {
+      await api('/api/admin/members', { method: 'POST', body });
+      reloadMembers(`已將 ${body.email.trim().toLowerCase()} 加入名單`);
+    } catch (err) {
+      btn.disabled = false;
+      handleError(err, msg);
+    }
   };
 
-  document.querySelectorAll('[data-admin-type]').forEach(b => b.onclick = () => { adminType = b.dataset.adminType; render(); });
+  document.querySelectorAll('[data-member-role]').forEach(sel => sel.onchange = async () => {
+    const m = members.find(x => x.id == sel.dataset.memberRole);
+    sel.disabled = true;
+    try {
+      await api(`/api/admin/members/${m.id}`, { method: 'PUT', body: { role: sel.value } });
+      reloadMembers(`已將「${m.displayName}」改為${ROLE_NAME[sel.value]}`);
+    } catch (err) {
+      sel.disabled = false;
+      sel.value = m.role;
+      handleError(err, null);
+    }
+  });
+
+  document.querySelectorAll('[data-member-status]').forEach(b => b.onclick = async () => {
+    const m = members.find(x => x.id == b.dataset.memberStatus);
+    const to = b.dataset.to;
+    if (to === 'suspended' && !confirm(`確定停用「${m.displayName}」？\n停用後對方會立即被登出，無法再看到網站內容。之後可以再按「恢復」。`)) return;
+    b.disabled = true;
+    try {
+      await api(`/api/admin/members/${m.id}`, { method: 'PUT', body: { status: to } });
+      reloadMembers(to === 'suspended' ? `已停用「${m.displayName}」` : `已恢復「${m.displayName}」`);
+    } catch (err) {
+      b.disabled = false;
+      handleError(err, null);
+    }
+  });
+
+  document.querySelectorAll('[data-member-delete]').forEach(b => b.onclick = async () => {
+    const m = members.find(x => x.id == b.dataset.memberDelete);
+    if (!confirm(`確定把「${m.email}」從名單移除？`)) return;
+    b.disabled = true;
+    try {
+      await api(`/api/admin/members/${m.id}`, { method: 'DELETE' });
+      reloadMembers(`已移除 ${m.email}`);
+    } catch (err) {
+      b.disabled = false;
+      handleError(err, null);
+    }
+  });
 
   const add = document.getElementById('add');
   if (add) add.onclick = () => showEditor(null);
@@ -888,13 +1112,14 @@ function bind() {
   });
 }
 
-// 進入管理後台時，先向伺服器確認登入狀態
-async function ensureAdminChecked() {
-  if (page === 'admin' && !adminChecked) {
-    await checkLogin();
-    render();
-  }
-}
+// 頁首的「登出」按鈕
+const logoutTop = document.getElementById('logout-top');
+logoutTop.onclick = async () => {
+  logoutTop.disabled = true;
+  try { await api('/api/logout', { method: 'POST' }); } catch {}
+  logoutTop.disabled = false;
+  showLogin('');
+};
 
 // 網址改變時切換頁面
 window.addEventListener('hashchange', () => {
@@ -902,7 +1127,6 @@ window.addEventListener('hashchange', () => {
   readHash();
   if (page !== 'items') query = '';
   render();
-  ensureAdminChecked();
   if (page !== prev || page === 'detail') window.scrollTo(0, 0);
 });
 
@@ -931,10 +1155,9 @@ sysDark.addEventListener?.('change', updateThemeButton);
 
 /* 啟動 */
 updateThemeButton();
+readLoginResult();
 readHash();
-render();
-loadContent();
-ensureAdminChecked();
+boot();
 </script>
 </body>
 </html>
