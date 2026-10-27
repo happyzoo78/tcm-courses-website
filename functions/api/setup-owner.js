@@ -70,11 +70,26 @@ export async function onRequestPost({ request, env }) {
     return jsonResponse({ error: "Invalid account details" }, 400);
   }
 
+    if (
+    typeof password !== "string" ||
+    password.length < 12 ||
+    encoder.encode(password).length > 1024
+  ) {
+    return jsonResponse({ error: "Invalid password" }, 400);
+  }
+
   let passwordHash;
   try {
     passwordHash = await hashPassword(password);
-  } catch {
-    return jsonResponse({ error: "Invalid password" }, 400);
+  } catch (error) {
+    console.error("Password hashing failed", {
+      name: error?.name || "UnknownError"
+    });
+
+    return jsonResponse(
+      { error: "Password hashing failed" },
+      500
+    );
   }
 
   try {
