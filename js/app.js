@@ -1,0 +1,205 @@
+/* app.js：畫面更新、按鈕綁定、深色模式、網站啟動（最後載入）
+   載入順序：core.js → pages.js → admin.js → app.js（順序不能改） */
+
+/* =========================================================
+   六、畫面更新與按鈕綁定
+   ========================================================= */
+const VIEWS = { home: homePage, courses: coursesPage, items: itemsPage, projects: projectsPage, detail: detailPage, about: aboutPage, admin: adminPage };
+
+function render() {
+  document.body.classList.toggle('signed-out', !admin);
+  document.getElementById('admin-link').hidden = !admin?.canWrite;
+  document.getElementById('logout-top').hidden = !admin;
+
+  if (loadState === 'login') {
+    app.innerHTML = loginGateHtml();
+  } else if (loadState === 'loading') {
+    app.innerHTML = '<p class="empty">資料載入中…</p>';
+  } else if (loadState === 'error') {
+    app.innerHTML = `<div class="msg error">無法載入資料：${esc(loadError)}</div><button type="button" class="btn" id="retry">重新載入</button>`;
+  } else {
+    app.innerHTML = VIEWS[page]();
+  }
+  // 導覽列目前位置
+  const navKey = page === 'items' ? 'courses' : page === 'detail' ? (detailTarget[0] === 'project' ? 'projects' : 'courses') : page;
+  document.querySelectorAll('[data-nav]').forEach(a => {
+    if (a.dataset.nav === navKey) a.setAttribute('aria-current', 'page');
+    else a.removeAttribute('aria-current');
+  });
+  bind();
+}
+
+function bind() {
+  const retry = document.getElementById('retry');
+  if (retry) retry.onclick = () => boot();
+
+  // Google 登入前，記下目前所在的頁面，登入後回到這裡
+  const gl = document.getElementById('google-login');
+  if (gl) gl.onclick = () => { try { sessionStorage.setItem('tcm-return', location.hash); } catch {} };
+
+  // 搜尋：只更新圖卡區，不重畫整頁（輸入不會跳掉）
+  const s = document.getElementById('search');
+  if (s) s.oninput = () => { query = s.value; document.getElementById('itemgrid').innerHTML = itemGridHtml(); };
+
+  const f = document.getElementById('coursefilter');
+  if (f) f.onchange = () => { location.hash = 'items/' + f.value; };
+
+  // 登入
+  const lf = document.getElementById('loginform');
+  if (lf) lf.onsubmit = async e => {
+    e.preventDefault();
+    const btn = lf.querySelector('[type=submit]');
+    const msg = document.getElementById('loginmsg');
+    btn.disabled = true;
+    btn.textContent = '登入中…';
+    msg.innerHTML = '';
+    try {
+      await api('/api/login', { method: 'POST', body: { email: lf.elements.email.value, password: lf.elements.password.value } });
+      await boot();
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = '登入';
+      msg.innerHTML = `<div class="msg error">${esc(err.status === 401 ? 'Email 或密碼錯誤。請注意：連續輸錯 5 次將暫停登入 15 分鐘。' : friendly(err))}</div>`;
+    }
+  };
+
+  document.querySelectorAll('[data-admin-type]').forEach(b => b.onclick = () => {
+    adminType = b.dataset.adminType;
+    if (adminType === 'members') members = null; // 每次進入都讀取最新名單
+    render();
+  });
+
+  // 成員管理
+  if (page === 'admin' && adminType === 'members' && admin?.canManageMembers && !members && !membersLoading) loadMembers();
+
+  const mf = document.getElementById('memberform');
+  if (mf) mf.onsubmit = async e => {
+    e.preventDefault();
+    const btn = mf.querySelector('[type=submit]');
+    const msg = document.getElementById('memberformmsg');
+    msg.innerHTML = '';
+    btn.disabled = true;
+    const body = Object.fromEntries(new FormData(mf).entries());
+    try {
+      await api('/api/admin/members', { method: 'POST', body });
+      reloadMembers(`已將 ${body.email.trim().toLowerCase()} 加入名單`);
+    } catch (err) {
+      btn.disabled = false;
+      handleError(err, msg);
+    }
+  };
+
+  document.querySelectorAll('[data-member-role]').forEach(sel => sel.onchange = async () => {
+    const m = members.find(x => x.id == sel.dataset.memberRole);
+    sel.disabled = true;
+    try {
+      await api(`/api/admin/members/${m.id}`, { method: 'PUT', body: { role: sel.value } });
+      reloadMembers(`已將「${m.displayName}」改為${ROLE_NAME[sel.value]}`);
+    } catch (err) {
+      sel.disabled = false;
+      sel.value = m.role;
+      handleError(err, null);
+    }
+  });
+
+  document.querySelectorAll('[data-member-status]').forEach(b => b.onclick = async () => {
+    const m = members.find(x => x.id == b.dataset.memberStatus);
+    const to = b.dataset.to;
+    if (to === 'suspended' && !confirm(`確定停用「${m.displayName}」？\n停用後對方會立即被登出，無法再看到網站內容。之後可以再按「恢復」。`)) return;
+    b.disabled = true;
+    try {
+      await api(`/api/admin/members/${m.id}`, { method: 'PUT', body: { status: to } });
+      reloadMembers(to === 'suspended' ? `已停用「${m.displayName}」` : `已恢復「${m.displayName}」`);
+    } catch (err) {
+      b.disabled = false;
+      handleError(err, null);
+    }
+  });
+
+  document.querySelectorAll('[data-member-delete]').forEach(b => b.onclick = async () => {
+    const m = members.find(x => x.id == b.dataset.memberDelete);
+    if (!confirm(`確定把「${m.email}」從名單移除？`)) return;
+    b.disabled = true;
+    try {
+      await api(`/api/admin/members/${m.id}`, { method: 'DELETE' });
+      reloadMembers(`已移除 ${m.email}`);
+    } catch (err) {
+      b.disabled = false;
+      handleError(err, null);
+    }
+  });
+
+  const add = document.getElementById('add');
+  if (add) add.onclick = () => showEditor(null);
+
+  document.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => {
+    showEditor(data[adminType].find(x => x.id == b.dataset.edit));
+  });
+
+  document.querySelectorAll('[data-delete]').forEach(b => b.onclick = async () => {
+    const id = Number(b.dataset.delete);
+    if (adminType === 'courses' && data.items.some(x => x.courseId === id)) {
+      alert('請先刪除或調整此課程所屬的圖卡。');
+      return;
+    }
+    const row = data[adminType].find(x => x.id === id);
+    if (!confirm(`確定刪除「${row?.title || ''}」？刪除後無法復原。`)) return;
+    b.disabled = true;
+    try {
+      await api(`/api/admin/${adminType}/${id}`, { method: 'DELETE' });
+      await reloadAfterChange(`已刪除「${row?.title || ''}」`);
+    } catch (err) {
+      b.disabled = false;
+      handleError(err, null);
+    }
+  });
+}
+
+// 頁首的「登出」按鈕
+const logoutTop = document.getElementById('logout-top');
+logoutTop.onclick = async () => {
+  logoutTop.disabled = true;
+  try { await api('/api/logout', { method: 'POST' }); } catch {}
+  logoutTop.disabled = false;
+  showLogin('');
+};
+
+// 網址改變時切換頁面
+window.addEventListener('hashchange', () => {
+  const prev = page;
+  readHash();
+  if (page !== 'items') query = '';
+  render();
+  if (page !== prev || page === 'detail') window.scrollTo(0, 0);
+});
+
+/* =========================================================
+   七、深色 / 淺色模式
+   預設跟隨裝置設定；按下按鈕後會記住你的選擇
+   ========================================================= */
+const ICON_SUN = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v2.5M12 20v2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M1.5 12H4M20 12h2.5M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></svg>';
+const ICON_MOON = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+const themeBtn = document.getElementById('theme');
+const sysDark = window.matchMedia('(prefers-color-scheme: dark)');
+const isDark = () => {
+  const t = document.documentElement.dataset.theme;
+  return t ? t === 'dark' : sysDark.matches;
+};
+function updateThemeButton() {
+  const dark = isDark();
+  themeBtn.innerHTML = dark ? ICON_SUN + '<span class="label"> 淺色模式</span>' : ICON_MOON + '<span class="label"> 深色模式</span>';
+  themeBtn.setAttribute('aria-label', dark ? '切換為淺色模式' : '切換為深色模式');
+}
+themeBtn.onclick = () => {
+  const next = isDark() ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  try { localStorage.setItem('tcm-theme', next); localStorage.removeItem('tcm-dark'); } catch {}
+  updateThemeButton();
+};
+sysDark.addEventListener?.('change', updateThemeButton);
+
+/* 啟動 */
+updateThemeButton();
+readLoginResult();
+readHash();
+boot();
