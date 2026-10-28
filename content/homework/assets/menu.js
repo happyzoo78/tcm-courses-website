@@ -109,6 +109,37 @@ const HW_DATA = [
     .hw-sep { display: none; }
     html { scroll-padding-top: 120px !important; }
   }
+  /* 作業專區首頁 */
+  .hwz-years { display: flex; gap: 8px; margin: 18px 0 14px; overflow-x: auto; scrollbar-width: none; }
+  .hwz-years::-webkit-scrollbar { display: none; }
+  .hwz-year { flex: 1 0 auto; min-width: 80px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); font: inherit; font-size: 16px; cursor: pointer; display: flex; flex-direction: column; align-items: center; line-height: 1.3; }
+  .hwz-year small { font-size: 12px; color: var(--muted); }
+  .hwz-year[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .hwz-year:disabled { opacity: .55; cursor: not-allowed; }
+  .hwz-semrow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 0 0 8px; }
+  .hwz-sem { font-size: 13px; color: var(--muted); min-width: 4.5em; }
+  .hwz-subj { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); font: inherit; font-size: 15px; cursor: pointer; white-space: nowrap; }
+  .hwz-subj small { font-size: 12px; color: var(--muted); }
+  .hwz-subj.none { opacity: .55; }
+  .hwz-subj[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); opacity: 1; }
+  .hwz-subj[aria-pressed="true"] small { color: var(--accent-ink); }
+  .hwz-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--red, #973d2f); display: inline-block; }
+  .hwz-legend { display: flex; align-items: center; gap: 4px; margin: 0 0 12px; font-size: 12.5px; color: var(--muted); }
+  .hwz-panel { padding: 16px 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+  .hwz-title { margin: 0 0 10px; font-size: 20px; font-weight: 700; font-family: "Noto Serif TC", serif; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
+  .hwz-title small { margin-left: auto; font-size: 13px; font-weight: 400; color: var(--muted); }
+  .hwz-list { display: grid; gap: 8px; }
+  .hwz-work { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 10px; background: var(--bg); color: var(--ink); text-decoration: none; font-size: 16px; }
+  .hwz-work:hover { border-color: var(--accent); }
+  .hwz-work span { color: var(--accent); }
+  .hwz-empty { color: var(--muted); margin: 6px 0 0; }
+  @media (max-width: 720px) {
+    .hwz-semrow { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+    .hwz-semrow::-webkit-scrollbar { display: none; }
+    .hwz-subj, .hwz-sem { flex: none; }
+    .hwz-sem { min-width: 0; }
+    .hwz-panel { padding: 14px; }
+  }
   @media (prefers-reduced-motion: reduce) { header { transition: none; } }
   @media print { .hw-menu { display: none !important; } header.hw-hidden { transform: none; } }`;
   const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
@@ -185,5 +216,36 @@ const HW_DATA = [
 
   /* ---------- 作業首頁（/content/homework/）的清單 ---------- */
   const idx = document.getElementById('hw-index');
-  if (idx) idx.innerHTML = sems.map(se => `<h3 class="hw-idx-sem">${esc(se.name)}</h3><div class="hw-grid hw-idx">${se.subjects.map(subjBox).join('')}</div>`).join('');
+  /* 作業專區首頁：年級 → 科目 → 作業清單，一次只顯示一個科目，資料再多頁面也不會無限變長 */
+  if (idx) {
+    const YEARS = ['一年级', '二年级', '三年级', '四年级', '五年级'];
+    const yearNo = se => Number((/_y(\d)s/.exec(se.id) || [])[1]) || 0;
+    const openYears = new Set(sems.map(yearNo));
+    let curYear = Math.max(0, ...openYears);          // 預設最新的年級
+    let curKey = '';                                   // 目前選的科目：學期代碼|科目代碼
+    const key = (se, s) => se.id + '|' + (s.slug || s.name);
+    const draw = () => {
+      const inYear = sems.filter(se => yearNo(se) === curYear).slice().reverse();   // 上學期在前
+      const all = inYear.flatMap(se => se.subjects.map(s => ({ se, s })));
+      let cur = all.find(x => key(x.se, x.s) === curKey) || all.find(x => x.s.works.length) || all[0];
+      if (cur) curKey = key(cur.se, cur.s);
+      idx.innerHTML = `
+        <div class="hwz-years" role="tablist">${YEARS.map((n, i) => {
+          const y = i + 1, ok = openYears.has(y);
+          return `<button type="button" role="tab" class="hwz-year" data-hwz-year="${y}" aria-selected="${y === curYear}" ${ok ? '' : 'disabled'}>${n}${ok ? '' : '<small>尚未开课</small>'}</button>`;
+        }).join('')}</div>
+        ${inYear.map(se => `<div class="hwz-semrow"><span class="hwz-sem">${esc(label(se))}</span>${se.subjects.map(s =>
+          `<button type="button" class="hwz-subj${s.works.length ? '' : ' none'}" data-hwz-subj="${esc(key(se, s))}" aria-pressed="${key(se, s) === curKey}">${esc(s.name)}${isExam(s) ? '<i class="hwz-dot" title="执医考科"></i>' : ''}<small>${s.works.length}</small></button>`).join('')}</div>`).join('')}
+        ${all.some(x => isExam(x.s)) ? '<p class="hwz-legend"><i class="hwz-dot"></i> 执医考科　数字＝作业份数</p>' : ''}
+        ${cur ? `<div class="hwz-panel">
+          <div class="hwz-title" role="heading" aria-level="3">${esc(cur.s.name)}${examTag(cur.s)}<small>${esc(cur.se.name)}</small></div>
+          ${cur.s.works.length ? `<div class="hwz-list">${cur.s.works.map(w => `<a class="hwz-work" href="${esc(w.url)}">${esc(w.title)}<span aria-hidden="true">→</span></a>`).join('')}</div>`
+            : '<p class="hwz-empty">这个科目还没有作业。</p>'}
+        </div>` : '<p class="hwz-empty">目前没有开放的学期。</p>'}`;
+      idx.querySelectorAll('[data-hwz-year]').forEach(b => b.onclick = () => { curYear = Number(b.dataset.hwzYear); curKey = ''; draw(); });
+      idx.querySelectorAll('[data-hwz-subj]').forEach(b => b.onclick = () => { curKey = b.dataset.hwzSubj; draw(); });
+      if (window.__hwAfterRender) window.__hwAfterRender(idx);   // 首頁會把簡體字轉成繁體
+    };
+    draw();
+  }
 })();
