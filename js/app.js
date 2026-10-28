@@ -72,6 +72,10 @@ function bindCarousels() {
 
 function bind() {
   bindCarousels();
+  // 手機的科目下拉選單：選了就等於按下對應的科目按鈕
+  document.querySelectorAll('[data-subj-select]').forEach(sel => sel.onchange = () => {
+    document.querySelector(`[${sel.dataset.subjSelect}="${sel.value}"]`)?.click();
+  });
   // 年級分頁（首頁、課程總覽、模擬考專區、後台共用）
   document.querySelectorAll('[data-site-year]').forEach(b => b.onclick = () => { siteYear = Number(b.dataset.siteYear); render(); });
   const retry = document.getElementById('retry');
