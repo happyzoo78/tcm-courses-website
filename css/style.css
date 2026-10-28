@@ -596,3 +596,16 @@ fieldset.owners .check small { color: var(--muted); }
 .zone-manage { margin-left: auto; font-size: 14px; }
 .zone-empty { margin: 4px 0 0; }
 @media (max-width: 720px) { .year-tab { min-width: 72px; padding: 8px 10px; font-size: 15px; } }
+
+/* 後台模擬考題：依分類收合 */
+.link-btn { background: none; border: 0; padding: 0; font: inherit; color: var(--accent); cursor: pointer; text-decoration: underline; }
+.exgroups { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+.exgroup { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.exgroup > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 12px 16px; font-size: 17px; }
+.exgroup > summary::-webkit-details-marker { display: none; }
+.exgroup > summary::before { content: "▸"; color: var(--accent); width: 1em; }
+.exgroup[open] > summary::before { content: "▾"; }
+.exgroup-name { font-weight: 700; }
+.exgroup-count { color: var(--muted); font-size: 14px; margin-left: auto; }
+.exgroup .adminlist { padding: 0 12px 12px; margin-top: 0; }
+.exgroup-add { display: inline-block; margin: 6px 4px 0; font-size: 15px; }

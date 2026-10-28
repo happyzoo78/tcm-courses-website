@@ -125,32 +125,76 @@ function examsAdminHtml() {
   if (!list.length) return '<p class="empty">你目前沒有負責的科目。如需出模擬考題，請聯絡網站管理者把你設為科目負責人。</p>';
   if (!list.some(c => c.id === pagesCourse)) pagesCourse = list[0].id;
   const c = getCourse(pagesCourse);
-  const rows = examGroups(pagesCourse).flatMap(g => g[1]);
+  const groups = examGroups(pagesCourse);
   return `
   <div class="field" style="max-width:420px"><label for="ex-course">選擇科目</label>
     <select id="ex-course">${list.map(x => `<option value="${x.id}" ${x.id === pagesCourse ? 'selected' : ''}>${esc(semesterLabel(x.semesterCode))}｜${esc(x.title)}</option>`).join('')}</select>
   </div>
   <div class="write-cta">
-    <a class="btn" href="#examedit/new/${c.id}">＋ 新增模擬考卷</a>
+    <a class="btn" href="#examedit/new/${c.id}" data-new-cat="">＋ 新增模擬考卷</a>
     <span class="meta-label">把題目整份貼上，網站會自動拆題、批改、統計。</span>
   </div>
-  <div class="adminlist">
-    ${rows.map(e => `
-      <div class="adminrow">
-        <div><b>${esc(e.title)}</b>${e.published ? '<span class="role">公開</span>' : '<span class="role off">草稿</span>'}<br><small>${esc(e.category || OTHER_CATEGORY)} · 排序 ${e.sortOrder} · ${e.questionCount} 題 · 滿分 ${e.totalPoints} 分 · 更新：${esc(fmtTime(e.updatedAt))}</small></div>
-        <div class="row-actions">
-          <a class="btn secondary" href="#exam/${e.id}">作答</a>
-          <a class="btn secondary" href="#examedit/${e.id}">編輯</a>
-          <a class="btn secondary" href="#examstats/${e.id}">統計</a>
-          <button type="button" class="btn secondary danger" data-exam-delete="${e.id}">刪除</button>
+  ${groups.length ? `<p class="meta-label">共 ${groups.reduce((n, g) => n + g[1].length, 0)} 份考卷，依分類收合；點分類名稱展開。
+    <button type="button" class="link-btn" data-exgrp-all="1">全部展開</button>／<button type="button" class="link-btn" data-exgrp-all="0">全部收合</button></p>` : ''}
+  <div class="exgroups">
+    ${groups.map(([name, rows]) => {
+      const drafts = rows.filter(e => !e.published).length;
+      return `
+      <details class="exgroup" data-exgrp="${esc(name)}" ${examAdminOpen(c.id, name) ? 'open' : ''}>
+        <summary>
+          <span class="exgroup-name">${esc(name)}</span>
+          <span class="exgroup-count">${rows.length} 份${drafts ? `（草稿 ${drafts}）` : ''}</span>
+        </summary>
+        <div class="adminlist">
+          ${rows.map(e => `
+            <div class="adminrow">
+              <div><b title="${esc(e.title)}">${esc(shortExamTitle(e, c))}</b>${e.published ? '<span class="role">公開</span>' : '<span class="role off">草稿</span>'}<br><small>排序 ${e.sortOrder} · ${e.questionCount} 題 · 滿分 ${e.totalPoints} 分 · 更新：${esc(fmtTime(e.updatedAt))}</small></div>
+              <div class="row-actions">
+                <a class="btn secondary" href="#exam/${e.id}">作答</a>
+                <a class="btn secondary" href="#examedit/${e.id}">編輯</a>
+                <a class="btn secondary" href="#examstats/${e.id}">統計</a>
+                <button type="button" class="btn secondary danger" data-exam-delete="${e.id}">刪除</button>
+              </div>
+            </div>`).join('')}
+          <a class="link exgroup-add" href="#examedit/new/${c.id}" data-new-cat="${esc(name === OTHER_CATEGORY ? '' : name)}">＋ 在「${esc(name)}」新增考卷</a>
         </div>
-      </div>`).join('') || '<p class="empty">這個科目還沒有模擬考卷。</p>'}
+      </details>`;
+    }).join('') || '<p class="empty">這個科目還沒有模擬考卷。</p>'}
   </div>`;
 }
+
+// 後台考卷清單：標題去掉重複的「科目名稱 - 分類 - 」前綴，完整標題放在滑鼠提示
+function shortExamTitle(e, c) {
+  let t = String(e.title || '');
+  const parts = t.split(/\s+-\s+/);
+  if (parts.length > 1 && parts[0].trim() === c.title) parts.shift();
+  if (parts.length > 1 && e.category && parts[0].trim().startsWith(e.category)) parts.shift();
+  return parts.join(' - ') || t;
+}
+
+// 分類收合狀態：記在瀏覽器裡（讀不到就全部收合）
+let examAdminOpenSet = null;
+function examAdminOpen(cid, name) {
+  if (!examAdminOpenSet) {
+    try { examAdminOpenSet = new Set(JSON.parse(localStorage.getItem('tcm-exgrp-open') || '[]')); } catch { examAdminOpenSet = new Set(); }
+  }
+  return examAdminOpenSet.has(cid + '|' + name);
+}
+function setExamAdminOpen(cid, name, open) {
+  examAdminOpen(cid, name);
+  examAdminOpenSet[open ? 'add' : 'delete'](cid + '|' + name);
+  try { localStorage.setItem('tcm-exgrp-open', JSON.stringify([...examAdminOpenSet])); } catch {}
+}
+let examNewCategory = '';   // 從某個分類按「新增」時，預先填好分類
 
 function bindExamsAdmin() {
   const sel = document.getElementById('ex-course');
   if (sel) sel.onchange = () => { pagesCourse = Number(sel.value); render(); };
+  document.querySelectorAll('details.exgroup').forEach(d => d.addEventListener('toggle', () => setExamAdminOpen(pagesCourse, d.dataset.exgrp, d.open)));
+  document.querySelectorAll('[data-exgrp-all]').forEach(b => b.onclick = () => {
+    document.querySelectorAll('details.exgroup').forEach(d => { d.open = b.dataset.exgrpAll === '1'; });
+  });
+  document.querySelectorAll('[data-new-cat]').forEach(a => a.addEventListener('click', () => { examNewCategory = a.dataset.newCat; }));
   document.querySelectorAll('[data-exam-delete]').forEach(b => b.onclick = async () => {
     const e = data.exams.find(x => x.id == b.dataset.examDelete);
     if (!confirm(`確定刪除考卷「${e.title}」？\n所有同學的作答紀錄也會一起刪除，無法復原。`)) return;
@@ -546,7 +590,8 @@ function examEditPage() {
 async function mountExamEdit() {
   const root = document.getElementById('examedit-root');
   const isNew = routeParts[1] === 'new';
-  let exam = { title: '', description: '', category: '', source: '', published: false, courseId: Number(routeParts[2]) };
+  let exam = { title: '', description: '', category: isNew ? examNewCategory : '', source: '', published: false, courseId: Number(routeParts[2]) };
+  examNewCategory = '';
   if (!isNew) {
     try { exam = await api(`/api/admin/exams/${encodeURIComponent(routeParts[1])}`); }
     catch (err) { if (err.status === 401) return showLogin('登入已過期，請重新登入。'); root.innerHTML = `<div class="msg error">${esc(friendly(err))}</div>`; return; }
@@ -651,6 +696,7 @@ async function mountExamEdit() {
       }
       examEditDirty = false;
       pagesCourse = course.id; adminType = 'exams';
+      setExamAdminOpen(course.id, body.category.trim() || OTHER_CATEGORY, true);   // 回到清單時展開剛存的分類
       try { data = sortCourses(await api('/api/content')); } catch {}
       adminFlash = `已儲存「${body.title.trim()}」${body.published ? '' : '（草稿，同學還看不到）'}`;
       location.hash = `admin/exams/${course.id}`;
