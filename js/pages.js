@@ -141,7 +141,7 @@ function homePage() {
 
   <h2 class="section">使用說明</h2>
   <div class="panel prose">
-    <p><b>瀏覽方式：</b>本館依科目分成「書架」，每個書架收著該科的講義、題庫與圖卡。上方「各科書架」依年級找科目；「題庫」集中所有可線上作答的試題；「作業」不用登入也能看。</p>
+    <p><b>瀏覽方式：</b>本館依科目分成「書架」，每個書架收著該科的講義、題庫與圖卡。上方「各科書架」依年級找科目；「線上題庫」集中所有可線上作答的試題；「作業專區」不用登入也能看。</p>
     ${hasAdminAccess() ? `<p><b>資料管理：</b>點右上角「管理後台」，可以上傳講義、出題庫${admin.canWrite ? '，或新增修改科目與圖卡' : '（限你負責的科目）'}。</p>` : ''}
     <p><b>使用範圍：</b>本站內容僅供班級成員學習使用，請勿轉貼或外流，並尊重教材著作權。</p>
   </div>`;
@@ -157,7 +157,7 @@ function examZonePage() {
   const courses = inYear.flatMap(sm => coursesIn(sm.code));
   const count = c => examsOf(c.id).length;
   const c = courses.find(x => x.id === zoneCourseSel[siteYear]) || courses.find(count) || courses[0];
-  const head = '<h2 class="section">題庫 <small>選年級、科目，再選分類與章節</small></h2>';
+  const head = '<h2 class="section">線上題庫 <small>選年級、科目，再選分類與章節</small></h2>';
   if (!c) return head + tabs + '<p class="empty-note">目前沒有開放的學期。</p>';
   return `${head}${tabs}
   <div class="subj-rows">${subjChipsHtml(inYear, c.id, count, 'data-zone-course')}</div>
