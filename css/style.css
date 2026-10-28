@@ -513,8 +513,8 @@ fieldset.owners .check small { color: var(--muted); }
 .stat-table th, .stat-table td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
 .stat-table th { background: var(--surface-2); white-space: nowrap; }
 .stat-table td:nth-child(3) { min-width: 12em; }
-.bar { width: 90px; height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; margin-bottom: 2px; }
-.bar span { display: block; height: 100%; background: var(--accent); }
+.rate-bar { width: 90px; height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; margin-bottom: 2px; }
+.rate-bar span { display: block; height: 100%; background: var(--accent); }
 @media (max-width: 720px) {
   .q-card { padding: 14px; }
   .exam-head h2 { font-size: 22px; }

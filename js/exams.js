@@ -521,7 +521,7 @@ async function mountExamStats() {
       <thead><tr><th>題</th><th>題型</th><th>題目</th><th>答案</th><th>答對率</th><th>作答分布</th></tr></thead>
       <tbody>${[...s.questions].sort((x, y) => (x.correctRate ?? 101) - (y.correctRate ?? 101)).map(q => `
         <tr><td>${q.no}</td><td>${EXAM_TYPE[q.type]}</td><td>${esc(q.stem)}</td><td>${esc(q.answer || '—')}</td>
-          <td>${q.type === 'essay' ? `平均自評 ${q.avgEarned} / ${q.points}` : q.answered ? `<div class="bar"><span style="width:${q.correctRate}%"></span></div>${q.correctRate}%（${q.correct}/${q.answered}）` : '—'}</td>
+          <td>${q.type === 'essay' ? `平均自評 ${q.avgEarned} / ${q.points}` : q.answered ? `<div class="rate-bar"><span style="width:${q.correctRate}%"></span></div>${q.correctRate}%（${q.correct}/${q.answered}）` : '—'}</td>
           <td>${Object.entries(q.choices).sort((a, b) => b[1] - a[1]).map(([k, n]) => `${esc(k)}：${n}`).join('　') || '—'}</td></tr>`).join('')}</tbody>
     </table></div>
     <h3 class="sem-title">同學成績</h3>
