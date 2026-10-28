@@ -132,7 +132,7 @@ function homePage() {
     </div>
   </section>
 
-  <h2 class="section">各科圖卡 <small>依學期輪播，點學期可直接切換</small></h2>
+  <h2 class="section">各科圖卡 <small>依學期瀏覽，點學期按鈕切換</small></h2>
   ${shelfCardsHtml()}
 
   <h2 class="section">最新更新 <small>最近 5 筆</small></h2>

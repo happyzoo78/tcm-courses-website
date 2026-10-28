@@ -823,7 +823,7 @@ fieldset.owners .check small { color: var(--muted); }
 .shelf-head h4 a { color: inherit; text-decoration: none; }
 .shelf-head h4 a:hover { color: var(--accent); }
 @media (max-width: 1000px) { .sem-carousel .shelves { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 720px) { .sem-carousel .shelves { grid-template-columns: 1fr; } .car-more { display: none; } }
+@media (max-width: 720px) { .sem-carousel .shelves { grid-template-columns: 1fr; } }
 @media (max-width: 860px) { .sem-carousel .car-track { grid-auto-columns: 100%; } }
 @media (max-width: 720px) { .sem-carousel .shelf .empty-note { display: none; } .sem-carousel .shelf-head { margin-bottom: 4px; } .sem-carousel .shelf-more { padding-top: 6px; } }
 
