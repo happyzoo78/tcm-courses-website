@@ -140,6 +140,15 @@ function bindExamTabs() {
     document.querySelectorAll(`[data-exam-panel][data-course="${cid}"]`).forEach(p => { p.hidden = p.dataset.examPanel !== b.dataset.examTab; });
   });
   document.querySelectorAll('details.exchap').forEach(d => d.addEventListener('toggle', () => examChapOpen[d.open ? 'add' : 'delete'](d.dataset.chap)));
+  document.querySelectorAll('[data-zone-course]').forEach(b => b.onclick = () => { zoneCourseSel[zoneYear] = Number(b.dataset.zoneCourse); render(); });
+  document.querySelectorAll('[data-zone-cat]').forEach(b => b.onclick = () => {
+    const cid = zoneCourseSel[zoneYear] || Number(document.querySelector('[data-zone-course][aria-pressed="true"]')?.dataset.zoneCourse);
+    zoneFilter[cid] = { cat: b.dataset.zoneCat, ch: '' }; render();
+  });
+  document.querySelectorAll('[data-zone-ch]').forEach(b => b.onclick = () => {
+    const cid = zoneCourseSel[zoneYear] || Number(document.querySelector('[data-zone-course][aria-pressed="true"]')?.dataset.zoneCourse);
+    zoneFilter[cid].ch = b.dataset.zoneCh; render();
+  });
   document.querySelectorAll('[data-zone-year]').forEach(b => b.onclick = () => {
     zoneYear = Number(b.dataset.zoneYear);
     render();
