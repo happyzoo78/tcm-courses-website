@@ -621,7 +621,8 @@ fieldset.owners .check small { color: var(--muted); }
 .exchap-list .pagerow { border-left-width: 1px; }
 
 /* 後台模擬考題：分類、章節下拉選單 */
-.ex-filters { display: flex; flex-wrap: wrap; gap: 8px 12px; }
+.ex-filters { display: flex; flex-wrap: wrap; gap: 10px 16px; margin: 0 0 14px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.ex-filter-course select { max-width: 340px; }
 .ex-filter { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); white-space: nowrap; }
 .ex-filter select { width: auto; }
 .ex-filter select { min-width: 160px; max-width: 260px; }

@@ -161,20 +161,21 @@ function examsAdminHtml() {
   const label = i => f.ch ? (i.sub || f.ch) : (i.sub ? `${i.chapter} - ${i.sub}` : i.chapter);
   const total = groups.reduce((n, g) => n + g[1].length, 0);
   return `
-  <div class="field" style="max-width:420px"><label for="ex-course">選擇科目</label>
-    <select id="ex-course">${list.map(x => `<option value="${x.id}" ${x.id === pagesCourse ? 'selected' : ''}>${esc(semesterLabel(x.semesterCode))}｜${esc(x.title)}</option>`).join('')}</select>
+  <div class="ex-filters">
+    <label class="ex-filter ex-filter-course"><span>科目</span>
+      <select id="ex-course">${list.map(x => `<option value="${x.id}" ${x.id === pagesCourse ? 'selected' : ''}>${esc(semesterLabel(x.semesterCode))}｜${esc(x.title)}</option>`).join('')}</select>
+    </label>
+    ${groups.length ? `
+    <label class="ex-filter"><span>分類</span>
+      <select id="ex-cat">${groups.map(([name, r]) => `<option value="${esc(name)}" ${name === f.cat ? 'selected' : ''}>${esc(name)}（${r.length}）</option>`).join('')}</select>
+    </label>
+    <label class="ex-filter"><span>章節</span>
+      <select id="ex-chap"><option value="">全部章節（${rows.length}）</option>${chapters.map(g => `<option value="${esc(g.chapter)}" ${g.chapter === f.ch ? 'selected' : ''}>${esc(g.chapter)}${g.items.length > 1 ? `（${g.items.length}）` : ''}</option>`).join('')}</select>
+    </label>` : ''}
   </div>
   <div class="write-cta">
     <a class="btn" href="#examedit/new/${c.id}" data-new-cat="${esc(f.cat === OTHER_CATEGORY ? '' : f.cat)}">＋ 新增模擬考卷</a>
-    ${groups.length ? `
-    <div class="ex-filters">
-      <label class="ex-filter"><span>分類</span>
-        <select id="ex-cat">${groups.map(([name, r]) => `<option value="${esc(name)}" ${name === f.cat ? 'selected' : ''}>${esc(name)}（${r.length}）</option>`).join('')}</select>
-      </label>
-      <label class="ex-filter"><span>章節</span>
-        <select id="ex-chap"><option value="">全部章節（${rows.length}）</option>${chapters.map(g => `<option value="${esc(g.chapter)}" ${g.chapter === f.ch ? 'selected' : ''}>${esc(g.chapter)}${g.items.length > 1 ? `（${g.items.length}）` : ''}</option>`).join('')}</select>
-      </label>
-    </div>` : '<span class="meta-label">把題目整份貼上，網站會自動拆題、批改、統計。</span>'}
+    <span class="meta-label">把題目整份貼上，網站會自動拆題、批改、統計。</span>
   </div>
   ${groups.length ? `<p class="meta-label">這個科目共 ${total} 份考卷；目前顯示「${esc(f.cat)}」${f.ch ? ` › 「${esc(f.ch)}」` : ''} ${shown.length} 份。</p>` : ''}
   <div class="adminlist">
