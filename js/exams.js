@@ -131,7 +131,7 @@ function examsAdminHtml() {
   <div class="adminlist">
     ${rows.map(e => `
       <div class="adminrow">
-        <div><b>${esc(e.title)}</b>${e.published ? '<span class="role">公開</span>' : '<span class="role off">草稿</span>'}<br><small>${esc(e.category || OTHER_CATEGORY)} · ${e.questionCount} 題 · 滿分 ${e.totalPoints} 分 · 更新：${esc(fmtTime(e.updatedAt))}</small></div>
+        <div><b>${esc(e.title)}</b>${e.published ? '<span class="role">公開</span>' : '<span class="role off">草稿</span>'}<br><small>${esc(e.category || OTHER_CATEGORY)} · 排序 ${e.sortOrder} · ${e.questionCount} 題 · 滿分 ${e.totalPoints} 分 · 更新：${esc(fmtTime(e.updatedAt))}</small></div>
         <div class="row-actions">
           <a class="btn secondary" href="#exam/${e.id}">作答</a>
           <a class="btn secondary" href="#examedit/${e.id}">編輯</a>
@@ -403,6 +403,9 @@ async function mountExamEdit() {
         <input id="xe-cat" maxlength="30" list="xe-cat-list" value="${esc(exam.category || '')}" placeholder="例如：學習通測試題">
         <datalist id="xe-cat-list">${[...new Set([...examsOf(course.id).map(x => x.category).filter(Boolean), ...EXAM_CATEGORY_SUGGEST])].map(c => `<option value="${esc(c)}">`).join('')}</datalist>
         <small class="meta-label">留空會歸在「${OTHER_CATEGORY}」。</small></div>
+      <div class="field" style="max-width:260px"><label for="xe-sort">排序（數字小的排前面）</label>
+        <input id="xe-sort" type="number" min="0" max="100000" step="1" value="${exam.sortOrder ?? (Math.max(0, ...examsOf(course.id).map(x => x.sortOrder)) + 10)}">
+        <small class="meta-label">建議用 10、20、30…，中間留空，之後要插入新考卷比較方便。標籤的順序跟著該標籤裡排序最前的考卷。</small></div>
       <label class="check"><input type="checkbox" id="xe-pub" ${exam.published ? 'checked' : ''}> 公開給同學作答（不勾選就是草稿，只有科目負責人看得到）</label>
       ${isNew ? '' : '<div class="notice">修改題目內容後會變成<b>新版本</b>：同學舊的作答紀錄和分數會保留，但「題目統計」只計算新版本的作答。只改名稱、說明、公開設定不會變成新版本。</div>'}
       <details class="fmt-help">
@@ -434,7 +437,7 @@ async function mountExamEdit() {
   const src = document.getElementById('xe-src');
   const msg = document.getElementById('xe-msg');
   const dirty = () => { examEditDirty = true; };
-  ['xe-title', 'xe-desc', 'xe-cat', 'xe-src'].forEach(id => { document.getElementById(id).oninput = dirty; });
+  ['xe-title', 'xe-desc', 'xe-cat', 'xe-sort', 'xe-src'].forEach(id => { document.getElementById(id).oninput = dirty; });
   document.getElementById('xe-pub').onchange = dirty;
   document.getElementById('xe-sample').onclick = () => {
     if (src.value.trim() && !confirm('要用範例題目取代目前的內容嗎？')) return;
@@ -466,6 +469,7 @@ async function mountExamEdit() {
     const btn = document.getElementById('xe-save');
     const body = { title: document.getElementById('xe-title').value, description: document.getElementById('xe-desc').value,
                    category: document.getElementById('xe-cat').value,
+                   ...(document.getElementById('xe-sort').value.trim() !== '' ? { sortOrder: Number(document.getElementById('xe-sort').value) } : {}),
                    published: document.getElementById('xe-pub').checked, source: src.value };
     if (!body.title.trim()) { msg.innerHTML = '<div class="msg error">請填寫考卷名稱。</div>'; return; }
     btn.disabled = true; btn.textContent = '儲存中…'; msg.innerHTML = '';
