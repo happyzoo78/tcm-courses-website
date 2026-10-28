@@ -826,3 +826,10 @@ fieldset.owners .check small { color: var(--muted); }
 @media (max-width: 720px) { .sem-carousel .shelves { grid-template-columns: 1fr; } .car-more { display: none; } }
 @media (max-width: 860px) { .sem-carousel .car-track { grid-auto-columns: 100%; } }
 @media (max-width: 720px) { .sem-carousel .shelf .empty-note { display: none; } .sem-carousel .shelf-head { margin-bottom: 4px; } .sem-carousel .shelf-more { padding-top: 6px; } }
+
+/* 書架排版：最後一排自動撐滿，不留空洞；剛好 4 個時排成一列 4 格 */
+.sem-carousel .shelves { display: flex; flex-wrap: wrap; gap: 14px; }
+.sem-carousel .shelf { flex: 1 1 calc((100% - 28px) / 3); min-width: 0; }
+.sem-carousel .shelves[data-n="4"] .shelf { flex-basis: calc((100% - 42px) / 4); }
+@media (max-width: 1000px) { .sem-carousel .shelf, .sem-carousel .shelves[data-n="4"] .shelf { flex-basis: calc((100% - 14px) / 2); } }
+@media (max-width: 720px) { .sem-carousel .shelf, .sem-carousel .shelves[data-n="4"] .shelf { flex-basis: 100%; } }

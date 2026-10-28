@@ -98,14 +98,14 @@ function shelfCardsHtml() {
       <button type="button" class="car-btn" data-car="prev" aria-label="上一個學期">‹</button>
       <div class="car-tabs">${sems.map((sm, i) => `<button type="button" class="car-tab" data-car-dot="${i}">${esc(shortSemLabel(sm.code))}</button>`).join('')}</div>
       <button type="button" class="car-btn" data-car="next" aria-label="下一個學期">›</button>
-      <a class="link car-more" href="#courses">More：全部書架 →</a>
+      <a class="link car-more" href="#courses" title="全部書架" aria-label="全部書架">More ...</a>
     </div>
     <div class="car-track">${sems.map(sm => {
       const list = coursesIn(sm.code).slice().sort((a, b) => (itemsOf(b.id).length > 0) - (itemsOf(a.id).length > 0));
       return `
       <section class="car-slide" aria-label="${esc(sm.label)}">
         <h3 class="sem-title">${esc(sm.label)} <small>${list.length} 個書架</small></h3>
-        <div class="shelves">${list.map(shelf).join('')}</div>
+        <div class="shelves" data-n="${list.length}">${list.map(shelf).join('')}</div>
       </section>`;
     }).join('')}</div>
   </div>`;
