@@ -49,6 +49,13 @@ const HW_DATA = [
   const label = se => `${yearOf(se)} ${se.short || se.name}`;
   let active = semOfPage || sems[0];
   const HW_HOME = '/content/homework/';
+  /* 執業醫師考試科目：科目名稱含下列任一詞（簡、繁都列），就加「执医考科」標籤，和網站科目卡一致 */
+  const EXAM_WORDS = ['中医基础理论','中醫基礎理論','中医诊断学','中醫診斷學','中药学','中藥學','方剂学','方劑學','针灸学','針灸學',
+    '四大经典','四大經典','黄帝内经','黃帝內經','伤寒论','傷寒論','金匮要略','金匱要略','温病学','溫病學',
+    '西医诊断学','西醫診斷學','西医内科学','西醫內科學','西医传染病学','西醫傳染病學',
+    '中医内科学','中醫內科學','中医外科学','中醫外科學','中医妇科学','中醫婦科學','中医儿科学','中醫兒科學'];
+  const isExam = s => EXAM_WORDS.some(w => String(s.name).includes(w));
+  const examTag = s => isExam(s) ? '<span class="hw-exam">执医考科</span>' : '';
   const atHwHome = here === norm(HW_HOME);   // 作業專區首頁不需要「回作業專區」按鈕   // 目前選單顯示的學期：所在頁面的學期，否則最新學期
 
   /* ---------- 樣式 ---------- */
@@ -75,6 +82,8 @@ const HW_DATA = [
   .hw-sem + .hw-grid { margin-bottom: 14px; }
   .hw-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
   .hw-subj { padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+  .hw-exam { display: inline-block; margin-left: 6px; padding: 0 7px; border: 1px solid var(--red, #973d2f); border-radius: 999px; color: var(--red, #973d2f); font-size: 12px; font-weight: 600; line-height: 1.5; vertical-align: 2px; white-space: nowrap; }
+  .hw-chip .hw-exam { margin-left: 5px; font-size: 11px; vertical-align: 1px; }
   .hw-subj h4 { margin: 0 0 6px; font-size: 16px; color: var(--accent); }
   .hw-subj ul { list-style: none; margin: 0; padding: 0; }
   .hw-subj li { margin: 2px 0; }
@@ -108,7 +117,7 @@ const HW_DATA = [
   const workList = s => s.works.length
     ? '<ul>' + s.works.map(w => `<li><a href="${esc(w.url)}"${isCur(w) ? ' aria-current="page"' : ''}>${esc(w.title)}</a></li>`).join('') + '</ul>'
     : '<div class="hw-empty">尚无作业</div>';
-  const subjBox = s => `<div class="hw-subj"><h4>${esc(s.name)}</h4>${workList(s)}</div>`;
+  const subjBox = s => `<div class="hw-subj"><h4>${esc(s.name)}${examTag(s)}</h4>${workList(s)}</div>`;
   const countWorks = se => se.subjects.reduce((n, s) => n + s.works.length, 0);
 
   /* ---------- 選單 ---------- */
@@ -127,7 +136,7 @@ const HW_DATA = [
           <button class="hw-sembtn" type="button" aria-expanded="false" data-p="sem" title="${esc(active.name)}">${esc(label(active))}<span class="car">▾</span></button>
           <span class="hw-sep" aria-hidden="true"></span>
           <div class="hw-chips">${active.subjects.map((s, i) =>
-            `<button class="hw-chip${s === curSubj ? ' cur' : ''}" type="button" aria-expanded="false" data-p="s${i}">${esc(s.name)}</button>`).join('')}</div>
+            `<button class="hw-chip${s === curSubj ? ' cur' : ''}" type="button" aria-expanded="false" data-p="s${i}">${esc(s.name)}${examTag(s)}</button>`).join('')}</div>
         </div>
         <div class="hw-panel" id="hw-p-all" hidden><div class="hw-panel-in">${allPanel}</div></div>
         <div class="hw-panel" id="hw-p-sem" hidden><div class="hw-panel-in">${semPanel}</div></div>
