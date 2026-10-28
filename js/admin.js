@@ -200,6 +200,7 @@ function adminPage() {
   }
   const tabs = {
     pages: '網頁',
+    exams: '模擬考題',
     ...(admin.canWrite ? TYPE_NAME : {}),
     ...(admin.canManageCourses ? { semesters: '學期' } : {}),
     ...(admin.canManageMembers ? { members: '成員' } : {})
@@ -215,6 +216,7 @@ function adminPage() {
   let body;
   if (adminType === 'members') body = membersHtml();
   else if (adminType === 'pages') body = pagesAdminHtml();
+  else if (adminType === 'exams') body = examsAdminHtml();
   else if (adminType === 'semesters') body = semestersAdminHtml();
   else body = `
   ${canAdd ? `<button type="button" class="btn" id="add">＋ 新增${TYPE_NAME[adminType]}</button>` : isCourses ? '<p class="meta-label">新增或修改科目由擁有者、管理員負責。</p>' : ''}

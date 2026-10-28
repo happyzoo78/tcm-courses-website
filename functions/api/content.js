@@ -3,6 +3,7 @@
 // 圖片本體不在這裡，另外用網址載入
 import { jsonResponse } from "../_lib/auth.js";
 import { getCurrentAdmin, hasPermission } from "../_lib/session.js";
+import { canManageAll, ownedCourseIds } from "../_lib/pages.js";
 
 function imageUrl(type, row) {
   return row.has_image
@@ -71,6 +72,34 @@ export async function onRequestGet({ request, env }) {
     }
     const [courses, items, projects, semesters, pages, owners] = results;
 
+    // 模擬考題（資料表還沒建立時就當作沒有考卷）
+    let exams = [];
+    try {
+      const all = canManageAll(user);
+      const owned = all ? [] : await ownedCourseIds(env, user);
+      const [list, mine] = await env.DB.batch([
+        env.DB.prepare(`
+          SELECT id, course_id, title, description, category, question_count, total_points, published, sort_order, updated_at
+          FROM exams ORDER BY course_id, sort_order, id
+        `),
+        env.DB.prepare(`
+          SELECT exam_id, COUNT(*) AS n, MAX(score * 100.0 / max_score) AS best
+          FROM exam_attempts WHERE user_id = ? AND max_score > 0 GROUP BY exam_id
+        `).bind(user.id)
+      ]);
+      exams = list.results
+        .filter(e => e.published || all || owned.includes(e.course_id))
+        .map(e => {
+          const m = mine.results.find(x => x.exam_id === e.id);
+          return { id: e.id, courseId: e.course_id, title: e.title, description: e.description, category: e.category || "",
+                   questionCount: e.question_count, totalPoints: e.total_points, published: Boolean(e.published),
+                   sortOrder: e.sort_order, updatedAt: e.updated_at,
+                   myAttempts: m ? m.n : 0, myBest: m ? Math.round(m.best * 10) / 10 : null };
+        });
+    } catch (error) {
+      if (!/no such table/i.test(String(error?.message || error))) console.error("Exam list failed", error);
+    }
+
     return jsonResponse({
       courses: courses.results.map(c => ({
         id: c.id,
@@ -83,6 +112,7 @@ export async function onRequestGet({ request, env }) {
         slug: c.slug || "",
         owners: owners.results.filter(o => o.course_id === c.id).map(o => ({ id: o.user_id, name: o.display_name }))
       })),
+      exams,
       semesters: semesters.results.map(s => ({ code: s.code, label: s.label, sortOrder: s.sort_order, visible: Boolean(s.visible) })),
       pages: pages.results.map(p => ({
         id: p.id, courseId: p.course_id, title: p.title, description: p.description,

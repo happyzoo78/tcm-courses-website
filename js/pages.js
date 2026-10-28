@@ -113,6 +113,7 @@ function coursePage() {
         <span class="pr-meta">更新：${esc(fmtTime(p.updatedAt).slice(0, 10))}${p.updatedBy ? ' · ' + esc(p.updatedBy) : ''}</span>
       </a>`).join('') || '<p class="empty">這個科目還沒有上傳網頁。</p>'}
   </div>
+  ${courseExamsHtml(c)}
   ${items.length ? `
   <h3 class="sem-title">圖卡 <small><a class="link" href="#items/${c.id}">搜尋圖卡 →</a></small></h3>
   <div class="itemgrid">${items.map(i => itemCard(i, 'item')).join('')}</div>` : ''}`;

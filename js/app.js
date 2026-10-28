@@ -4,7 +4,8 @@
 /* =========================================================
    六、畫面更新與按鈕綁定
    ========================================================= */
-const VIEWS = { home: homePage, courses: coursesPage, course: coursePage, items: itemsPage, projects: projectsPage, detail: detailPage, about: aboutPage, admin: adminPage, account: accountPage, editor: editorPage };
+const VIEWS = { home: homePage, courses: coursesPage, course: coursePage, items: itemsPage, projects: projectsPage, detail: detailPage, about: aboutPage, admin: adminPage, account: accountPage, editor: editorPage,
+  exam: examPage, attempt: attemptPage, examedit: examEditPage, examstats: examStatsPage };
 
 function render() {
   document.body.classList.toggle('signed-out', !admin);
@@ -22,7 +23,7 @@ function render() {
     app.innerHTML = VIEWS[page]();
   }
   // 導覽列目前位置
-  const navKey = page === 'editor' ? 'admin' : (page === 'items' || page === 'course') ? 'courses' : page === 'detail' ? (detailTarget[0] === 'project' ? 'projects' : 'courses') : page;
+  const navKey = ['editor', 'examedit', 'examstats'].includes(page) ? 'admin' : ['exam', 'attempt'].includes(page) ? 'courses' : (page === 'items' || page === 'course') ? 'courses' : page === 'detail' ? (detailTarget[0] === 'project' ? 'projects' : 'courses') : page;
   document.querySelectorAll('[data-nav]').forEach(a => {
     if (a.dataset.nav === navKey) a.setAttribute('aria-current', 'page');
     else a.removeAttribute('aria-current');
@@ -132,6 +133,14 @@ function bind() {
 
   bindPagesAdmin();
   if (page === 'editor' && loadState === 'ready') mountEditor();
+  bindExamsAdmin();
+  bindExamTabs();
+  if (loadState === 'ready') {
+    if (page === 'exam') mountExam();
+    if (page === 'attempt') mountAttempt();
+    if (page === 'examedit') mountExamEdit();
+    if (page === 'examstats') mountExamStats();
+  }
 
   document.querySelectorAll('[data-sem]').forEach(b => b.onclick = async () => {
     const sem = getSemester(b.dataset.sem);
@@ -295,6 +304,13 @@ window.addEventListener('hashchange', () => {
     }
     saveDraft();
     editorDirty = false;
+  }
+  if (page === 'examedit' && examEditDirty) {
+    if (!confirm('考卷還沒儲存，確定要離開嗎？')) {
+      history.replaceState(null, '', lastHash || '#home');
+      return;
+    }
+    examEditDirty = false;
   }
   if (page === 'editor') clearInterval(draftTimer);
   lastHash = location.hash;

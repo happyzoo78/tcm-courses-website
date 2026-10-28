@@ -455,3 +455,76 @@ fieldset.owners .check small { color: var(--muted); }
 .ed-actions { display: flex; gap: 8px; margin: 10px 0; }
 #ed-size.over { color: var(--red); font-weight: 600; }
 @media (max-width: 720px) { .ed-body .ql-editor { min-height: 260px; font-size: 16px; } }
+
+/* 模擬考題 */
+.exam-head { margin-bottom: 18px; }
+.exam-head h2 { font-family: var(--serif, inherit); font-size: 26px; margin: 4px 0 6px; }
+.exam-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin-top: 10px; }
+.my-attempts { margin: 10px 0; }
+.my-attempts summary { cursor: pointer; color: var(--accent); font-weight: 600; }
+.my-attempts ul { margin: 8px 0 0; padding-left: 20px; }
+.exam-form { display: grid; gap: 14px; }
+.q-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+.q-card[hidden] { display: none; }
+.q-top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-bottom: 8px; }
+.q-no { display: inline-grid; place-items: center; min-width: 30px; height: 30px; padding: 0 6px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.q-type { color: var(--muted); font-size: 14px; }
+.q-badge { margin-left: auto; padding: 2px 10px; border-radius: 999px; font-size: 14px; font-weight: 600; border: 1px solid currentColor; }
+.q-badge.ok { color: var(--accent); } .q-badge.bad { color: var(--red); } .q-badge.part, .q-badge.essay { color: var(--gold); }
+.q-stem { font-size: 17px; line-height: 1.8; margin-bottom: 10px; overflow-wrap: anywhere; }
+.q-opts { display: grid; gap: 6px; }
+.q-opts.compact { display: flex; flex-wrap: wrap; gap: 8px; }
+.q-opt { display: flex; align-items: flex-start; gap: 8px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; background: var(--bg); }
+.q-opt input[type] { width: 18px; height: 18px; min-height: 0; padding: 0; margin: 5px 0 0; flex: none; accent-color: var(--accent); }
+.q-opt b { flex: none; }
+.q-opt:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+.q-opt.is-answer { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-soft-ink); }
+.q-opt.is-wrong { border-color: var(--red); color: var(--red); background: transparent; }
+.q-opts.compact .q-opt { min-width: 64px; justify-content: center; }
+.q-blank { display: inline-block; width: 8em; max-width: 100%; margin: 2px 4px; padding: 2px 8px; border: 0; border-bottom: 2px solid var(--accent); border-radius: 0; background: transparent; color: var(--ink); font-size: 16px; }
+.q-blank.ok { border-color: var(--accent); color: var(--accent); }
+.q-blank.bad { border-color: var(--red); color: var(--red); }
+.q-blanks { display: grid; gap: 6px; }
+.q-essay { width: 100%; min-height: 140px; line-height: 1.7; }
+.q-answer { margin-top: 8px; color: var(--accent); font-weight: 600; }
+.q-ref, .q-explain { margin-top: 10px; padding: 10px 14px; border-radius: 8px; background: var(--surface-2); font-size: 15px; line-height: 1.75; }
+.q-ref b, .q-explain b { display: block; color: var(--accent); margin-top: 4px; }
+.q-self { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; font-weight: 600; }
+.q-self select { width: auto; }
+.q-group { padding: 12px 18px; border: 1px dashed var(--accent); border-radius: 12px; background: var(--surface-2); }
+.q-group[hidden] { display: none; }
+.q-group ol { margin: 6px 0 0; padding-left: 4px; list-style: none; display: grid; gap: 2px; }
+.exam-bar { position: sticky; bottom: 0; z-index: 4; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin-top: 6px; padding: 10px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 -4px 14px rgba(0,0,0,.08); }
+.score-big { font-size: 20px; margin: 6px 0; }
+.score-big strong { font-size: 40px; color: var(--red); font-family: Georgia, serif; }
+.exam-src { min-height: 360px; font-family: ui-monospace, "Cascadia Mono", Menlo, Consolas, monospace; font-size: 15px; line-height: 1.6; }
+.fmt-help { margin: 14px 0; padding: 10px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); }
+.fmt-help summary { cursor: pointer; font-weight: 600; color: var(--accent); }
+.fmt-help ul { margin: 10px 0; padding-left: 20px; }
+.fmt-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.fmt-sample { white-space: pre-wrap; max-height: 260px; overflow: auto; padding: 12px; border-radius: 8px; background: var(--bg); font-size: 14px; }
+.err-list { margin: 6px 0 0; padding-left: 20px; }
+.stats-row { flex-wrap: wrap; margin: 12px 0 8px; }
+.stats-row .stat { flex: 1 1 90px; min-width: 90px; }
+.stats-row .stat strong { font-size: 26px; white-space: nowrap; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
+.stat-table { width: 100%; border-collapse: collapse; font-size: 15px; background: var(--surface); }
+.stat-table th, .stat-table td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.stat-table th { background: var(--surface-2); white-space: nowrap; }
+.stat-table td:nth-child(3) { min-width: 12em; }
+.bar { width: 90px; height: 8px; border-radius: 4px; background: var(--surface-2); overflow: hidden; margin-bottom: 2px; }
+.bar span { display: block; height: 100%; background: var(--accent); }
+@media (max-width: 720px) {
+  .q-card { padding: 14px; }
+  .exam-head h2 { font-size: 22px; }
+  .score-big strong { font-size: 34px; }
+}
+.q-card input.q-blank[name] { min-height: 0; line-height: 1.5; }
+
+.exam-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+.exam-tab { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); font: inherit; font-size: 15px; cursor: pointer; }
+.exam-tab .count { min-width: 22px; padding: 0 6px; border-radius: 999px; background: var(--surface-2); color: var(--muted); font-size: 13px; text-align: center; }
+.exam-tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.exam-tab[aria-selected="true"] .count { background: var(--accent-ink); color: var(--accent); }
+.exam-panel[hidden] { display: none; }

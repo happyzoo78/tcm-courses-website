@@ -171,18 +171,21 @@ const fmtSize = n => n >= 1048576 ? (n / 1048576).toFixed(2) + ' MB' : Math.max(
 
 /* =========================================================
    三、頁面狀態與網址（網址會跟著頁面改變，可用「上一頁」）
-   #home  #account  #editor/new/科目編號  #editor/網頁編號  #courses  #course/科目編號  #items/科目編號  #projects  #about  #admin
+   #home  #account  #editor/new/科目編號  #editor/網頁編號
+   #exam/考卷編號  #attempt/作答編號  #examedit/new/科目編號  #examedit/考卷編號  #examstats/考卷編號  #courses  #course/科目編號  #items/科目編號  #projects  #about  #admin
    #detail/item/編號  #detail/project/編號
    ========================================================= */
-const PAGES = ['home', 'courses', 'course', 'items', 'projects', 'detail', 'about', 'admin', 'account', 'editor'];
+const PAGES = ['home', 'courses', 'course', 'items', 'projects', 'detail', 'about', 'admin', 'account', 'editor', 'exam', 'attempt', 'examedit', 'examstats'];
 let page = 'home', filter = 'all', query = '', adminType = 'pages', detailTarget = ['item', 0], courseTarget = 0;
 let pagesCourse = 0;
-let editorTarget = ['new', 0];   // 網站內編輯器：['new', 科目編號] 或 ['page', 網頁編號]   // 後台「網頁管理」目前選的科目
+let editorTarget = ['new', 0];
+let routeParts = [];             // 目前網址拆開後的各段（模擬考題頁面使用）   // 網站內編輯器：['new', 科目編號] 或 ['page', 網頁編號]   // 後台「網頁管理」目前選的科目
 const app = document.getElementById('app');
 
 function readHash() {
   const parts = decodeURIComponent(location.hash.slice(1)).split('/');
   page = PAGES.includes(parts[0]) ? parts[0] : 'home';
+  routeParts = parts;
   if (page === 'items') filter = parts[1] || 'all';
   if (page === 'course') courseTarget = parts[1];
   if (page === 'editor') editorTarget = parts[1] === 'new' ? ['new', parts[2]] : ['page', parts[1]];
