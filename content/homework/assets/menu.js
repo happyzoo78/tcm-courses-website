@@ -57,6 +57,14 @@ const HW_DATA = [
   const isExam = s => EXAM_WORDS.some(w => String(s.name).includes(w));
   const examTag = s => isExam(s) ? '<span class="hw-exam">执医考科</span>' : '';
   const atHwHome = here === norm(HW_HOME);   // 作業專區首頁不需要「回作業專區」按鈕   // 目前選單顯示的學期：所在頁面的學期，否則最新學期
+  // 可以左右滑的按鈕列：自動捲到目前選中的那一顆
+  const reveal = root => (root || document).querySelectorAll('.hw-chips, .hwz-semrow, .hwz-years').forEach(box => {
+    if (box.scrollWidth <= box.clientWidth + 2) return;
+    const cur = box.querySelector('.cur, [aria-pressed="true"], [aria-selected="true"]');
+    if (!cur) return;
+    const b = box.getBoundingClientRect(), c = cur.getBoundingClientRect();
+    box.scrollLeft += (c.left - b.left) - (b.width - c.width) / 2;
+  });
 
   /* ---------- 樣式 ---------- */
   const css = `
@@ -119,6 +127,7 @@ const HW_DATA = [
     .hw-grid { grid-template-columns: 1fr; gap: 8px; }
     .hw-subj a { padding: 10px 10px; font-size: 16px; }
     .logo-sub { display: none !important; }
+    .hw-menu-home { display: none; }
     html { scroll-padding-top: 120px !important; }
   }
   /* 作業專區首頁 */
@@ -152,6 +161,16 @@ const HW_DATA = [
     .hwz-sem { min-width: 0; }
     .hwz-panel { padding: 14px; }
   }
+  .hwz-select-wrap { display: none; position: relative; margin: 0 0 12px; }
+  .hwz-select-wrap::after { content: "▾"; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--accent); pointer-events: none; }
+  .hwz-select { appearance: none; -webkit-appearance: none; width: 100%; padding: 12px 36px 12px 14px; border: 1px solid var(--accent); border-radius: 6px; background: var(--surface); color: var(--ink); font: inherit; font-size: 16px; font-weight: 700; }
+  @media (max-width: 720px) {
+    .hwz-semrow { display: none; }
+    .hwz-select-wrap { display: block; }
+    .hwz-years { overflow: visible; gap: 6px; }
+    .hwz-year { flex: 1 1 0; min-width: 0; min-height: 52px; padding: 6px 2px; font-size: 14.5px; }
+    .hwz-year small { font-size: 11px; }
+  }
   @media (prefers-reduced-motion: reduce) { header { transition: none; } }
   @media print { .hw-menu { display: none !important; } header.hw-hidden { transform: none; } }`;
   const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
@@ -165,6 +184,7 @@ const HW_DATA = [
 
   /* ---------- 選單 ---------- */
   const nav = document.getElementById('hw-menu');
+  if (nav && atHwHome) nav.classList.add('hw-menu-home');   // 作業專區首頁：手機上不顯示（頁面本身就有年級／科目選擇）
   if (nav && active) {
     const render = () => {
       const allPanel = sems.map(se => `<p class="hw-sem">${esc(se.name)}</p><div class="hw-grid">${se.subjects.map(subjBox).join('')}</div>`).join('')
@@ -200,6 +220,7 @@ const HW_DATA = [
         if (window.__hwAfterRender) window.__hwAfterRender(nav);   // 讓繁簡切換重新套用到新內容
       }));
       nav.__close = close;
+      reveal(nav);
     };
     render();
     document.addEventListener('click', e => { if (!nav.contains(e.target) && nav.__close) nav.__close(); });
@@ -249,6 +270,8 @@ const HW_DATA = [
         }).join('')}</div>
         ${inYear.map(se => `<div class="hwz-semrow"><span class="hwz-sem">${esc(label(se))}</span>${se.subjects.map(s =>
           `<button type="button" class="hwz-subj${s.works.length ? '' : ' none'}" data-hwz-subj="${esc(key(se, s))}" aria-pressed="${key(se, s) === curKey}">${esc(s.name)}<small>${s.works.length}</small></button>`).join('')}</div>`).join('')}
+        <label class="hwz-select-wrap"><select class="hwz-select" aria-label="科目">${inYear.map(se => `<optgroup label="${esc(label(se))}">${se.subjects.map(s =>
+          `<option value="${esc(key(se, s))}" ${key(se, s) === curKey ? 'selected' : ''}>${esc(s.name)}（${s.works.length}）</option>`).join('')}</optgroup>`).join('')}</select></label>
         ${cur ? `<div class="hwz-panel">
           <div class="hwz-title" role="heading" aria-level="3">${esc(cur.s.name)}${examTag(cur.s)}<small>${esc(cur.se.name)}</small></div>
           ${cur.s.works.length ? `<div class="hwz-list">${cur.s.works.map(w => `<a class="hwz-work" href="${esc(w.url)}">${esc(w.title)}<span aria-hidden="true">→</span></a>`).join('')}</div>`
@@ -256,7 +279,9 @@ const HW_DATA = [
         </div>` : '<p class="hwz-empty">目前没有开放的学期。</p>'}`;
       idx.querySelectorAll('[data-hwz-year]').forEach(b => b.onclick = () => { curYear = Number(b.dataset.hwzYear); curKey = ''; draw(); });
       idx.querySelectorAll('[data-hwz-subj]').forEach(b => b.onclick = () => { curKey = b.dataset.hwzSubj; draw(); });
+      const sel = idx.querySelector('.hwz-select'); if (sel) sel.onchange = () => { curKey = sel.value; draw(); };
       if (window.__hwAfterRender) window.__hwAfterRender(idx);   // 首頁會把簡體字轉成繁體
+      reveal(idx);
     };
     draw();
   }

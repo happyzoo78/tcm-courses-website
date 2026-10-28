@@ -70,7 +70,19 @@ function bindCarousels() {
   });
 }
 
+// 可以左右滑的選單（導覽列、後台分頁、分類、學期…）：重畫後自動捲到「目前選中」的那一顆，不會被擠出畫面
+function revealSelected() {
+  document.querySelectorAll('.nav, .admin-tabs, .exnav-cats, .car-tabs, .subj-row, .year-tabs, .exam-tabs').forEach(box => {
+    if (box.scrollWidth <= box.clientWidth + 2) return;
+    const cur = box.querySelector('[aria-selected="true"], [aria-pressed="true"], [aria-current="page"], [aria-current="true"]');
+    if (!cur) { box.scrollLeft = 0; return; }
+    const b = box.getBoundingClientRect(), c = cur.getBoundingClientRect();
+    box.scrollLeft += (c.left - b.left) - (b.width - c.width) / 2;
+  });
+}
+
 function bind() {
+  revealSelected();
   bindCarousels();
   // 手機的科目下拉選單：選了就等於按下對應的科目按鈕
   document.querySelectorAll('[data-subj-select]').forEach(sel => sel.onchange = () => {
