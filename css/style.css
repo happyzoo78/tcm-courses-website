@@ -528,3 +528,37 @@ fieldset.owners .check small { color: var(--muted); }
 .exam-tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .exam-tab[aria-selected="true"] .count { background: var(--accent-ink); color: var(--accent); }
 .exam-panel[hidden] { display: none; }
+
+/* 解析排版：顏色區分 */
+.q-explain > b { margin-bottom: 6px; }
+.q-explain p { margin: 4px 0; }
+.q-explain ul { margin: 4px 0; padding-left: 20px; }
+.xp-head { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 8px; }
+.xp-chip { display: inline-block; padding: 1px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; border: 1px solid currentColor; }
+.xp-chip.hard { color: var(--red); }
+.xp-chip.hot { color: #b8621b; }
+.xp-chip.warn { color: var(--gold); }
+.xp-chip.key { color: var(--accent); }
+.xp-chip.cat { color: var(--muted); font-weight: 400; }
+.xp-sec { margin: 8px 0; padding: 6px 12px; border-left: 4px solid var(--line); border-radius: 0 6px 6px 0; background: var(--surface); }
+.xp-label { display: inline-block; margin-bottom: 2px; font-size: 14px; font-weight: 700; }
+.xp-sec.main { border-color: var(--accent); } .xp-sec.main .xp-label { color: var(--accent); }
+.xp-sec.warn { border-color: var(--red); } .xp-sec.warn .xp-label { color: var(--red); }
+.xp-sec.trap { border-color: #b8621b; } .xp-sec.trap .xp-label { color: #b8621b; }
+.xp-sec.compare { border-color: #4f7a9a; } .xp-sec.compare .xp-label { color: #4f7a9a; }
+.xp-sec.other .xp-label { color: var(--gold); }
+.xp-sec.plain { border-color: transparent; background: transparent; padding-left: 0; }
+.xp-table-wrap { overflow-x: auto; margin: 6px 0; }
+.xp-table { border-collapse: collapse; width: 100%; font-size: 14px; background: var(--bg); }
+.xp-table th, .xp-table td { border: 1px solid var(--line); padding: 4px 8px; text-align: left; vertical-align: top; }
+.xp-table th { background: var(--surface-2); white-space: nowrap; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .xp-chip.hot, :root:not([data-theme="light"]) .xp-sec.trap .xp-label { color: #e8a462; }
+  :root:not([data-theme="light"]) .xp-sec.trap { border-color: #e8a462; }
+  :root:not([data-theme="light"]) .xp-sec.compare .xp-label { color: #8fb7d4; }
+  :root:not([data-theme="light"]) .xp-sec.compare { border-color: #8fb7d4; }
+}
+:root[data-theme="dark"] .xp-chip.hot, :root[data-theme="dark"] .xp-sec.trap .xp-label { color: #e8a462; }
+:root[data-theme="dark"] .xp-sec.trap { border-color: #e8a462; }
+:root[data-theme="dark"] .xp-sec.compare .xp-label { color: #8fb7d4; }
+:root[data-theme="dark"] .xp-sec.compare { border-color: #8fb7d4; }

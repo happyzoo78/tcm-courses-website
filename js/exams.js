@@ -219,7 +219,71 @@ function questionHtml(q, groups, mode, ctx = {}) {
 
 function explainHtml(q, mode) {
   if (mode === 'take' || !q.explanation) return '';
-  return `<div class="q-explain"><b>解析</b><div>${nl2br(q.explanation)}</div></div>`;
+  return `<div class="q-explain"><b>解析</b>${formatExplanation(q.explanation)}</div>`;
+}
+
+/* 解析排版：用顏色區分各段
+   - 第一行的徽章（🚨🔥⚠️🎯）與「分類：」→ 彩色小標籤
+   - 【解析】【易錯點】【高頻陷阱】【易混概念】… → 各自顏色的段落
+   - 連續兩行以上含「｜」→ 表格；「・」開頭 → 條列 */
+const XP_KIND = [[/易錯/, 'warn'], [/陷阱/, 'trap'], [/易混|對照|比較/, 'compare'], [/解析|說明|詳解/, 'main']];
+const BADGE_RE = /(🚨★?|🔥|⚠️|🎯)\s*([^🚨🔥⚠️🎯／　\s]+)/gu;
+function formatExplanation(text) {
+  const lines = String(text).split('\n');
+  let head = '';
+  if (lines.length && !/^【/.test(lines[0]) && /分類：|🚨|🔥|⚠️|🎯/u.test(lines[0])) {
+    const first = lines.shift();
+    const chips = [];
+    for (const m of first.matchAll(BADGE_RE)) {
+      const cls = m[1].startsWith('🚨') ? 'hard' : m[1] === '🔥' ? 'hot' : m[1] === '⚠️' ? 'warn' : 'key';
+      chips.push(`<span class="xp-chip ${cls}">${esc(m[1].replace('★', ''))} ${esc(m[2])}</span>`);
+    }
+    const cat = /分類：\s*(.+?)\s*$/.exec(first);
+    if (cat) chips.push(`<span class="xp-chip cat">${esc(cat[1])}</span>`);
+    head = chips.length ? `<div class="xp-head">${chips.join('')}</div>` : `<p>${esc(first)}</p>`;
+  }
+  // 依【標題】分段
+  const secs = [];
+  let cur = { name: '', lines: [] };
+  for (const l of lines) {
+    const m = /^【([^】]{1,12})】\s*(.*)$/.exec(l);
+    if (m) { if (cur.name || cur.lines.some(x => x.trim())) secs.push(cur); cur = { name: m[1], lines: m[2] ? [m[2]] : [] }; }
+    else cur.lines.push(l);
+  }
+  if (cur.name || cur.lines.some(x => x.trim())) secs.push(cur);
+  const body = secs.map(sec => {
+    const kind = (XP_KIND.find(([re]) => re.test(sec.name)) || [, 'other'])[1];
+    return `<div class="xp-sec ${sec.name ? kind : 'plain'}">${sec.name ? `<span class="xp-label">${esc(sec.name)}</span>` : ''}${xpBlocks(sec.lines)}</div>`;
+  }).join('');
+  return head + body;
+}
+
+function xpBlocks(lines) {
+  const out = [];
+  let i = 0;
+  while (i < lines.length) {
+    const l = lines[i];
+    if (!l.trim()) { i++; continue; }
+    if (l.includes('｜')) {
+      const rows = [];
+      while (i < lines.length && lines[i].includes('｜')) rows.push(lines[i++].split('｜'));
+      if (rows.length >= 2) {
+        out.push(`<div class="xp-table-wrap"><table class="xp-table"><thead><tr>${rows[0].map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead>
+          <tbody>${rows.slice(1).map(r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`);
+      } else out.push(`<p>${esc(rows[0].join('｜'))}</p>`);
+      continue;
+    }
+    if (/^・/.test(l)) {
+      const items = [];
+      while (i < lines.length && /^・/.test(lines[i])) items.push(lines[i++].replace(/^・\s*/, ''));
+      out.push(`<ul>${items.map(x => `<li>${esc(x)}</li>`).join('')}</ul>`);
+      continue;
+    }
+    const para = [];
+    while (i < lines.length && lines[i].trim() && !lines[i].includes('｜') && !/^・/.test(lines[i])) para.push(esc(lines[i++]));
+    out.push(`<p>${para.join('<br>')}</p>`);
+  }
+  return out.join('');
 }
 
 // 依題目順序畫出來，遇到共用選項組先畫選項
