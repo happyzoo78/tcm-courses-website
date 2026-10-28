@@ -74,26 +74,34 @@ function shelfCardsHtml() {
   const sems = visibleSemesters().filter(s => coursesIn(s.code).length);
   if (!sems.length) return '<p class="empty-note">目前沒有開放的書架。</p>';
   const tabs = yearTabsHtml(new Set(sems.map(s => yearOf(s.code))));
-  return tabs + semestersOfYear(sems, siteYear).map(sm => `
-    <h3 class="sem-title">${esc(sm.label)}</h3>
-    <div class="shelves">${coursesIn(sm.code).map(c => {
-      const items = itemsOf(c.id).slice().sort(byDateDesc);
-      return `
+  const inYear = semestersOfYear(sems, siteYear);
+  // 有圖卡的書架排前面；同一年級的所有書架放進同一個輪播
+  const list = inYear.flatMap(sm => coursesIn(sm.code).map(c => ({ c, sm, items: itemsOf(c.id).slice().sort(byDateDesc) })))
+    .sort((a, b) => (b.items.length > 0) - (a.items.length > 0));
+  const shelf = ({ c, sm, items }) => `
       <div class="shelf">
         <div class="shelf-head">
           <h4>${esc(c.title)}${isExamSubject(c) ? ' <span class="exam-tag">執醫考科</span>' : ''}</h4>
-          <span class="shelf-meta">${items.length} 張圖卡</span>
-          <a class="link sec-link" href="#course/${c.id}">打開書架 →</a>
+          <span class="shelf-meta">${esc(shortSemLabel(sm.code))} · ${items.length} 張圖卡</span>
         </div>
         ${items.length ? `<div class="shelf-list">${items.slice(0, 4).map(i => `
           <a class="mini-card" href="#detail/item/${i.id}">
             <span class="mini-thumb">${i.image ? `<img src="${esc(i.image)}" alt="" loading="lazy">` : TAIJI}</span>
             <span class="mini-text"><b>${esc(i.title)}</b><small>${esc(i.date || '')}</small></span>
-          </a>`).join('')}</div>
-          ${items.length > 4 ? `<a class="link shelf-more" href="#items/${c.id}">看全部 ${items.length} 張圖卡 →</a>` : ''}`
+          </a>`).join('')}</div>`
           : '<p class="empty-note">這個書架還沒有圖卡。</p>'}
+        <a class="link shelf-more" href="#course/${c.id}">More：打開「${esc(c.title)}」書架${items.length > 4 ? `（共 ${items.length} 張圖卡）` : ''} →</a>
       </div>`;
-    }).join('')}</div>`).join('');
+  return `${tabs}
+  <div class="carousel" data-carousel aria-roledescription="輪播" aria-label="各科圖卡">
+    <div class="car-track">${list.map(shelf).join('')}</div>
+    <div class="car-bar">
+      <button type="button" class="car-btn" data-car="prev" aria-label="上一個書架">‹</button>
+      <div class="car-dots">${list.map((_, i) => `<button type="button" class="car-dot" data-car-dot="${i}" aria-label="第 ${i + 1} 個書架"></button>`).join('')}</div>
+      <button type="button" class="car-btn" data-car="next" aria-label="下一個書架">›</button>
+      <a class="link car-more" href="#courses">More：全部書架 →</a>
+    </div>
+  </div>`;
 }
 
 function homePage() {

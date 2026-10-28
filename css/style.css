@@ -753,7 +753,6 @@ fieldset.owners .check small { color: var(--muted); }
 }
 .about-hero .hero-art { width: min(52%, 620px); height: auto; aspect-ratio: 640 / 300; top: 50%; bottom: auto; transform: translateY(-50%); }
 @media (max-width: 720px) { .about-hero .hero-art { width: 100%; height: 35%; opacity: .35; } }
-.hero.has-art::after { display: none; }   /* 有底圖時不再疊浮水印字 */
 .hero-art { -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 38%); mask-image: linear-gradient(to right, transparent 0%, #000 38%); }
 .about-hero p { position: relative; }
 @media (max-width: 720px) { .hero-art { -webkit-mask-image: linear-gradient(to bottom, transparent, #000 60%); mask-image: linear-gradient(to bottom, transparent, #000 60%); } .about-hero .hero-art { top: auto; bottom: 0; transform: none; } }
@@ -789,3 +788,24 @@ fieldset.owners .check small { color: var(--muted); }
 .shelf .empty-note { padding: 12px 14px; font-size: 14px; }
 @media (max-width: 860px) { .shelves { grid-template-columns: 1fr; } }
 @media (max-width: 720px) { .shelf { padding: 14px; } }
+
+/* 浮水印字壓在底圖上方，淡到不搶畫面 */
+.hero.has-art::after { display: block; z-index: 2; opacity: .16; font-size: 30px; right: 30px; bottom: 10px; text-shadow: 0 0 10px var(--surface); }
+@media (max-width: 1160px) { .hero.has-art::after { font-size: 22px; letter-spacing: 8px; } }
+@media (max-width: 720px) { .hero.has-art::after { display: none; } }
+
+/* 首頁圖卡輪播 */
+.carousel { position: relative; }
+.car-track { display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 14px) / 2); gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding-bottom: 2px; }
+.car-track::-webkit-scrollbar { display: none; }
+.car-track > .shelf { scroll-snap-align: start; }
+.car-bar { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+.car-btn { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: 20px; line-height: 1; cursor: pointer; }
+.car-btn:hover { border-color: var(--accent); color: var(--accent); }
+.car-dots { display: flex; gap: 6px; }
+.car-dot { width: 9px; height: 9px; padding: 0; border-radius: 50%; border: 0; background: var(--line); cursor: pointer; }
+.car-dot[aria-current="true"] { background: var(--accent); }
+.car-more { margin-left: auto; font-size: 14.5px; }
+.car-static .car-btn, .car-static .car-dots { display: none; }
+.shelf-more { margin-top: auto; padding-top: 10px; font-size: 14px; }
+@media (max-width: 860px) { .car-track { grid-auto-columns: 86%; } }

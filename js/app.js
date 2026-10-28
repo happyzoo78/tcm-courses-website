@@ -31,7 +31,43 @@ function render() {
   bind();
 }
 
+// 首頁圖卡輪播：左右按鈕、圓點、每 6 秒自動換下一個書架（滑鼠停留或手指操作時暫停）
+let carouselTimer = null;
+function bindCarousels() {
+  clearInterval(carouselTimer); carouselTimer = null;
+  document.querySelectorAll('[data-carousel]').forEach(box => {
+    const track = box.querySelector('.car-track');
+    const slides = [...track.children];
+    const dots = [...box.querySelectorAll('[data-car-dot]')];
+    const step = () => slides.length > 1 ? slides[1].offsetLeft - slides[0].offsetLeft : track.clientWidth;
+    const perView = () => Math.max(1, Math.round(track.clientWidth / step()));
+    const index = () => Math.round(track.scrollLeft / step());
+    const go = i => {
+      const last = Math.max(0, slides.length - perView());
+      if (i > last) i = 0; if (i < 0) i = last;
+      track.scrollTo({ left: i * step(), behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    };
+    const paint = () => {
+      const i = index(), n = perView();
+      dots.forEach((d, k) => d.setAttribute('aria-current', String(k >= i && k < i + n)));
+      box.classList.toggle('car-static', slides.length <= n);
+    };
+    box.querySelector('[data-car="prev"]').onclick = () => go(index() - 1);
+    box.querySelector('[data-car="next"]').onclick = () => go(index() + 1);
+    dots.forEach((d, k) => d.onclick = () => go(k));
+    track.addEventListener('scroll', () => requestAnimationFrame(paint), { passive: true });
+    let paused = false;
+    ['mouseenter', 'focusin', 'touchstart'].forEach(ev => box.addEventListener(ev, () => { paused = true; }, { passive: true }));
+    ['mouseleave', 'focusout'].forEach(ev => box.addEventListener(ev, () => { paused = false; }));
+    paint();
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches && slides.length > perView()) {
+      carouselTimer = setInterval(() => { if (!paused && document.visibilityState === 'visible' && box.isConnected) go(index() + 1); }, 6000);
+    }
+  });
+}
+
 function bind() {
+  bindCarousels();
   // 年級分頁（首頁、課程總覽、模擬考專區、後台共用）
   document.querySelectorAll('[data-site-year]').forEach(b => b.onclick = () => { siteYear = Number(b.dataset.siteYear); render(); });
   const retry = document.getElementById('retry');
