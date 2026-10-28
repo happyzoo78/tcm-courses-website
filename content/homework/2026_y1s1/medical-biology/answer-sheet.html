@@ -283,6 +283,7 @@ html[lang="zh-Hant"] .a-note::before { content: "補充說明"; }
       <button class="tool-btn" id="theme" type="button"></button>
     </div>
   </div>
+  <nav class="hw-menu" id="hw-menu" aria-label="科目选单"></nav>
 </header>
 
 <div class="layout">
@@ -2081,6 +2082,7 @@ const toTop = document.getElementById('toTop');
 addEventListener('scroll', () => toTop.classList.toggle('show', scrollY > 600), { passive: true });
 toTop.onclick = () => scrollTo({ top: 0 });
 </script>
+<script src="/content/homework/assets/menu.js"></script>
 <script>
 /* 繁／簡切換：只轉字形（OpenCC cn→tw），不改用詞，保留大陸醫學名詞（如 线粒体→線粒體，不會改成「粒線體」） */
 (function () {
@@ -2088,7 +2090,7 @@ toTop.onclick = () => scrollTo({ top: 0 });
   const SRC = 'https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/cn2t.js';
   const orig = new Map();          // 文字節點 → 原始簡體
   let conv = null, isTrad = false, loading = null;
-  const roots = () => [document.querySelector('.layout'), document.querySelector('footer')].filter(Boolean);
+  const roots = () => [document.getElementById('hw-menu'), document.querySelector('.layout'), document.querySelector('footer')].filter(Boolean);
   function paint() {
     btn.querySelector('.zh-g').textContent = isTrad ? '简' : '繁';
     btn.querySelector('.label').textContent = isTrad ? '切换简体' : '切換繁體';

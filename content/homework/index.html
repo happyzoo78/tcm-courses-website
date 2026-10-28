@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex, nofollow">
+<title>作业专区｜2026福建中醫台灣班網站</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+<script>
+  /* 沿用網站的深淺色設定（同一個網站會共用這個選擇） */
+  (function () { try { var t = localStorage.getItem('tcm-theme'); if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t; } catch (e) {} })();
+</script>
+<style>
+/* ===== 配色：與 2026福建中醫台灣班網站 相同 ===== */
+:root {
+  --bg:#f3ede1; --surface:#fbf7ef; --surface-2:#efe6d4; --ink:#2b2f2a; --muted:#5f5a4c; --line:#ddd0b8;
+  --accent:#3d5e50; --accent-ink:#fbf7ef; --accent-soft:#e1eadf; --accent-soft-ink:#2f4a3f;
+  --red:#973d2f; --gold:#8a6f46; --mark:#f3e3b5; --focus:#c07a2c; --shadow:0 4px 18px #3d30201a;
+  --strong:#24453a; --warn-bg:#f6e3c9; --warn-ink:#8a4b10; --ppt-bg:#e4e6ef; --ppt-ink:#3b4673; --book-bg:#efe3d2; --book-ink:#6b4a24;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#1b1f1d; --surface:#232926; --surface-2:#2b322e; --ink:#e6e0d2; --muted:#b4ab98; --line:#3c4540;
+    --accent:#9cbfa8; --accent-ink:#17201b; --accent-soft:#2f3e36; --accent-soft-ink:#cfe0d4;
+    --red:#e09a8c; --gold:#c8b08a; --mark:#4a4128; --focus:#e0a860; --shadow:0 4px 18px #0006; --strong:#d9e8dc; --warn-bg:#4a3720; --warn-ink:#f0c58e; --ppt-bg:#2f3447; --ppt-ink:#c3cbf0; --book-bg:#3d3326; --book-ink:#e3c9a4;
+  }
+}
+:root[data-theme="dark"] {
+  --bg:#1b1f1d; --surface:#232926; --surface-2:#2b322e; --ink:#e6e0d2; --muted:#b4ab98; --line:#3c4540;
+  --accent:#9cbfa8; --accent-ink:#17201b; --accent-soft:#2f3e36; --accent-soft-ink:#cfe0d4;
+  --red:#e09a8c; --gold:#c8b08a; --mark:#4a4128; --focus:#e0a860; --shadow:0 4px 18px #0006; --strong:#d9e8dc; --warn-bg:#4a3720; --warn-ink:#f0c58e; --ppt-bg:#2f3447; --ppt-ink:#c3cbf0; --book-bg:#3d3326; --book-ink:#e3c9a4;
+}
+
+/* ===== 基本排版 ===== */
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: 76px; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font-family: "PingFang TC", "PingFang SC", "Microsoft JhengHei", "Microsoft YaHei", "Noto Sans TC", "Noto Sans SC", sans-serif;
+  font-size: 17px; line-height: 1.85; letter-spacing: .02em; }
+h1, h2, .logo, .doc h3 { font-family: "Noto Serif TC", "Songti TC", "Songti SC", serif; letter-spacing: .03em; }
+a { color: var(--accent); }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 6px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+
+/* ===== 頁首（與網站一致） ===== */
+header { position: sticky; top: 0; z-index: 10; background: var(--surface); border-bottom: 1px solid var(--line); }
+.bar { max-width: 1240px; margin: 0 auto; padding: 10px 20px; display: flex; align-items: center; gap: 14px; }
+.logo { display: flex; align-items: center; font-size: 22px; font-weight: 900; color: var(--ink); text-decoration: none; min-width: 0; }
+.seal { display: inline-grid; place-items: center; flex: none; width: 30px; height: 30px; margin-right: 10px; background: var(--red); color: #fff; border-radius: 5px; font-size: 15px; }
+.logo-text > span { display: inline-block; white-space: nowrap; }
+.actions { margin-left: auto; display: flex; gap: 6px; flex: none; }
+.tool-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; border-radius: 8px; border: 1px solid var(--line);
+  background: none; font-size: 15px; color: var(--ink); text-decoration: none; white-space: nowrap; }
+.tool-btn:hover { background: var(--surface-2); }
+.ico { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ===== 版面：左側目錄＋右側內容 ===== */
+.layout { max-width: 1240px; margin: 0 auto; padding: 28px 20px 60px; display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 32px; align-items: start; }
+.toc { position: sticky; top: 76px; max-height: calc(100vh - 96px); overflow: auto; padding: 16px 14px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px; font-size: 14px; line-height: 1.6; }
+.toc summary { font-weight: 700; color: var(--accent); cursor: pointer; list-style: none; }
+.toc summary::-webkit-details-marker { display: none; }
+.toc ul { list-style: none; margin: 0; padding: 0; }
+.toc .toc-list { margin-top: 8px; }
+.toc .toc-list > li > a { font-weight: 600; }
+.toc ul ul { padding-left: 12px; margin: 2px 0 6px; border-left: 2px solid var(--line); }
+.toc a { display: block; padding: 3px 6px; border-radius: 6px; color: var(--ink); text-decoration: none; }
+.toc a:hover { background: var(--surface-2); }
+.toc a.active { background: var(--accent-soft); color: var(--accent-soft-ink); }
+
+/* ===== 標題區 ===== */
+.hero { padding: 26px 30px; margin-bottom: 22px; background: linear-gradient(110deg, var(--surface), var(--surface-2));
+  border: 1px solid var(--line); border-radius: 14px; }
+.eyebrow { font-size: 14px; color: var(--accent); letter-spacing: 3px; font-weight: 600; }
+.hero h1 { margin: 6px 0 0; font-size: clamp(25px, 3.6vw, 36px); line-height: 1.4; }
+
+/* ===== 內文 ===== */
+main, .doc { min-width: 0; }
+
+.doc h3 { font-size: 25px; margin: 46px 0 14px; padding: 10px 0 10px 16px; border-left: 5px solid var(--accent); background: linear-gradient(90deg, var(--surface), transparent); border-radius: 0 8px 8px 0; }
+.doc h4 { font-size: 20px; margin: 32px 0 10px; padding-bottom: 8px; border-bottom: 1px solid var(--line); color: var(--accent); }
+.doc h5 { font-size: 18px; margin: 24px 0 8px; color: var(--red); }
+.doc h6 { font-size: 17px; margin: 20px 0 8px; color: var(--ink); }
+.doc p { margin: 10px 0; }
+.doc ul, .doc ol { padding-left: 24px; margin: 8px 0; }
+.doc li { margin: 4px 0; }
+.doc strong { font-weight: 700; color: var(--strong); }
+.doc hr { border: 0; border-top: 1px dashed var(--line); margin: 40px 0; }
+.doc blockquote { margin: 12px 0; padding: 10px 18px; background: var(--surface); border-left: 4px solid var(--gold); border-radius: 8px; color: var(--muted); }
+.doc code { font-size: .92em; padding: 1px 6px; background: var(--surface-2); border-radius: 4px; }
+
+/* 表格：手機可左右滑動 */
+.table-wrap { overflow-x: auto; margin: 12px 0 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); -webkit-overflow-scrolling: touch; }
+.doc table { border-collapse: collapse; width: 100%; font-size: 15.5px; line-height: 1.7; }
+.doc th { position: sticky; top: 0; background: var(--accent); color: var(--accent-ink); text-align: left; font-weight: 600; padding: 9px 12px; white-space: nowrap; }
+.doc td { padding: 9px 12px; border-top: 1px solid var(--line); vertical-align: top; }
+.doc tr:nth-child(even) td { background: color-mix(in srgb, var(--surface-2) 55%, transparent); }
+.doc td:first-child { white-space: nowrap; font-weight: 600; color: var(--muted); }
+
+/* 標記標籤（取代 ✅ 🅟 📖 🆕 ⚠️ 與【…】） */
+.tag { display: inline-block; margin: 0 3px; padding: 0 7px; border-radius: 5px; font-size: 12.5px; font-weight: 600; line-height: 1.75; letter-spacing: 0; vertical-align: 1px; white-space: nowrap; }
+.tag-ok   { background: var(--accent-soft); color: var(--accent-soft-ink); }
+.tag-ppt  { background: var(--ppt-bg); color: var(--ppt-ink); }
+.tag-book { background: var(--book-bg); color: var(--book-ink); }
+.tag-new  { background: transparent; color: var(--red); border: 1px solid currentColor; line-height: 1.6; }
+.tag-warn { background: var(--warn-bg); color: var(--warn-ink); }
+.tag-plain{ background: var(--surface-2); color: var(--muted); }
+.tag-note { font-size: 15px; color: var(--muted); }
+.tag-note::before { content: "（"; } .tag-note::after { content: "）"; }
+
+/* 開頭資訊欄 */
+.info { display: grid; grid-template-columns: max-content 1fr; gap: 8px 16px; margin: 0 0 8px; padding: 18px 22px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+.info dt { font-weight: 700; color: var(--accent); }
+.info dd { margin: 0; }
+
+/* 教師原話 */
+.quote { margin: 12px 0; padding: 4px 22px; background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--red); border-radius: 10px; color: var(--ink); font-family: "Noto Serif TC", "Songti SC", serif; font-size: 18px; }
+.quote p { margin: 12px 0; }
+
+/* 填空題表格：題號欄做成圓形編號 */
+.qtable td:first-child { width: 52px; text-align: center; }
+.qtable td:first-child { color: var(--accent); font-variant-numeric: tabular-nums; }
+
+/* 單選題答案卡片 */
+.answer-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; margin: 12px 0 18px; }
+.ans { display: flex; gap: 10px; align-items: flex-start; padding: 9px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; font-size: 15px; line-height: 1.65; }
+.ans-no { flex: none; min-width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; background: var(--surface-2); color: var(--muted); font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ans-body { min-width: 0; }
+.doc .ans-key { display: inline-block; min-width: 26px; margin-right: 6px; padding: 0 6px; text-align: center; border-radius: 6px; background: var(--accent); color: var(--accent-ink); font-size: 15px; }
+
+/* 名詞解釋、問答題卡片 */
+.qcard { margin: 12px 0; padding: 14px 18px 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+.qcard > *:first-child { margin-top: 0; }
+.q-head { display: block; }
+.q-no { display: inline-grid; place-items: center; min-width: 26px; height: 26px; margin-right: 8px; padding: 0 6px; border-radius: 13px; background: var(--accent); color: var(--accent-ink); font-size: 13px; font-weight: 700; line-height: 1; vertical-align: 2px; }
+.q-head > strong:first-of-type { font-size: 17.5px; }
+.qcard .table-wrap { background: var(--bg); }
+
+/* 卡片內的層級：小標（＊超微結構）→ 子項（1. 外核膜） */
+.doc ul { padding-left: 22px; }
+.doc li::marker { color: var(--gold); }
+.qcard > ul > li { margin: 10px 0 4px; }
+.qcard > ul > li > strong:first-child { color: var(--accent); font-size: 16.5px; }
+.doc ul.numlist { list-style: none; padding-left: 4px; margin: 6px 0 8px; }
+.doc li.num { list-style: none; position: relative; padding-left: 34px; margin: 6px 0 6px -22px; }
+.doc ul.numlist > li.num { margin-left: 0; }
+.li-no { position: absolute; left: 0; top: .35em; min-width: 22px; height: 22px; padding: 0 5px; display: inline-grid; place-items: center;
+  border-radius: 11px; border: 1.5px solid var(--accent); color: var(--accent); font-size: 12px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.qcard ul ul.numlist, .qcard li > ul.numlist { margin-top: 4px; padding-left: 2px; border-left: 2px solid var(--line); padding-left: 10px; }
+
+/* ①～⑥ 小標 */
+.doc p.sub-head { margin: 16px 0 6px; padding-top: 10px; border-top: 1px dashed var(--line); }
+.doc p.sub-head > strong:first-child { color: var(--accent); font-size: 16.5px; }
+.qcard > .q-head + p.sub-head { border-top: 0; padding-top: 0; }
+.doc li > ul:has(> li.num) { border-left: 2px solid var(--line); padding-left: 10px; margin-left: 2px; }
+
+/* 收合區（作者備註、重複的目錄） */
+.fold { margin: 18px 0; border: 1px dashed var(--line); border-radius: 12px; padding: 4px 18px; background: transparent; }
+.fold > summary { cursor: pointer; padding: 10px 0; color: var(--muted); font-weight: 600; }
+.fold[open] > summary { border-bottom: 1px dashed var(--line); margin-bottom: 8px; }
+.fold h3, .fold h4 { margin-top: 18px; font-size: 18px; border: 0; background: none; padding: 0; color: var(--muted); }
+
+/* 回到頂端 */
+.to-top { position: fixed; right: 18px; bottom: 18px; width: 46px; height: 46px; border-radius: 50%; border: 1px solid var(--line);
+  background: var(--surface); box-shadow: var(--shadow); display: grid; place-items: center; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.to-top.show { opacity: 1; pointer-events: auto; }
+
+footer { max-width: 1240px; margin: 0 auto; padding: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+
+/* ===== 平板、手機 ===== */
+@media (max-width: 960px) {
+  .layout { grid-template-columns: minmax(0, 1fr); gap: 16px; padding-top: 18px; }
+  .toc { position: static; max-height: none; }
+  .toc:not([open]) .toc-list { display: none; }
+  .toc summary::after { content: "　▾ 點我展開"; font-weight: 400; color: var(--muted); }
+  .toc[open] summary::after { content: "　▴ 收起"; }
+  .tool-btn .label { display: none; }
+}
+@media (max-width: 720px) {
+  body { font-size: 16px; }
+  .bar { padding: 10px 16px; }
+  .logo { font-size: 17px; line-height: 1.3; }
+  .layout { padding: 14px 14px 50px; }
+  .hero { padding: 20px 18px; }
+  .doc h3 { font-size: 21px; }
+  .doc h4 { font-size: 18px; }
+  .doc table { font-size: 14.5px; }
+  .doc td:first-child { white-space: normal; }
+  .info { grid-template-columns: 1fr; gap: 2px; padding: 14px 16px; }
+  .info dd { margin-bottom: 8px; }
+  .qcard { padding: 12px 14px 6px; }
+  .answer-grid { grid-template-columns: 1fr; }
+  .quote { font-size: 16.5px; padding: 2px 16px; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+
+/* 列印：只印內容 */
+@media print {
+  header, .toc, .to-top, footer { display: none !important; }
+  .layout { display: block; padding: 0; }
+  body { background: #fff; color: #000; font-size: 12pt; }
+  .table-wrap { overflow: visible; border: 0; }
+  .doc th { background: #ddd; color: #000; }
+}
+/* ===== v10：題目＋答案 ===== */
+.q-text { margin: 0 0 8px; color: var(--ink); font-weight: 700; }
+.a-text { padding: 8px 12px; background: var(--accent-soft); border-radius: 8px; color: var(--accent-soft-ink); }
+.a-text strong { color: inherit; }
+.ans-lab { display: inline-block; margin-right: 8px; padding: 0 7px; border-radius: 5px; background: var(--accent); color: var(--accent-ink); font-size: 12.5px; font-weight: 700; line-height: 1.75; vertical-align: 1px; }
+.blank { display: inline-block; min-width: 3.2em; margin: 0 3px; border-bottom: 1.5px solid var(--muted); vertical-align: -2px; height: 1em; }
+.mcq-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 10px; margin: 12px 0 18px; }
+.mcq { padding: 12px 14px 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; font-size: 15.5px; line-height: 1.7; }
+.doc .mcq-stem { margin: 0 0 6px; font-weight: 700; }
+.mcq .q-no { display: inline-grid; place-items: center; min-width: 24px; height: 24px; margin-right: 8px; padding: 0 5px; border-radius: 12px; background: var(--surface-2); color: var(--muted); font-size: 12.5px; font-weight: 700; }
+.doc ul.opts { list-style: none; padding: 0; margin: 4px 0 8px; }
+.doc .opt { margin: 3px 0; padding: 2px 8px; border-radius: 6px; }
+.opt-l { display: inline-block; width: 1.4em; font-weight: 700; color: var(--muted); }
+.opt.correct { background: var(--accent-soft); color: var(--accent-soft-ink); font-weight: 600; }
+.opt.correct .opt-l { color: var(--accent); }
+.mcq-ans { padding-top: 6px; border-top: 1px dashed var(--line); font-size: 14.5px; }
+.doc .mcq-ans .ans-key { display: inline-block; min-width: 26px; margin-right: 6px; padding: 0 6px; text-align: center; border-radius: 6px; background: var(--accent); color: var(--accent-ink); }
+.qcard .q-head strong { font-weight: 700; }
+@media (max-width: 720px) { .mcq-list { grid-template-columns: 1fr; } }
+@media print { .a-text { background: #eee; color: #000; } .opt.correct { background: #e6e6e6; } .mcq { break-inside: avoid; } }
+.fill-key { display: inline-block; min-width: 1.6em; padding: 0 4px; text-align: center; border-bottom: 2px solid var(--accent); color: var(--accent); font-weight: 800; }
+.a-src { margin-top: 6px; padding-top: 6px; border-top: 1px dashed color-mix(in srgb, var(--accent) 35%, transparent); font-size: 13.5px; color: var(--muted); line-height: 1.7; }
+.qcard > .a-src { margin: 0 0 8px; }
+.src-lab { display: inline-block; margin-right: 6px; font-size: 12px; font-weight: 700; color: var(--muted); letter-spacing: .1em; }
+.src-lab::before { content: "▸ "; }
+.src-item { display: inline; margin-right: 10px; }
+.src-item .tag { margin-left: 0; }
+.doc .a-text > :not(.a-src) { }
+/* ===== v10：答案更醒目 ===== */
+.a-text { border-left: 5px solid var(--accent); padding: 10px 14px; font-size: 16.5px; color: var(--ink); box-shadow: 0 1px 0 color-mix(in srgb, var(--accent) 20%, transparent); }
+.doc .a-text strong { color: var(--red); font-weight: 800; }
+.doc .a-text .a-src strong { color: inherit; font-weight: 700; }
+.a-text > .ans-lab, .mcq-ans > .ans-lab { font-size: 13.5px; padding: 1px 9px; background: var(--red); color: #fff; }
+.opt.correct { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.opt.correct .opt-l { color: var(--accent-ink); }
+.opt.correct::after { content: "  ✓ 正确答案"; font-size: 12.5px; font-weight: 700; opacity: .9; }
+.fill-key { min-width: 1.8em; padding: 0 6px; border: 0; border-radius: 6px; background: var(--red); color: #fff; font-size: 1.05em; }
+.doc .mcq-ans .ans-key { min-width: 30px; font-size: 16px; background: var(--red); color: #fff; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .a-text > .ans-lab, :root:not([data-theme="light"]) .fill-key, :root:not([data-theme="light"]) .doc .mcq-ans .ans-key { color: #1b1f1d; } }
+:root[data-theme="dark"] .a-text > .ans-lab, :root[data-theme="dark"] .fill-key, :root[data-theme="dark"] .doc .mcq-ans .ans-key { color: #1b1f1d; }
+@media print { .opt.correct { background: #ddd; color: #000; } .fill-key, .doc .mcq-ans .ans-key, .ans-lab { background: #000 !important; color: #fff !important; } }
+.zh-g { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 5px; background: var(--accent); color: var(--accent-ink); font-size: 13px; font-weight: 700; }
+#zhBtn[disabled] { opacity: .6; cursor: wait; }
+html[lang="zh-Hant"] .opt.correct::after { content: "  ✓ 正確答案"; }
+.doc p.related { margin: 10px 0 0; padding: 10px 16px; background: var(--surface-2); border-radius: 10px; font-weight: 600; }
+.doc p.related a { text-decoration: none; }
+/* ===== 兩頁互連 ===== */
+.page-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+.page-tabs a { flex: 1 1 220px; display: flex; align-items: center; gap: 8px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); text-decoration: none; font-weight: 600; }
+.page-tabs a:hover { background: var(--surface-2); }
+.page-tabs a[aria-current="page"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.page-tabs a[aria-current="page"]::after { content: "目前页面"; margin-left: auto; font-size: 12px; opacity: .85; }
+html[lang="zh-Hant"] .page-tabs a[aria-current="page"]::after { content: "目前頁面"; }
+.toc .toc-pages { display: grid; gap: 4px; margin: 8px 0 10px; padding-bottom: 10px; border-bottom: 1px dashed var(--line); }
+.toc .toc-pages a { display: flex; gap: 6px; padding: 5px 8px; border-radius: 6px; font-size: 13.5px; font-weight: 600; color: var(--accent); }
+.toc .toc-pages a[aria-current="page"] { background: var(--accent-soft); color: var(--accent-soft-ink); }
+.next-page { display: flex; flex-direction: column; gap: 2px; margin: 40px 0 10px; padding: 16px 20px; border: 1px solid var(--line); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface); text-decoration: none; }
+.next-page:hover { background: var(--surface-2); }
+.np-lab { font-size: 13px; color: var(--muted); }
+.np-name { font-size: 18px; font-weight: 700; color: var(--accent); }
+@media print { .page-tabs, .next-page { display: none; } }
+/* 注解：與答案分開、不搶粗體 */
+.a-note { margin-top: 8px; padding: 6px 10px; border-radius: 6px; background: color-mix(in srgb, var(--surface) 70%, transparent); font-size: 14px; line-height: 1.7; color: var(--muted); }
+.a-note::before { content: "补充说明"; display: block; margin-bottom: 2px; font-size: 12px; font-weight: 700; letter-spacing: .1em; color: var(--muted); }
+html[lang="zh-Hant"] .a-note::before { content: "補充說明"; }
+.doc .a-note p { margin: 2px 0; }
+.doc .a-text .a-note strong { color: var(--ink); font-weight: 600; }
+</style>
+<style>
+.layout.hw-home-layout { display: block; max-width: 1100px; }
+.hw-idx-sem { font-size: 22px; margin: 26px 0 12px; padding: 8px 0 8px 14px; border-left: 5px solid var(--accent); }
+.hw-idx .hw-subj { padding: 14px 16px; background: var(--surface); }
+.hw-idx .hw-subj h4 { font-size: 19px; margin-bottom: 8px; }
+.hw-idx .hw-subj a { font-size: 16px; padding: 8px 10px; border: 1px solid var(--line); margin: 6px 0; background: var(--bg); }
+.hw-idx .hw-subj a:hover { border-color: var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div class="logo"><span class="seal">醫</span><span class="logo-text"><span>2026福建中醫</span><span>台灣班網站</span></span></div>
+    <div class="actions">
+      <button class="tool-btn" id="zhBtn" type="button"><span class="zh-g">繁</span><span class="label">切換繁體</span></button>
+      <button class="tool-btn" id="theme" type="button"></button>
+    </div>
+  </div>
+  <nav class="hw-menu" id="hw-menu" aria-label="科目选单"></nav>
+</header>
+
+<div class="layout hw-home-layout">
+  <details class="toc" id="toc" hidden><summary>目錄</summary></details>
+  <main>
+    <section class="hero">
+      <div class="eyebrow">2026福建中醫台灣班 · 作業專區</div>
+      <h1>作业专区</h1>
+    </section>
+    <article class="doc">
+      <p>依学期 → 科目整理全班的作业答案与作答页。上方的「科目选单」在每一页都看得到，随时可以切换到其他科目或作业。</p>
+      <div id="hw-index"></div>
+    </article>
+  </main>
+</div>
+
+<footer>2026福建中醫台灣班網站　｜　本頁內容僅供班級成員學習使用，請勿轉貼或外流，並尊重教材著作權。</footer>
+
+<button class="to-top" id="toTop" type="button" aria-label="回到頂端"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 15l-6-6-6 6"/></svg></button>
+
+<script>
+/* 深淺色切換（與網站共用設定） */
+const SUN = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v2.5M12 20v2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M1.5 12H4M20 12h2.5M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></svg>';
+const MOON = '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+const themeBtn = document.getElementById('theme');
+const sysDark = matchMedia('(prefers-color-scheme: dark)');
+const isDark = () => { const t = document.documentElement.dataset.theme; return t ? t === 'dark' : sysDark.matches; };
+function paintTheme() {
+  const d = isDark();
+  themeBtn.innerHTML = (d ? SUN : MOON) + `<span class="label">${d ? '淺色模式' : '深色模式'}</span>`;
+  themeBtn.setAttribute('aria-label', d ? '切換為淺色模式' : '切換為深色模式');
+}
+themeBtn.onclick = () => {
+  const next = isDark() ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  try { localStorage.setItem('tcm-theme', next); } catch (e) {}
+  paintTheme();
+};
+sysDark.addEventListener?.('change', paintTheme);
+paintTheme();
+
+/* 手機上目錄預設收起；點選目錄項目後自動收起 */
+const toc = document.getElementById('toc');
+const narrow = matchMedia('(max-width: 960px)');
+if (narrow.matches) toc.open = false;
+toc.addEventListener('click', e => { if (e.target.closest('a') && narrow.matches) toc.open = false; });
+
+/* 目錄標示目前閱讀位置 */
+const links = [...toc.querySelectorAll('a[href^="#"]')];
+const targets = links.map(a => document.getElementById(decodeURIComponent(a.hash.slice(1)))).filter(Boolean);
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(en => {
+    if (!en.isIntersecting) return;
+    links.forEach(a => a.classList.toggle('active', decodeURIComponent(a.hash.slice(1)) === en.target.id));
+  });
+}, { rootMargin: '-80px 0px -70% 0px' });
+targets.forEach(t => obs.observe(t));
+
+/* 回到頂端按鈕 */
+const toTop = document.getElementById('toTop');
+addEventListener('scroll', () => toTop.classList.toggle('show', scrollY > 600), { passive: true });
+toTop.onclick = () => scrollTo({ top: 0 });
+</script>
+<script src="/content/homework/assets/menu.js"></script>
+<script>
+/* 繁／簡切換：只轉字形（OpenCC cn→tw），不改用詞，保留大陸醫學名詞（如 线粒体→線粒體，不會改成「粒線體」） */
+(function () {
+  const btn = document.getElementById('zhBtn');
+  const SRC = 'https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/cn2t.js';
+  const orig = new Map();          // 文字節點 → 原始簡體
+  let conv = null, isTrad = false, loading = null;
+  const roots = () => [document.getElementById('hw-menu'), document.querySelector('.layout'), document.querySelector('footer')].filter(Boolean);
+  function paint() {
+    btn.querySelector('.zh-g').textContent = isTrad ? '简' : '繁';
+    btn.querySelector('.label').textContent = isTrad ? '切换简体' : '切換繁體';
+    btn.setAttribute('aria-label', isTrad ? '切换为简体中文' : '切換為繁體中文');
+    document.documentElement.lang = isTrad ? 'zh-Hant' : 'zh-Hans';
+  }
+  function load() {
+    if (conv) return Promise.resolve(conv);
+    if (loading) return loading;
+    loading = new Promise((ok, bad) => {
+      const s = document.createElement('script'); s.src = SRC;
+      s.onload = () => {
+        const base = OpenCC.Converter({ from: 'cn', to: 'tw' });
+        /* 人工校對：修正 OpenCC 一對多誤轉（醫學名詞） */
+        const FIX = [['麵','面'],['錶','表'],['癥','症'],['遊離','游離'],['髮育','發育'],['臺灣','台灣'],['復等位','複等位'],['併合成','並合成'],['菌併成功','菌並成功'],['顎','腭'],['睪','睾'],['汙','污']];
+        conv = t => FIX.reduce((x, [a, b]) => x.split(a).join(b), base(t));
+        ok(conv);
+      };
+      s.onerror = () => { loading = null; bad(new Error('load')); };
+      document.head.appendChild(s);
+    });
+    return loading;
+  }
+  function walk(fn) {
+    roots().forEach(r => {
+      const w = document.createTreeWalker(r, NodeFilter.SHOW_TEXT, { acceptNode: n => n.nodeValue.trim() && !n.parentElement.closest('script,style') ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT });
+      let n; while ((n = w.nextNode())) fn(n);
+    });
+  }
+  async function toTrad() {
+    btn.disabled = true; btn.querySelector('.label').textContent = '轉換中…';
+    try { await load(); } catch (e) { btn.disabled = false; paint(); btn.querySelector('.label').textContent = '載入失敗，請重試'; return; }
+    walk(n => { if (!orig.has(n)) orig.set(n, n.nodeValue); n.nodeValue = conv(orig.get(n)); });
+    document.title = conv(document.title);
+    isTrad = true; btn.disabled = false; paint();
+  }
+  function toSimp() {
+    orig.forEach((v, n) => { n.nodeValue = v; });
+    document.title = window.__zhTitle;
+    isTrad = false; paint();
+  }
+  window.__zhTitle = document.title;
+  btn.onclick = () => {
+    const next = isTrad ? 's' : 't';
+    try { localStorage.setItem('tcm-zh', next); } catch (e) {}
+    next === 't' ? toTrad() : toSimp();
+  };
+  paint();
+  let saved = null; try { saved = localStorage.getItem('tcm-zh'); } catch (e) {}
+  if (saved === 't') toTrad();
+})();
+</script>
+</body>
+</html>
