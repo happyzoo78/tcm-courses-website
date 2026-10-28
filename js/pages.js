@@ -90,8 +90,27 @@ function homePage() {
     </div>
   </section>
 
-  <h2 class="section">科目入口 <small>選年級，點科目進入</small></h2>
-  ${yearCoursesHtml()}
+  <h2 class="section">從這裡開始</h2>
+  <div class="entry-grid">
+    <a class="entry" href="#courses">
+      <span class="entry-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5.5C4 4.7 4.7 4 5.5 4H11v16H5.5c-.8 0-1.5-.7-1.5-1.5z"/><path d="M20 5.5c0-.8-.7-1.5-1.5-1.5H13v16h5.5c.8 0 1.5-.7 1.5-1.5z"/><path d="M7 8h2M7 11h2M15 8h2M15 11h2"/></svg></span>
+      <span class="entry-name">課程總覽</span>
+      <span class="entry-desc">依年級找科目，看學習網頁與圖卡</span>
+      <span class="entry-count">${shown.length} 科 · ${totalPages} 份網頁 · ${totalCards} 張圖卡</span>
+    </a>
+    <a class="entry" href="#examzone">
+      <span class="entry-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3.5V5h6V3.5"/><path d="M8.5 10l1.5 1.5 3-3M8.5 16l1.5 1.5 3-3"/><path d="M15 11h1.5M15 17h1.5"/></svg></span>
+      <span class="entry-name">模擬考專區</span>
+      <span class="entry-desc">線上作答、自動批改、錯題重練</span>
+      <span class="entry-count">${totalExams} 份考卷</span>
+    </a>
+    <a class="entry" href="/content/homework/">
+      <span class="entry-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4"/><path d="M9 12h7M9 15.5h7M9 19h4"/><path d="M3.5 8.5l2.5-2.5"/></svg></span>
+      <span class="entry-name">各科作業專區</span>
+      <span class="entry-desc">作業答案與作答頁，不用登入也能看</span>
+      <span class="entry-count">前往作業專區 →</span>
+    </a>
+  </div>
 
   <h2 class="section">最新更新 <small>最近 5 筆</small></h2>
   <div class="upd-list">
@@ -106,7 +125,7 @@ function homePage() {
 
   <h2 class="section">使用說明</h2>
   <div class="panel prose">
-    <p><b>瀏覽方式：</b>選年級、點科目，查看該科的學習網頁、模擬考題與圖卡；上方「模擬考專區」可依年級、科目找考卷，「各科作業專區」不用登入也能看。</p>
+    <p><b>瀏覽方式：</b>「課程總覽」依年級找科目，進入後可看學習網頁、模擬考題與圖卡；「模擬考專區」依年級、科目找考卷；「各科作業專區」不用登入也能看。</p>
     ${hasAdminAccess() ? `<p><b>資料管理：</b>點右上角「管理後台」，可以上傳網頁、出模擬考題${admin.canWrite ? '，或新增修改課程與圖卡' : '（限你負責的科目）'}。</p>` : ''}
     <p><b>使用範圍：</b>本站內容僅供班級成員學習使用，請勿轉貼或外流，並尊重教材著作權。</p>
   </div>`;

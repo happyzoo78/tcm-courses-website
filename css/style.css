@@ -757,3 +757,15 @@ fieldset.owners .check small { color: var(--muted); }
 .hero-art { -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 38%); mask-image: linear-gradient(to right, transparent 0%, #000 38%); }
 .about-hero p { position: relative; }
 @media (max-width: 720px) { .hero-art { -webkit-mask-image: linear-gradient(to bottom, transparent, #000 60%); mask-image: linear-gradient(to bottom, transparent, #000 60%); } .about-hero .hero-art { top: auto; bottom: 0; transform: none; } }
+
+/* 首頁：三個入口 */
+.entry-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.entry { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto auto; column-gap: 14px; row-gap: 4px; padding: 18px 20px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--ink); text-decoration: none; transition: border-color .15s, transform .15s; }
+.entry:hover { border-color: var(--accent); transform: translateY(-2px); }
+.entry-ico { grid-row: 1 / 4; width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-soft-ink); }
+.entry-ico svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.entry-name { font-family: "Noto Serif TC", serif; font-size: 19px; font-weight: 700; }
+.entry-desc { font-size: 14.5px; color: var(--muted); }
+.entry-count { font-size: 13.5px; color: var(--accent); }
+@media (max-width: 960px) { .entry-grid { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { .entry { transition: none; } .entry:hover { transform: none; } }
