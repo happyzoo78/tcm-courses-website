@@ -809,3 +809,20 @@ fieldset.owners .check small { color: var(--muted); }
 .car-static .car-btn, .car-static .car-dots { display: none; }
 .shelf-more { margin-top: auto; padding-top: 10px; font-size: 14px; }
 @media (max-width: 860px) { .car-track { grid-auto-columns: 86%; } }
+
+/* 首頁：以學期為一頁的輪播 */
+.sem-carousel .car-track { grid-auto-columns: 100%; align-items: start; }
+.car-slide { scroll-snap-align: start; min-width: 0; }
+.car-slide .sem-title { margin-top: 4px; }
+.car-top { margin: 0 0 6px; }
+.car-tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+.car-tabs::-webkit-scrollbar { display: none; }
+.car-tab { flex: none; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: 14.5px; cursor: pointer; white-space: nowrap; }
+.car-tab[aria-current="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.sem-carousel .shelves { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.shelf-head h4 a { color: inherit; text-decoration: none; }
+.shelf-head h4 a:hover { color: var(--accent); }
+@media (max-width: 1000px) { .sem-carousel .shelves { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 720px) { .sem-carousel .shelves { grid-template-columns: 1fr; } .car-more { display: none; } }
+@media (max-width: 860px) { .sem-carousel .car-track { grid-auto-columns: 100%; } }
+@media (max-width: 720px) { .sem-carousel .shelf .empty-note { display: none; } .sem-carousel .shelf-head { margin-bottom: 4px; } .sem-carousel .shelf-more { padding-top: 6px; } }

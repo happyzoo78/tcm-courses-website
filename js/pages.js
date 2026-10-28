@@ -70,37 +70,44 @@ function recentUpdates(limit) {
 }
 
 // 首頁主角：依年級顯示各科圖卡（每科最多 4 張，其餘到書架裡看）
+// 首頁各科圖卡：輪播以「學期」為一頁，每頁列出該學期所有書架（每架最多 3 張最新圖卡）
 function shelfCardsHtml() {
-  const sems = visibleSemesters().filter(s => coursesIn(s.code).length);
+  const sems = visibleSemesters().filter(s => coursesIn(s.code).length).sort((a, b) => a.sortOrder - b.sortOrder);
   if (!sems.length) return '<p class="empty-note">目前沒有開放的書架。</p>';
-  const tabs = yearTabsHtml(new Set(sems.map(s => yearOf(s.code))));
-  const inYear = semestersOfYear(sems, siteYear);
-  // 有圖卡的書架排前面；同一年級的所有書架放進同一個輪播
-  const list = inYear.flatMap(sm => coursesIn(sm.code).map(c => ({ c, sm, items: itemsOf(c.id).slice().sort(byDateDesc) })))
-    .sort((a, b) => (b.items.length > 0) - (a.items.length > 0));
-  const shelf = ({ c, sm, items }) => `
+  const shelf = c => {
+    const items = itemsOf(c.id).slice().sort(byDateDesc);
+    return `
       <div class="shelf">
         <div class="shelf-head">
-          <h4>${esc(c.title)}${isExamSubject(c) ? ' <span class="exam-tag">執醫考科</span>' : ''}</h4>
-          <span class="shelf-meta">${esc(shortSemLabel(sm.code))} · ${items.length} 張圖卡</span>
+          <h4><a href="#course/${c.id}">${esc(c.title)}</a>${isExamSubject(c) ? ' <span class="exam-tag">執醫考科</span>' : ''}</h4>
+          <span class="shelf-meta">${items.length} 張圖卡</span>
         </div>
-        ${items.length ? `<div class="shelf-list">${items.slice(0, 4).map(i => `
+        ${items.length ? `<div class="shelf-list">${items.slice(0, 3).map(i => `
           <a class="mini-card" href="#detail/item/${i.id}">
             <span class="mini-thumb">${i.image ? `<img src="${esc(i.image)}" alt="" loading="lazy">` : TAIJI}</span>
             <span class="mini-text"><b>${esc(i.title)}</b><small>${esc(i.date || '')}</small></span>
           </a>`).join('')}</div>`
           : '<p class="empty-note">這個書架還沒有圖卡。</p>'}
-        <a class="link shelf-more" href="#course/${c.id}">More：打開「${esc(c.title)}」書架${items.length > 4 ? `（共 ${items.length} 張圖卡）` : ''} →</a>
+        <a class="link shelf-more" href="#course/${c.id}">More：打開書架${items.length > 3 ? `（共 ${items.length} 張）` : ''} →</a>
       </div>`;
-  return `${tabs}
-  <div class="carousel" data-carousel aria-roledescription="輪播" aria-label="各科圖卡">
-    <div class="car-track">${list.map(shelf).join('')}</div>
-    <div class="car-bar">
-      <button type="button" class="car-btn" data-car="prev" aria-label="上一個書架">‹</button>
-      <div class="car-dots">${list.map((_, i) => `<button type="button" class="car-dot" data-car-dot="${i}" aria-label="第 ${i + 1} 個書架"></button>`).join('')}</div>
-      <button type="button" class="car-btn" data-car="next" aria-label="下一個書架">›</button>
+  };
+  const start = sems.length - 1;   // 預設停在最新的學期
+  return `
+  <div class="carousel sem-carousel" data-carousel data-car-start="${start}" aria-roledescription="輪播" aria-label="各學期圖卡">
+    <div class="car-bar car-top">
+      <button type="button" class="car-btn" data-car="prev" aria-label="上一個學期">‹</button>
+      <div class="car-tabs">${sems.map((sm, i) => `<button type="button" class="car-tab" data-car-dot="${i}">${esc(shortSemLabel(sm.code))}</button>`).join('')}</div>
+      <button type="button" class="car-btn" data-car="next" aria-label="下一個學期">›</button>
       <a class="link car-more" href="#courses">More：全部書架 →</a>
     </div>
+    <div class="car-track">${sems.map(sm => {
+      const list = coursesIn(sm.code).slice().sort((a, b) => (itemsOf(b.id).length > 0) - (itemsOf(a.id).length > 0));
+      return `
+      <section class="car-slide" aria-label="${esc(sm.label)}">
+        <h3 class="sem-title">${esc(sm.label)} <small>${list.length} 個書架</small></h3>
+        <div class="shelves">${list.map(shelf).join('')}</div>
+      </section>`;
+    }).join('')}</div>
   </div>`;
 }
 
@@ -125,7 +132,7 @@ function homePage() {
     </div>
   </section>
 
-  <h2 class="section">各科圖卡 <small>選年級，瀏覽各書架的圖卡</small></h2>
+  <h2 class="section">各科圖卡 <small>依學期輪播，點學期可直接切換</small></h2>
   ${shelfCardsHtml()}
 
   <h2 class="section">最新更新 <small>最近 5 筆</small></h2>

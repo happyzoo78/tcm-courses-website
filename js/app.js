@@ -31,7 +31,7 @@ function render() {
   bind();
 }
 
-// 首頁圖卡輪播：左右按鈕、圓點、每 6 秒自動換下一個書架（滑鼠停留或手指操作時暫停）
+// 首頁圖卡輪播：左右按鈕、學期按鈕、每 8 秒自動換下一頁（滑鼠停留或手指操作時暫停）
 let carouselTimer = null;
 function bindCarousels() {
   clearInterval(carouselTimer); carouselTimer = null;
@@ -59,9 +59,12 @@ function bindCarousels() {
     let paused = false;
     ['mouseenter', 'focusin', 'touchstart'].forEach(ev => box.addEventListener(ev, () => { paused = true; }, { passive: true }));
     ['mouseleave', 'focusout'].forEach(ev => box.addEventListener(ev, () => { paused = false; }));
+    // 預設停在指定的那一頁（例如最新學期），不要動畫
+    const start = Number(box.dataset.carStart || 0);
+    if (start) track.scrollLeft = start * step();
     paint();
     if (!matchMedia('(prefers-reduced-motion: reduce)').matches && slides.length > perView()) {
-      carouselTimer = setInterval(() => { if (!paused && document.visibilityState === 'visible' && box.isConnected) go(index() + 1); }, 6000);
+      carouselTimer = setInterval(() => { if (!paused && document.visibilityState === 'visible' && box.isConnected) go(index() + 1); }, 8000);
     }
   });
 }
