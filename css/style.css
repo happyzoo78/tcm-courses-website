@@ -727,3 +727,17 @@ fieldset.owners .check small { color: var(--muted); }
 .about-hero p + p { margin-top: 12px; }
 .about-hero .about-note { font-size: 14px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; margin-top: 18px; }
 @media (max-width: 1160px) { .about-hero { padding-bottom: 26px; } }
+
+/* 首頁最新更新：一筆一行 */
+.upd-list { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); overflow: hidden; }
+.upd-row { display: grid; grid-template-columns: 3.2em 4.6em minmax(0, 8em) minmax(0, 1fr); align-items: center; gap: 12px; padding: 11px 16px; color: var(--ink); text-decoration: none; font-size: 15px; }
+.upd-row + .upd-row { border-top: 1px solid var(--line); }
+.upd-row:hover { background: var(--surface-2); }
+.upd-row .kind-tag { justify-self: start; }
+.upd-row time { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+.upd-course { color: var(--accent); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.upd-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
+@media (max-width: 720px) {
+  .upd-row { grid-template-columns: 3.2em 4.6em minmax(0, 1fr); gap: 4px 8px; padding: 10px 12px; }
+  .upd-title { grid-column: 1 / -1; }
+}

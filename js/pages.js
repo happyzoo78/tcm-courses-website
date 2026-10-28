@@ -52,11 +52,21 @@ function recentUpdates(limit) {
   const day = t => String(t || '').slice(0, 10);
   const list = [
     ...(data.pages || []).filter(p => visible(p.courseId)).map(p => ({ t: p.updatedAt, date: day(fmtTime(p.updatedAt)).replace(/\//g, '-'), kind: '學習網頁', courseId: p.courseId, title: p.title, desc: p.description, href: p.url })),
-    ...(data.exams || []).filter(e => e.published && visible(e.courseId)).map(e => ({ t: e.updatedAt, date: day(fmtTime(e.updatedAt)).replace(/\//g, '-'), kind: '模擬考', courseId: e.courseId, title: shortExamTitle(e, getCourse(e.courseId) || {}), desc: `${e.category || '其他試題'} · ${e.questionCount} 題`, href: `#exam/${e.id}` })),
+    ...(data.exams || []).filter(e => e.published && visible(e.courseId)).map(e => ({ t: e.updatedAt, date: day(fmtTime(e.updatedAt)).replace(/\//g, '-'), kind: '模擬考', group: `${e.courseId}|${e.category || ''}`, courseId: e.courseId, title: shortExamTitle(e, getCourse(e.courseId) || {}), desc: `${e.category || '其他試題'} · ${e.questionCount} 題`, href: `#exam/${e.id}` })),
     ...data.items.filter(i => visible(i.courseId)).map(i => ({ t: i.date, date: i.date, kind: '圖卡', courseId: i.courseId, title: i.title, desc: i.description, href: `#detail/item/${i.id}` })),
     ...data.courses.filter(c => open.has(c.semesterCode)).flatMap(c => filesOf(c.id).map(f => ({ t: f.updated, date: day(f.updated), kind: '學習網頁', courseId: c.id, title: f.title, desc: f.description || '', href: f.path })))
   ];
-  return list.sort((a, b) => String(b.t || '').localeCompare(String(a.t || ''))).slice(0, limit);
+  list.sort((a, b) => String(b.t || '').localeCompare(String(a.t || '')));
+  // 同一天、同科目、同分類一次上傳好幾份考卷 → 合併成一筆
+  const out = [];
+  for (const u of list) {
+    const last = out[out.length - 1];
+    if (u.group && last && last.group === u.group && last.date === u.date) { last.names.push(u.title); continue; }
+    out.push(u.group ? { ...u, names: [u.title] } : u);
+  }
+  return out.slice(0, limit).map(u => u.names && u.names.length > 1
+    ? { ...u, title: `${u.desc.split(' · ')[0]}：新增 ${u.names.length} 份`, desc: u.names.join('、'), href: `#course/${u.courseId}` }
+    : u);
 }
 
 function homePage() {
@@ -66,7 +76,7 @@ function homePage() {
   const totalPages = sum(pagesOf) + sum(filesOf);
   const totalExams = sum(publishedExamsOf);
   const totalCards = sum(itemsOf);
-  const updates = recentUpdates(6);
+  const updates = recentUpdates(5);
   return `
   <section class="hero">
     <div class="eyebrow"><span class="nw">中醫學習</span> · <span class="nw">大醫精誠</span></div>
@@ -83,13 +93,14 @@ function homePage() {
   <h2 class="section">科目入口 <small>選年級，點科目進入</small></h2>
   ${yearCoursesHtml()}
 
-  <h2 class="section">最新更新 <small>學習網頁、模擬考、圖卡依時間排序</small></h2>
-  <div class="pagelist">
+  <h2 class="section">最新更新 <small>最近 5 筆</small></h2>
+  <div class="upd-list">
     ${updates.map(u => `
-      <a class="pagerow" href="${esc(u.href)}">
-        <span class="pr-meta upd-meta"><time>${esc(u.date)}</time><span class="kind-tag">${esc(u.kind)}</span><span class="kind-tag">${esc(courseName(u.courseId))}</span></span>
-        <span class="pr-title">${esc(u.title)}</span>
-        ${u.desc ? `<span class="pr-desc">${esc(cut(u.desc, 80))}</span>` : ''}
+      <a class="upd-row" href="${esc(u.href)}" title="${esc(u.desc || u.title)}">
+        <time>${esc(u.date.slice(5))}</time>
+        <span class="kind-tag">${esc(u.kind)}</span>
+        <span class="upd-course">${esc(courseName(u.courseId))}</span>
+        <span class="upd-title">${esc(u.title)}</span>
       </a>`).join('') || '<p class="empty-note">目前沒有更新紀錄。</p>'}
   </div>
 
