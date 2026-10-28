@@ -98,7 +98,6 @@ function shelfCardsHtml() {
       <button type="button" class="car-btn" data-car="prev" aria-label="上一個學期">‹</button>
       <div class="car-tabs">${sems.map((sm, i) => `<button type="button" class="car-tab" data-car-dot="${i}">${esc(shortSemLabel(sm.code))}</button>`).join('')}</div>
       <button type="button" class="car-btn" data-car="next" aria-label="下一個學期">›</button>
-      <a class="link car-more" href="#courses" title="全部書架" aria-label="全部書架">More</a>
     </div>
     <div class="car-track">${sems.map(sm => {
       const list = coursesIn(sm.code).slice().sort((a, b) => (itemsOf(b.id).length > 0) - (itemsOf(a.id).length > 0));
@@ -132,7 +131,7 @@ function homePage() {
     </div>
   </section>
 
-  <h2 class="section">各科圖卡 <small class="motto">博觀約取，厚積薄發</small></h2>
+  <h2 class="section">各科圖卡 <small class="motto">博觀約取，厚積薄發</small><a class="link h2-more" href="#courses" title="全部書架" aria-label="全部書架">More</a></h2>
   ${shelfCardsHtml()}
 
   <h2 class="section">最新更新 <small class="motto">日新又新，學無止境</small></h2>
