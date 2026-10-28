@@ -42,17 +42,17 @@ body { margin: 0; background: var(--bg); color: var(--ink);
   font-size: 17px; line-height: 1.85; letter-spacing: .02em; }
 h1, h2, .logo, .doc h3 { font-family: "Noto Serif TC", "Songti TC", "Songti SC", serif; letter-spacing: .03em; }
 a { color: var(--accent); }
-:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 6px; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
 button { font: inherit; color: inherit; cursor: pointer; }
 
 /* ===== 頁首（與網站一致） ===== */
 header { position: sticky; top: 0; z-index: 10; background: var(--surface); border-bottom: 1px solid var(--line); }
 .bar { max-width: 1240px; margin: 0 auto; padding: 10px 20px; display: flex; align-items: center; gap: 14px; }
 .logo { display: flex; align-items: center; font-size: 22px; font-weight: 900; color: var(--ink); text-decoration: none; min-width: 0; }
-.seal { display: inline-grid; place-items: center; flex: none; width: 30px; height: 30px; margin-right: 10px; background: var(--red); color: #fff; border-radius: 5px; font-size: 15px; }
+.seal { display: inline-grid; place-items: center; flex: none; width: 30px; height: 30px; margin-right: 10px; background: var(--red); color: #fff; border-radius: 4px; font-size: 15px; }
 .logo-text > span { display: inline-block; white-space: nowrap; }
 .actions { margin-left: auto; display: flex; gap: 6px; flex: none; }
-.tool-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; border-radius: 8px; border: 1px solid var(--line);
+.tool-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; border-radius: 6px; border: 1px solid var(--line);
   background: none; font-size: 15px; color: var(--ink); text-decoration: none; white-space: nowrap; }
 .tool-btn:hover { background: var(--surface-2); }
 .ico { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
@@ -60,27 +60,27 @@ header { position: sticky; top: 0; z-index: 10; background: var(--surface); bord
 /* ===== 版面：左側目錄＋右側內容 ===== */
 .layout { max-width: 1240px; margin: 0 auto; padding: 28px 20px 60px; display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 32px; align-items: start; }
 .toc { position: sticky; top: 76px; max-height: calc(100vh - 96px); overflow: auto; padding: 16px 14px;
-  background: var(--surface); border: 1px solid var(--line); border-radius: 12px; font-size: 14px; line-height: 1.6; }
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px; font-size: 14px; line-height: 1.6; }
 .toc summary { font-weight: 700; color: var(--accent); cursor: pointer; list-style: none; }
 .toc summary::-webkit-details-marker { display: none; }
 .toc ul { list-style: none; margin: 0; padding: 0; }
 .toc .toc-list { margin-top: 8px; }
 .toc .toc-list > li > a { font-weight: 600; }
 .toc ul ul { padding-left: 12px; margin: 2px 0 6px; border-left: 2px solid var(--line); }
-.toc a { display: block; padding: 3px 6px; border-radius: 6px; color: var(--ink); text-decoration: none; }
+.toc a { display: block; padding: 3px 6px; border-radius: 4px; color: var(--ink); text-decoration: none; }
 .toc a:hover { background: var(--surface-2); }
 .toc a.active { background: var(--accent-soft); color: var(--accent-soft-ink); }
 
 /* ===== 標題區 ===== */
 .hero { padding: 26px 30px; margin-bottom: 22px; background: linear-gradient(110deg, var(--surface), var(--surface-2));
-  border: 1px solid var(--line); border-radius: 14px; }
+  border: 1px solid var(--line); border-radius: 10px; }
 .eyebrow { font-size: 14px; color: var(--accent); letter-spacing: 3px; font-weight: 600; }
 .hero h1 { margin: 6px 0 0; font-size: clamp(25px, 3.6vw, 36px); line-height: 1.4; }
 
 /* ===== 內文 ===== */
 main, .doc { min-width: 0; }
 
-.doc h3 { font-size: 25px; margin: 46px 0 14px; padding: 10px 0 10px 16px; border-left: 5px solid var(--accent); background: linear-gradient(90deg, var(--surface), transparent); border-radius: 0 8px 8px 0; }
+.doc h3 { font-size: 25px; margin: 46px 0 14px; padding: 10px 0 10px 16px; border-left: 5px solid var(--accent); background: linear-gradient(90deg, var(--surface), transparent); border-radius: 0 6px 6px 0; }
 .doc h4 { font-size: 20px; margin: 32px 0 10px; padding-bottom: 8px; border-bottom: 1px solid var(--line); color: var(--accent); }
 .doc h5 { font-size: 18px; margin: 24px 0 8px; color: var(--red); }
 .doc h6 { font-size: 17px; margin: 20px 0 8px; color: var(--ink); }
@@ -89,11 +89,11 @@ main, .doc { min-width: 0; }
 .doc li { margin: 4px 0; }
 .doc strong { font-weight: 700; color: var(--strong); }
 .doc hr { border: 0; border-top: 1px dashed var(--line); margin: 40px 0; }
-.doc blockquote { margin: 12px 0; padding: 10px 18px; background: var(--surface); border-left: 4px solid var(--gold); border-radius: 8px; color: var(--muted); }
+.doc blockquote { margin: 12px 0; padding: 10px 18px; background: var(--surface); border-left: 4px solid var(--gold); border-radius: 6px; color: var(--muted); }
 .doc code { font-size: .92em; padding: 1px 6px; background: var(--surface-2); border-radius: 4px; }
 
 /* 表格：手機可左右滑動 */
-.table-wrap { overflow-x: auto; margin: 12px 0 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); -webkit-overflow-scrolling: touch; }
+.table-wrap { overflow-x: auto; margin: 12px 0 18px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); -webkit-overflow-scrolling: touch; }
 .doc table { border-collapse: collapse; width: 100%; font-size: 15.5px; line-height: 1.7; }
 .doc th { position: sticky; top: 0; background: var(--accent); color: var(--accent-ink); text-align: left; font-weight: 600; padding: 9px 12px; white-space: nowrap; }
 .doc td { padding: 9px 12px; border-top: 1px solid var(--line); vertical-align: top; }
@@ -101,7 +101,7 @@ main, .doc { min-width: 0; }
 .doc td:first-child { white-space: nowrap; font-weight: 600; color: var(--muted); }
 
 /* 標記標籤（取代 ✅ 🅟 📖 🆕 ⚠️ 與【…】） */
-.tag { display: inline-block; margin: 0 3px; padding: 0 7px; border-radius: 5px; font-size: 12.5px; font-weight: 600; line-height: 1.75; letter-spacing: 0; vertical-align: 1px; white-space: nowrap; }
+.tag { display: inline-block; margin: 0 3px; padding: 0 7px; border-radius: 4px; font-size: 12.5px; font-weight: 600; line-height: 1.75; letter-spacing: 0; vertical-align: 1px; white-space: nowrap; }
 .tag-ok   { background: var(--accent-soft); color: var(--accent-soft-ink); }
 .tag-ppt  { background: var(--ppt-bg); color: var(--ppt-ink); }
 .tag-book { background: var(--book-bg); color: var(--book-ink); }
@@ -112,12 +112,12 @@ main, .doc { min-width: 0; }
 .tag-note::before { content: "（"; } .tag-note::after { content: "）"; }
 
 /* 開頭資訊欄 */
-.info { display: grid; grid-template-columns: max-content 1fr; gap: 8px 16px; margin: 0 0 8px; padding: 18px 22px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+.info { display: grid; grid-template-columns: max-content 1fr; gap: 8px 16px; margin: 0 0 8px; padding: 18px 22px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
 .info dt { font-weight: 700; color: var(--accent); }
 .info dd { margin: 0; }
 
 /* 教師原話 */
-.quote { margin: 12px 0; padding: 4px 22px; background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--red); border-radius: 10px; color: var(--ink); font-family: "Noto Serif TC", "Songti SC", serif; font-size: 18px; }
+.quote { margin: 12px 0; padding: 4px 22px; background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--red); border-radius: 6px; color: var(--ink); font-family: "Noto Serif TC", "Songti SC", serif; font-size: 18px; }
 .quote p { margin: 12px 0; }
 
 /* 填空題表格：題號欄做成圓形編號 */
@@ -126,16 +126,16 @@ main, .doc { min-width: 0; }
 
 /* 單選題答案卡片 */
 .answer-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; margin: 12px 0 18px; }
-.ans { display: flex; gap: 10px; align-items: flex-start; padding: 9px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; font-size: 15px; line-height: 1.65; }
+.ans { display: flex; gap: 10px; align-items: flex-start; padding: 9px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; font-size: 15px; line-height: 1.65; }
 .ans-no { flex: none; min-width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; background: var(--surface-2); color: var(--muted); font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .ans-body { min-width: 0; }
-.doc .ans-key { display: inline-block; min-width: 26px; margin-right: 6px; padding: 0 6px; text-align: center; border-radius: 6px; background: var(--accent); color: var(--accent-ink); font-size: 15px; }
+.doc .ans-key { display: inline-block; min-width: 26px; margin-right: 6px; padding: 0 6px; text-align: center; border-radius: 4px; background: var(--accent); color: var(--accent-ink); font-size: 15px; }
 
 /* 名詞解釋、問答題卡片 */
-.qcard { margin: 12px 0; padding: 14px 18px 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+.qcard { margin: 12px 0; padding: 14px 18px 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
 .qcard > *:first-child { margin-top: 0; }
 .q-head { display: block; }
-.q-no { display: inline-grid; place-items: center; min-width: 26px; height: 26px; margin-right: 8px; padding: 0 6px; border-radius: 13px; background: var(--accent); color: var(--accent-ink); font-size: 13px; font-weight: 700; line-height: 1; vertical-align: 2px; }
+.q-no { display: inline-grid; place-items: center; min-width: 26px; height: 26px; margin-right: 8px; padding: 0 6px; border-radius: 10px; background: var(--accent); color: var(--accent-ink); font-size: 13px; font-weight: 700; line-height: 1; vertical-align: 2px; }
 .q-head > strong:first-of-type { font-size: 17.5px; }
 .qcard .table-wrap { background: var(--bg); }
 
@@ -148,7 +148,7 @@ main, .doc { min-width: 0; }
 .doc li.num { list-style: none; position: relative; padding-left: 34px; margin: 6px 0 6px -22px; }
 .doc ul.numlist > li.num { margin-left: 0; }
 .li-no { position: absolute; left: 0; top: .35em; min-width: 22px; height: 22px; padding: 0 5px; display: inline-grid; place-items: center;
-  border-radius: 11px; border: 1.5px solid var(--accent); color: var(--accent); font-size: 12px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+  border-radius: 10px; border: 1.5px solid var(--accent); color: var(--accent); font-size: 12px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
 .qcard ul ul.numlist, .qcard li > ul.numlist { margin-top: 4px; padding-left: 2px; border-left: 2px solid var(--line); padding-left: 10px; }
 
 /* ①～⑥ 小標 */
@@ -158,7 +158,7 @@ main, .doc { min-width: 0; }
 .doc li > ul:has(> li.num) { border-left: 2px solid var(--line); padding-left: 10px; margin-left: 2px; }
 
 /* 收合區（作者備註、重複的目錄） */
-.fold { margin: 18px 0; border: 1px dashed var(--line); border-radius: 12px; padding: 4px 18px; background: transparent; }
+.fold { margin: 18px 0; border: 1px dashed var(--line); border-radius: 10px; padding: 4px 18px; background: transparent; }
 .fold > summary { cursor: pointer; padding: 10px 0; color: var(--muted); font-weight: 600; }
 .fold[open] > summary { border-bottom: 1px dashed var(--line); margin-bottom: 8px; }
 .fold h3, .fold h4 { margin-top: 18px; font-size: 18px; border: 0; background: none; padding: 0; color: var(--muted); }
@@ -207,21 +207,21 @@ footer { max-width: 1240px; margin: 0 auto; padding: 20px; border-top: 1px solid
 }
 /* ===== v10：題目＋答案 ===== */
 .q-text { margin: 0 0 8px; color: var(--ink); font-weight: 700; }
-.a-text { padding: 8px 12px; background: var(--accent-soft); border-radius: 8px; color: var(--accent-soft-ink); }
+.a-text { padding: 8px 12px; background: var(--accent-soft); border-radius: 6px; color: var(--accent-soft-ink); }
 .a-text strong { color: inherit; }
-.ans-lab { display: inline-block; margin-right: 8px; padding: 0 7px; border-radius: 5px; background: var(--accent); color: var(--accent-ink); font-size: 12.5px; font-weight: 700; line-height: 1.75; vertical-align: 1px; }
+.ans-lab { display: inline-block; margin-right: 8px; padding: 0 7px; border-radius: 4px; background: var(--accent); color: var(--accent-ink); font-size: 12.5px; font-weight: 700; line-height: 1.75; vertical-align: 1px; }
 .blank { display: inline-block; min-width: 3.2em; margin: 0 3px; border-bottom: 1.5px solid var(--muted); vertical-align: -2px; height: 1em; }
 .mcq-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 10px; margin: 12px 0 18px; }
-.mcq { padding: 12px 14px 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; font-size: 15.5px; line-height: 1.7; }
+.mcq { padding: 12px 14px 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; font-size: 15.5px; line-height: 1.7; }
 .doc .mcq-stem { margin: 0 0 6px; font-weight: 700; }
-.mcq .q-no { display: inline-grid; place-items: center; min-width: 24px; height: 24px; margin-right: 8px; padding: 0 5px; border-radius: 12px; background: var(--surface-2); color: var(--muted); font-size: 12.5px; font-weight: 700; }
+.mcq .q-no { display: inline-grid; place-items: center; min-width: 24px; height: 24px; margin-right: 8px; padding: 0 5px; border-radius: 10px; background: var(--surface-2); color: var(--muted); font-size: 12.5px; font-weight: 700; }
 .doc ul.opts { list-style: none; padding: 0; margin: 4px 0 8px; }
-.doc .opt { margin: 3px 0; padding: 2px 8px; border-radius: 6px; }
+.doc .opt { margin: 3px 0; padding: 2px 8px; border-radius: 4px; }
 .opt-l { display: inline-block; width: 1.4em; font-weight: 700; color: var(--muted); }
 .opt.correct { background: var(--accent-soft); color: var(--accent-soft-ink); font-weight: 600; }
 .opt.correct .opt-l { color: var(--accent); }
 .mcq-ans { padding-top: 6px; border-top: 1px dashed var(--line); font-size: 14.5px; }
-.doc .mcq-ans .ans-key { display: inline-block; min-width: 26px; margin-right: 6px; padding: 0 6px; text-align: center; border-radius: 6px; background: var(--accent); color: var(--accent-ink); }
+.doc .mcq-ans .ans-key { display: inline-block; min-width: 26px; margin-right: 6px; padding: 0 6px; text-align: center; border-radius: 4px; background: var(--accent); color: var(--accent-ink); }
 .qcard .q-head strong { font-weight: 700; }
 @media (max-width: 720px) { .mcq-list { grid-template-columns: 1fr; } }
 @media print { .a-text { background: #eee; color: #000; } .opt.correct { background: #e6e6e6; } .mcq { break-inside: avoid; } }
@@ -241,38 +241,38 @@ footer { max-width: 1240px; margin: 0 auto; padding: 20px; border-top: 1px solid
 .opt.correct { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
 .opt.correct .opt-l { color: var(--accent-ink); }
 .opt.correct::after { content: "  ✓ 正确答案"; font-size: 12.5px; font-weight: 700; opacity: .9; }
-.fill-key { min-width: 1.8em; padding: 0 6px; border: 0; border-radius: 6px; background: var(--red); color: #fff; font-size: 1.05em; }
+.fill-key { min-width: 1.8em; padding: 0 6px; border: 0; border-radius: 4px; background: var(--red); color: #fff; font-size: 1.05em; }
 .doc .mcq-ans .ans-key { min-width: 30px; font-size: 16px; background: var(--red); color: #fff; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .a-text > .ans-lab, :root:not([data-theme="light"]) .fill-key, :root:not([data-theme="light"]) .doc .mcq-ans .ans-key { color: #1b1f1d; } }
 :root[data-theme="dark"] .a-text > .ans-lab, :root[data-theme="dark"] .fill-key, :root[data-theme="dark"] .doc .mcq-ans .ans-key { color: #1b1f1d; }
 @media print { .opt.correct { background: #ddd; color: #000; } .fill-key, .doc .mcq-ans .ans-key, .ans-lab { background: #000 !important; color: #fff !important; } }
-.zh-g { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 5px; background: var(--accent); color: var(--accent-ink); font-size: 13px; font-weight: 700; }
+.zh-g { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 4px; background: var(--accent); color: var(--accent-ink); font-size: 13px; font-weight: 700; }
 #zhBtn[disabled] { opacity: .6; cursor: wait; }
 html[lang="zh-Hant"] .opt.correct::after { content: "  ✓ 正確答案"; }
-.doc p.related { margin: 10px 0 0; padding: 10px 16px; background: var(--surface-2); border-radius: 10px; font-weight: 600; }
+.doc p.related { margin: 10px 0 0; padding: 10px 16px; background: var(--surface-2); border-radius: 6px; font-weight: 600; }
 .doc p.related a { text-decoration: none; }
 /* ===== 兩頁互連 ===== */
 .page-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
-.page-tabs a { flex: 1 1 220px; display: flex; align-items: center; gap: 8px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); text-decoration: none; font-weight: 600; }
+.page-tabs a { flex: 1 1 220px; display: flex; align-items: center; gap: 8px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); text-decoration: none; font-weight: 600; }
 .page-tabs a:hover { background: var(--surface-2); }
 .page-tabs a[aria-current="page"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 .page-tabs a[aria-current="page"]::after { content: "目前页面"; margin-left: auto; font-size: 12px; opacity: .85; }
 html[lang="zh-Hant"] .page-tabs a[aria-current="page"]::after { content: "目前頁面"; }
 .toc .toc-pages { display: grid; gap: 4px; margin: 8px 0 10px; padding-bottom: 10px; border-bottom: 1px dashed var(--line); }
-.toc .toc-pages a { display: flex; gap: 6px; padding: 5px 8px; border-radius: 6px; font-size: 13.5px; font-weight: 600; color: var(--accent); }
+.toc .toc-pages a { display: flex; gap: 6px; padding: 5px 8px; border-radius: 4px; font-size: 13.5px; font-weight: 600; color: var(--accent); }
 .toc .toc-pages a[aria-current="page"] { background: var(--accent-soft); color: var(--accent-soft-ink); }
-.next-page { display: flex; flex-direction: column; gap: 2px; margin: 40px 0 10px; padding: 16px 20px; border: 1px solid var(--line); border-left: 5px solid var(--accent); border-radius: 12px; background: var(--surface); text-decoration: none; }
+.next-page { display: flex; flex-direction: column; gap: 2px; margin: 40px 0 10px; padding: 16px 20px; border: 1px solid var(--line); border-left: 5px solid var(--accent); border-radius: 10px; background: var(--surface); text-decoration: none; }
 .next-page:hover { background: var(--surface-2); }
 .np-lab { font-size: 13px; color: var(--muted); }
 .np-name { font-size: 18px; font-weight: 700; color: var(--accent); }
 @media print { .page-tabs, .next-page { display: none; } }
 /* 注解：與答案分開、不搶粗體 */
-.a-note { margin-top: 8px; padding: 6px 10px; border-radius: 6px; background: color-mix(in srgb, var(--surface) 70%, transparent); font-size: 14px; line-height: 1.7; color: var(--muted); }
+.a-note { margin-top: 8px; padding: 6px 10px; border-radius: 4px; background: color-mix(in srgb, var(--surface) 70%, transparent); font-size: 14px; line-height: 1.7; color: var(--muted); }
 .a-note::before { content: "补充说明"; display: block; margin-bottom: 2px; font-size: 12px; font-weight: 700; letter-spacing: .1em; color: var(--muted); }
 html[lang="zh-Hant"] .a-note::before { content: "補充說明"; }
 .doc .a-note p { margin: 2px 0; }
 .doc .a-text .a-note strong { color: var(--ink); font-weight: 600; }
-.logo-sub { flex: none; margin-left: 12px; padding: 3px 10px; border-radius: 6px; border: 1.5px solid var(--accent); color: var(--accent); font-family: "PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif; font-size: 15px; font-weight: 700; letter-spacing: .08em; white-space: nowrap; }
+.logo-sub { flex: none; margin-left: 12px; padding: 3px 10px; border-radius: 4px; border: 1.5px solid var(--accent); color: var(--accent); font-family: "PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif; font-size: 15px; font-weight: 700; letter-spacing: .08em; white-space: nowrap; }
 @media (max-width: 720px) { .logo-sub { margin-left: 8px; padding: 2px 7px; font-size: 13px; } }
 </style>
 <style>
