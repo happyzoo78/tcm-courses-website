@@ -74,7 +74,7 @@ function homePage() {
   const updates = recentUpdates(8);
   return `
   <section class="hero">
-    <div class="eyebrow"><span class="nw">中醫學習</span> · <span class="nw">溫故知新</span> · <span class="nw">大醫精成</span></div>
+    <div class="eyebrow"><span class="nw">中醫學習</span> · <span class="nw">溫故知新</span> · <span class="nw">大醫精誠</span></div>
     <h1 class="hero-title"><span><em>2026</em>福建中醫台灣班 -</span> <span>學習圖書館</span></h1>
     <p>從台灣到福建，深耕中醫學問 · 經典為本，辨證為綱，系統整理，臨床致用。</p>
     <div class="stats">
