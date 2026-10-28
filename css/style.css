@@ -562,3 +562,15 @@ fieldset.owners .check small { color: var(--muted); }
 :root[data-theme="dark"] .xp-sec.trap { border-color: #e8a462; }
 :root[data-theme="dark"] .xp-sec.compare .xp-label { color: #8fb7d4; }
 :root[data-theme="dark"] .xp-sec.compare { border-color: #8fb7d4; }
+
+/* 成績頁：你的選擇／正確答案標示 */
+.q-yours { margin: -2px 0 10px; font-size: 15px; color: var(--muted); }
+.q-yours b { font-size: 17px; margin-right: 4px; }
+.q-yours b.ok { color: var(--accent); }
+.q-yours b.bad { color: var(--red); }
+.opt-tag { margin-left: auto; flex: none; align-self: center; padding: 0 10px; border-radius: 999px; font-size: 13px; font-weight: 700; white-space: nowrap; }
+.opt-tag.ok { background: var(--accent); color: var(--accent-ink); }
+.opt-tag.bad { background: var(--red); color: #fff; }
+.q-opts.compact .opt-tag { margin-left: 6px; }
+.q-opts .q-opt.is-wrong { border: 2px solid var(--red); background: color-mix(in srgb, var(--red) 10%, transparent); color: var(--ink); }
+.q-opts .q-opt.is-answer { border: 2px solid var(--accent); background: var(--accent-soft); color: var(--accent-soft-ink); }

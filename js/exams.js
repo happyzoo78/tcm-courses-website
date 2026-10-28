@@ -182,13 +182,15 @@ function questionHtml(q, groups, mode, ctx = {}) {
     body = `<div class="q-opts ${compact ? 'compact' : ''}">${opts.map(o => {
       const cls = mode === 'take' ? '' : correctSet.has(o.key) ? 'is-answer' : givenSet.has(o.key) ? 'is-wrong' : '';
       const checked = givenSet.has(o.key) ? 'checked' : '';
+      const tags = optTags(mode, correctSet.has(o.key), givenSet.has(o.key), compact);
       return `<label class="q-opt ${cls}"><input type="${input}" name="${name}" value="${o.key}" ${checked} ${mode === 'take' ? '' : 'disabled'}>
-        <b>${o.key}</b>${compact ? '' : `<span>${esc(o.text)}</span>`}</label>`;
+        <b>${o.key}</b>${compact ? '' : `<span>${esc(o.text)}</span>`}${tags}</label>`;
     }).join('')}</div>`;
   } else if (q.type === 'tf') {
     body = `<div class="q-opts compact">${[[true, '對 ○'], [false, '錯 ✕']].map(([v, t]) => {
       const cls = mode === 'take' ? '' : q.answer === v ? 'is-answer' : given === v ? 'is-wrong' : '';
-      return `<label class="q-opt ${cls}"><input type="radio" name="${name}" value="${v}" ${given === v ? 'checked' : ''} ${mode === 'take' ? '' : 'disabled'}><b>${t}</b></label>`;
+      const tags = optTags(mode, q.answer === v, given === v, true);
+      return `<label class="q-opt ${cls}"><input type="radio" name="${name}" value="${v}" ${given === v ? 'checked' : ''} ${mode === 'take' ? '' : 'disabled'}><b>${t}</b>${tags}</label>`;
     }).join('')}</div>`;
   } else if (q.type === 'fill') {
     const g = Array.isArray(given) ? given : [];
@@ -214,7 +216,26 @@ function questionHtml(q, groups, mode, ctx = {}) {
       }
     }
   }
-  return `<div class="q-card" data-q="${q.id}">${head}<div class="q-stem">${nl2br(q.stem)}</div>${body}${explainHtml(q, mode)}</div>`;
+  return `<div class="q-card" data-q="${q.id}">${head}<div class="q-stem">${nl2br(q.stem)}</div>${yourAnswerHtml(q, mode, given, res)}${body}${explainHtml(q, mode)}</div>`;
+}
+
+// 選項旁的標示：正確答案／你的選擇
+function optTags(mode, isAnswer, isGiven, compact) {
+  if (mode === 'take') return '';
+  if (mode === 'preview') return isAnswer ? '<span class="opt-tag ok">✓ 正確答案</span>' : '';
+  if (isAnswer && isGiven) return `<span class="opt-tag ok">✓ ${compact ? '你選對了' : '你的選擇・正確'}</span>`;
+  if (isAnswer) return `<span class="opt-tag ok">✓ 正確答案</span>`;
+  if (isGiven) return `<span class="opt-tag bad">✗ 你的選擇</span>`;
+  return '';
+}
+
+// 成績頁題目下方：你的答案 vs 正確答案
+function yourAnswerHtml(q, mode, given, res) {
+  if (mode !== 'result' || !['single', 'multi', 'tf'].includes(q.type)) return '';
+  const fmt = v => q.type === 'tf' ? (v === true ? '對' : v === false ? '錯' : '') : [].concat(v ?? []).join('');
+  const mine = fmt(given);
+  const right = fmt(q.answer);
+  return `<div class="q-yours">你的答案：<b class="${res?.correct ? 'ok' : 'bad'}">${mine ? esc(mine) : '未作答'}</b>　正確答案：<b class="ok">${esc(right)}</b></div>`;
 }
 
 function explainHtml(q, mode) {
