@@ -4,7 +4,7 @@
 /* =========================================================
    五、管理後台（登入後才能編輯，資料直接存進雲端資料庫）
    ========================================================= */
-const TYPE_NAME = { courses: '課程', items: '圖卡', projects: '活動專案' };
+const TYPE_NAME = { courses: '科目', items: '圖卡', projects: '活動專案' };
 const ROLE_NAME = { owner: '擁有者', admin: '管理員', editor: '編輯者', viewer: '觀看者' };
 
 // 偵測是否在 LINE、Facebook 等 App 的內建瀏覽器裡（Google 不允許在這些地方登入）
@@ -130,26 +130,26 @@ function adminCoursePicker(list, curId, selectId, actionHtml) {
 
 function pagesAdminHtml() {
   const list = editableCourses();
-  if (!list.length) return '<p class="empty">你目前沒有負責的科目。如需上傳網頁，請聯絡網站管理者把你設為科目負責人。</p>';
+  if (!list.length) return '<p class="empty">你目前沒有負責的科目。如需上傳講義，請聯絡網站管理者把你設為科目負責人。</p>';
   if (!list.some(c => c.id === pagesCourse)) pagesCourse = list[0].id;
   const c = getCourse(pagesCourse);
   const rows = pagesOf(pagesCourse);
   return `
   <div class="exnav">
-    ${adminCoursePicker(list, c.id, 'pg-course', `<a class="btn exnav-add" href="#editor/new/${c.id}" title="像 Word 一樣直接打字、插圖、做表格">✏️ 寫新網頁</a>`)}
+    ${adminCoursePicker(list, c.id, 'pg-course', `<a class="btn exnav-add" href="#editor/new/${c.id}" title="像 Word 一樣直接打字、插圖、做表格">✏️ 寫新講義</a>`)}
     <details class="exnav-more">
-      <summary>或：上傳做好的網頁檔（.html）</summary>
+      <summary>或：上傳做好的講義網頁檔（.html）</summary>
       <form id="pageform">
         <div class="field"><label for="pg-file">網頁檔（.html，上限約 1.9 MB）</label><input id="pg-file" name="file" type="file" accept=".html,.htm,text/html" required></div>
         <div class="field"><label for="pg-title">標題（留空會自動使用網頁本身的標題）</label><input id="pg-title" name="title" maxlength="200"></div>
         <div class="field"><label for="pg-desc">說明（選填）</label><textarea id="pg-desc" name="description" maxlength="1000"></textarea></div>
         <div id="pageformmsg"></div>
-        <button class="btn" type="submit">上傳網頁</button>
-        <p class="meta-label">網頁上傳後只有登入的班級成員看得到。圖片請直接嵌在網頁檔裡（單一檔案）。</p>
+        <button class="btn" type="submit">上傳講義</button>
+        <p class="meta-label">講義上傳後只有登入的班級成員看得到。圖片請直接嵌在網頁檔裡（單一檔案）。</p>
       </form>
     </details>
   </div>
-  <p class="meta-label">「${esc(c.title)}」共 ${rows.length} 份網頁</p>
+  <p class="meta-label">「${esc(c.title)}」共 ${rows.length} 份講義</p>
   <div class="adminlist">
     ${rows.map(p => `
       <div class="adminrow">
@@ -160,7 +160,7 @@ function pagesAdminHtml() {
           <button type="button" class="btn secondary" data-page-edit="${p.id}">${p.editable ? '標題・排序' : '編輯'}</button>
           <button type="button" class="btn secondary danger" data-page-delete="${p.id}">刪除</button>
         </div>
-      </div>`).join('') || '<p class="empty-note">這個科目還沒有網頁。按「✏️ 寫新網頁」或上傳網頁檔。</p>'}
+      </div>`).join('') || '<p class="empty-note">這個書架還沒有講義。按「✏️ 寫新講義」或上傳講義網頁檔。</p>'}
   </div>
   <div id="editor"></div>`;
 }
@@ -168,7 +168,7 @@ function pagesAdminHtml() {
 function pageEditorHtml(p) {
   return `
   <div class="panel prose" style="margin-top:20px">
-    <h2>編輯網頁</h2>
+    <h2>編輯講義</h2>
     <form id="pageeditform">
       <div class="field"><label for="pe-title">標題</label><input id="pe-title" name="title" required maxlength="200" value="${esc(p.title)}"></div>
       <div class="field"><label for="pe-desc">說明</label><textarea id="pe-desc" name="description" maxlength="1000">${esc(p.description || '')}</textarea></div>
@@ -194,7 +194,7 @@ async function readHtmlFile(file) {
 function semestersAdminHtml() {
   const sems = [...data.semesters].sort((a, b) => a.sortOrder - b.sortOrder);
   return `
-  <p class="meta-label">只有「開放中」的學期會顯示在首頁、課程總覽和模擬考專區。新學期開始時，在這裡打開即可。</p>
+  <p class="meta-label">只有「開放中」的學期會顯示在首頁、各科書架和題庫。新學期開始時，在這裡打開即可。</p>
   <div class="sem-grid">
     ${YEAR_NAMES.map((n, i) => {
       const list = sems.filter(s => yearOf(s.code) === i + 1);
@@ -217,8 +217,8 @@ function adminPage() {
     return '<h2 class="section">管理後台</h2><p class="empty">你的帳號是「觀看者」，沒有後台權限。如需上傳資料，請聯絡網站管理者。</p>';
   }
   const tabs = {
-    pages: '網頁',
-    exams: '模擬考題',
+    pages: '講義',
+    exams: '題庫',
     ...(admin.canWrite ? TYPE_NAME : {}),
     ...(admin.canManageCourses ? { semesters: '學期' } : {}),
     ...(admin.canManageMembers ? { members: '成員' } : {})
@@ -252,7 +252,7 @@ function adminPage() {
     ${list.map(i => `
       <div class="adminrow">
         <div><b>${esc(i.title)}</b><br><small>${isCourses
-          ? `${esc(semesterLabel(i.semesterCode))} · ${pagesOf(i.id).length} 份網頁 · 負責人：${i.owners?.length ? i.owners.map(o => esc(o.name)).join('、') : '未指派'}`
+          ? `${esc(semesterLabel(i.semesterCode))} · ${pagesOf(i.id).length} 份講義 · 負責人：${i.owners?.length ? i.owners.map(o => esc(o.name)).join('、') : '未指派'}`
           : esc(i.date || '')}${adminType === 'items' ? ' · ' + esc(courseName(i.courseId)) : ''}</small></div>
         <div class="row-actions">
           ${canEditRow ? `<button type="button" class="btn secondary" data-edit="${i.id}">編輯</button>` : ''}
@@ -283,7 +283,7 @@ function editorHtml(i) {
     <div class="field"><label for="f-sem">學期</label>
       <select id="f-sem" name="semesterCode">${[...data.semesters].sort((a, b) => a.sortOrder - b.sortOrder).map(s => `<option value="${esc(s.code)}" ${(i.semesterCode || visibleSemesters()[0]?.code) === s.code ? 'selected' : ''}>${esc(s.label)}</option>`).join('')}</select></div>
     <div class="field"><label for="f-slug">英文代碼（小寫英文與連字號，例如 medical-biology）</label><input id="f-slug" name="slug" maxlength="60" pattern="[a-z0-9]+(-[a-z0-9]+)*" value="${esc(i.slug || '')}"></div>
-    ${admin.canManageMembers ? `<fieldset class="field owners"><legend>科目負責人（可上傳、修改、刪除這個科目的網頁）</legend>
+    ${admin.canManageMembers ? `<fieldset class="field owners"><legend>科目負責人（可上傳、修改、刪除這個科目的講義與題庫）</legend>
       ${members ? members.filter(m => m.status === 'active' && m.role !== 'owner').map(m => `<label class="check"><input type="checkbox" name="owner" value="${m.id}" ${(i.owners || []).some(o => o.id === m.id) ? 'checked' : ''}> ${esc(m.displayName)} <small>${esc(m.email)}</small></label>`).join('') || '<p class="meta-label">名單上還沒有其他成員。</p>' : '<p class="meta-label">成員名單載入中…</p>'}
     </fieldset>` : ''}
     <div class="field"><label for="f-icon">封面文字（最多 10 字）</label><input id="f-icon" name="icon" maxlength="10" value="${esc(i.icon || '')}"></div>

@@ -202,7 +202,7 @@ function bind() {
   document.querySelectorAll('[data-delete]').forEach(b => b.onclick = async () => {
     const id = Number(b.dataset.delete);
     if (adminType === 'courses' && (data.items.some(x => x.courseId === id) || pagesOf(id).length || examsOf(id).length)) {
-      alert('請先刪除或調整此科目裡的網頁、模擬考卷和圖卡。');
+      alert('請先刪除或調整此科目裡的講義、題庫和圖卡。');
       return;
     }
     const row = data[adminType].find(x => x.id === id);
@@ -240,7 +240,7 @@ function bindPagesAdmin() {
       if (added) { adminFlash = `已上傳「${added.title}」，網址：${location.origin}${res.url}`; render(); }
     } catch (err) {
       btn.disabled = false;
-      btn.textContent = '上傳網頁';
+      btn.textContent = '上傳講義';
       handleError(err, msg);
     }
   };
@@ -275,7 +275,7 @@ function bindPagesAdmin() {
 
   document.querySelectorAll('[data-page-delete]').forEach(b => b.onclick = async () => {
     const p = data.pages.find(x => x.id == b.dataset.pageDelete);
-    if (!confirm(`確定刪除網頁「${p.title}」？刪除後無法復原，網址也會失效。`)) return;
+    if (!confirm(`確定刪除講義「${p.title}」？刪除後無法復原，網址也會失效。`)) return;
     b.disabled = true;
     try {
       await api(`/api/admin/pages/${p.id}`, { method: 'DELETE' });
@@ -301,7 +301,7 @@ let lastHash = location.hash;
 window.addEventListener('hashchange', () => {
   // 編輯器還有沒儲存的內容時，先確認
   if (page === 'editor' && editorDirty) {
-    if (!confirm('網頁還沒儲存，確定要離開嗎？\n（草稿會暫存在這台電腦，下次打開編輯器可以恢復）')) {
+    if (!confirm('講義還沒儲存，確定要離開嗎？\n（草稿會暫存在這台電腦，下次打開編輯器可以恢復）')) {
       history.replaceState(null, '', lastHash || '#home');
       return;
     }
@@ -309,7 +309,7 @@ window.addEventListener('hashchange', () => {
     editorDirty = false;
   }
   if (page === 'examedit' && examEditDirty) {
-    if (!confirm('考卷還沒儲存，確定要離開嗎？')) {
+    if (!confirm('題庫還沒儲存，確定要離開嗎？')) {
       history.replaceState(null, '', lastHash || '#home');
       return;
     }

@@ -51,13 +51,13 @@ function editorPage() {
   const pageRow = mode === 'page' ? data.pages.find(p => p.id == id) : null;
   const courseId = mode === 'new' ? Number(id) : pageRow?.courseId;
   const course = getCourse(courseId);
-  if (!course || (mode === 'page' && !pageRow)) return '<p class="empty">找不到這個網頁或科目。</p><a class="btn secondary" href="#admin/pages">回網頁管理</a>';
-  if (!canEditCourseUI(courseId)) return '<p class="empty">你不是這個科目的負責人，不能在這裡寫網頁。</p>';
+  if (!course || (mode === 'page' && !pageRow)) return '<p class="empty">找不到這份講義或科目。</p><a class="btn secondary" href="#admin/pages">回網頁管理</a>';
+  if (!canEditCourseUI(courseId)) return '<p class="empty">你不是這個科目的負責人，不能在這裡寫講義。</p>';
 
   return `
   <div class="editor-head">
-    <a class="btn secondary back" href="#admin/pages/${courseId}" id="ed-back">← 回網頁管理</a>
-    <h2 class="section" style="margin:0;border:0;padding:0">${pageRow ? '線上編輯' : '寫新網頁'} <small>${esc(semesterLabel(course.semesterCode))}｜${esc(course.title)}</small></h2>
+    <a class="btn secondary back" href="#admin/pages/${courseId}" id="ed-back">← 回講義管理</a>
+    <h2 class="section" style="margin:0;border:0;padding:0">${pageRow ? '線上編輯講義' : '寫新講義'} <small>${esc(semesterLabel(course.semesterCode))}｜${esc(course.title)}</small></h2>
   </div>
   <div class="panel prose editor-panel">
     <div class="field"><label for="ed-title">標題</label><input id="ed-title" maxlength="200" required value="${esc(pageRow?.title || '')}" placeholder="例如：第三章 細胞膜 重點整理"></div>
@@ -95,7 +95,7 @@ function editorPage() {
     <p class="meta-label" id="ed-size"></p>
     <div id="ed-msg"></div>
     <div class="ed-actions">
-      <button class="btn" type="button" id="ed-save" disabled>儲存網頁</button>
+      <button class="btn" type="button" id="ed-save" disabled>儲存講義</button>
       <button class="btn secondary" type="button" id="ed-preview" disabled>預覽</button>
     </div>
     <p class="meta-label">圖片會自動縮小後放進網頁裡；整份網頁上限約 1.9 MB（大約可放 3～6 張照片）。編輯時每隔幾秒會在這台電腦上暫存草稿，不小心關掉也找得回來。</p>
@@ -120,7 +120,7 @@ async function mountEditor() {
       const res = await fetch(pageRow.url, { credentials: 'same-origin' });
       if (res.status === 401) return showLogin('登入已過期，請重新登入。');
       const html = await res.text();
-      if (!html.includes(EDITOR_MARK)) throw new Error('這份是上傳的網頁，不能在網站裡編輯。請回網頁管理，用「編輯」換成新版檔案。');
+      if (!html.includes(EDITOR_MARK)) throw new Error('這份是上傳的講義網頁，不能在網站裡編輯。請回講義管理，用「編輯」換成新版檔案。');
       body = html.slice(html.indexOf(CONTENT_START) + CONTENT_START.length, html.indexOf(CONTENT_END));
       body = body.replace(/^\s*<div class="ql-content">/, '').replace(/<\/div>\s*$/, '');
     }
@@ -308,7 +308,7 @@ async function saveEditorPage() {
     location.hash = `admin/pages/${editorState.courseId}`;
   } catch (err) {
     btn.disabled = false;
-    btn.textContent = '儲存網頁';
+    btn.textContent = '儲存講義';
     handleError(err, msg);
   }
 }
