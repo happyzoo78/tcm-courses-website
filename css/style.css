@@ -620,14 +620,6 @@ fieldset.owners .check small { color: var(--muted); }
 .exchap-list { padding: 0 12px 12px 26px; margin-top: 0; }
 .exchap-list .pagerow { border-left-width: 1px; }
 
-/* 後台模擬考題：分類、章節下拉選單 */
-.ex-filters { display: flex; flex-wrap: wrap; gap: 10px 16px; margin: 0 0 14px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
-.ex-filter-course select { max-width: 340px; }
-.ex-filter { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); white-space: nowrap; }
-.ex-filter select { width: auto; }
-.ex-filter select { min-width: 160px; max-width: 260px; }
-@media (max-width: 720px) { .ex-filters { width: 100%; } .ex-filter { flex: 1 1 100%; } .ex-filter select { flex: 1; max-width: none; min-width: 0; } }
-
 /* ===== 手機版（720px 以下）：管理後台與考卷清單精簡 ===== */
 @media (max-width: 720px) {
   .hide-m { display: none !important; }
@@ -636,12 +628,6 @@ fieldset.owners .check small { color: var(--muted); }
   .admin-tabs::-webkit-scrollbar { display: none; }
   .admin-tabs .btn { flex: none; padding: 8px 14px; font-size: 15px; white-space: nowrap; }
   .notice { margin: 10px 0; padding: 8px 12px; font-size: 13.5px; }
-  /* 篩選選單：科目一整行，分類、章節並排 */
-  .ex-filters { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; width: auto; }
-  .ex-filter { flex-direction: column; align-items: stretch; gap: 2px; font-size: 13px; min-width: 0; }
-  .ex-filter-course { grid-column: 1 / -1; }
-  .ex-filter select, .ex-filter-course select { width: 100%; max-width: none; min-width: 0; padding: 8px 10px; font-size: 15px; }
-  .write-cta { margin: 0 0 8px; }
   /* 考卷列：按鈕一排四等分、較矮 */
   .exam-adminlist .adminrow { padding: 10px 12px; gap: 8px; }
   .exam-adminlist .adminrow > div:first-child { width: 100%; }
@@ -653,3 +639,35 @@ fieldset.owners .check small { color: var(--muted); }
   .exam-tab { flex: none; white-space: nowrap; padding: 7px 12px; font-size: 14.5px; }
 }
 @media (max-width: 720px) { .zone-course .exam-tabs { margin: 0 0 12px; padding: 0 0 2px; } }
+
+
+/* 後台模擬考題導覽：科目（大字）→ 分類（文字分頁）→ 章節（文字連結），全部一眼看到、一點就切換 */
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.exnav { margin: 0 0 14px; padding: 14px 18px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.exnav-top { display: flex; align-items: center; gap: 12px; }
+.exnav-course { position: relative; flex: 0 1 auto; min-width: 0; margin-right: auto; }
+.exnav-course::after { content: "▾"; position: absolute; right: 2px; top: 50%; transform: translateY(-50%); color: var(--accent); pointer-events: none; }
+.exnav-course select { appearance: none; -webkit-appearance: none; width: auto; max-width: 100%; padding: 4px 24px 4px 0; border: 0; border-bottom: 1px dashed var(--line); border-radius: 0; background: transparent; font-family: "Noto Serif TC", serif; font-size: 20px; font-weight: 700; color: var(--ink); cursor: pointer; text-overflow: ellipsis; }
+.exnav-course select:focus { border-bottom-color: var(--accent); outline: none; }
+.exnav-add { flex: none; padding: 8px 14px; font-size: 15px; }
+.exnav-cats { display: flex; flex-wrap: wrap; align-items: center; margin-top: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.ex-cat { background: none; border: 0; border-bottom: 2px solid transparent; padding: 6px 2px; font: inherit; font-size: 16px; color: var(--muted); cursor: pointer; white-space: nowrap; }
+.ex-cat small, .ex-ch small { margin-left: 4px; font-size: 12px; color: var(--muted); font-weight: 400; }
+.ex-cat:hover, .ex-ch:hover { color: var(--accent); }
+.ex-cat[aria-selected="true"] { color: var(--ink); font-weight: 700; border-bottom-color: var(--accent); }
+.ex-sep { color: var(--line); padding: 0 8px; user-select: none; }
+.exnav-chaps { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; margin-top: 8px; }
+.ex-ch { background: none; border: 1px solid transparent; border-radius: 6px; padding: 4px 8px; font: inherit; font-size: 14.5px; color: var(--muted); cursor: pointer; white-space: nowrap; }
+.ex-ch[aria-pressed="true"] { background: var(--accent-soft, var(--surface-2)); color: var(--accent); font-weight: 700; }
+.exnav-empty { margin: 10px 0 0; color: var(--muted); font-size: 14.5px; }
+@media (max-width: 720px) {
+  .exnav { padding: 12px 12px 10px; }
+  .exnav-course select { font-size: 17px; }
+  .exnav-add { padding: 7px 10px; font-size: 14px; }
+  /* 分類一排橫向滑動，避免「｜」掉到行尾 */
+  .exnav-cats { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-right: -12px; padding-right: 12px; }
+  .exnav-cats::-webkit-scrollbar { display: none; }
+  .ex-cat { font-size: 15px; flex: none; }
+  .ex-sep { padding: 0 5px; flex: none; }
+  .ex-ch { padding: 5px 7px; font-size: 14px; }
+}

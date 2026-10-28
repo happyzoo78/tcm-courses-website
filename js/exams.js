@@ -161,23 +161,21 @@ function examsAdminHtml() {
   const label = i => f.ch ? (i.sub || f.ch) : (i.sub ? `${i.chapter} - ${i.sub}` : i.chapter);
   const total = groups.reduce((n, g) => n + g[1].length, 0);
   return `
-  <div class="ex-filters">
-    <label class="ex-filter ex-filter-course"><span>科目</span>
-      <select id="ex-course">${list.map(x => `<option value="${x.id}" ${x.id === pagesCourse ? 'selected' : ''}>${esc(semesterLabel(x.semesterCode))}｜${esc(x.title)}</option>`).join('')}</select>
-    </label>
+  <div class="exnav">
+    <div class="exnav-top">
+      <label class="exnav-course" title="切換科目">
+        <span class="sr-only">科目</span>
+        <select id="ex-course">${list.map(x => `<option value="${x.id}" ${x.id === pagesCourse ? 'selected' : ''}>${esc(shortSemLabel(x.semesterCode))}｜${esc(x.title)}</option>`).join('')}</select>
+      </label>
+      <a class="btn exnav-add" href="#examedit/new/${c.id}" data-new-cat="${esc(f.cat === OTHER_CATEGORY ? '' : f.cat)}" title="把題目整份貼上，網站會自動拆題、批改、統計">＋ 新增考卷</a>
+    </div>
     ${groups.length ? `
-    <label class="ex-filter"><span>分類</span>
-      <select id="ex-cat">${groups.map(([name, r]) => `<option value="${esc(name)}" ${name === f.cat ? 'selected' : ''}>${esc(name)}（${r.length}）</option>`).join('')}</select>
-    </label>
-    <label class="ex-filter"><span>章節</span>
-      <select id="ex-chap"><option value="">全部章節（${rows.length}）</option>${chapters.map(g => `<option value="${esc(g.chapter)}" ${g.chapter === f.ch ? 'selected' : ''}>${esc(g.chapter)}${g.items.length > 1 ? `（${g.items.length}）` : ''}</option>`).join('')}</select>
-    </label>` : ''}
+    <div class="exnav-cats" role="tablist" aria-label="分類">${groups.map(([name, r]) => `<button type="button" role="tab" class="ex-cat" data-ex-cat="${esc(name)}" aria-selected="${name === f.cat}">${esc(name)}<small>${r.length}</small></button>`).join('<span class="ex-sep" aria-hidden="true">｜</span>')}</div>
+    <div class="exnav-chaps" aria-label="章節">
+      <button type="button" class="ex-ch" data-ex-ch="" aria-pressed="${!f.ch}">全部<small>${rows.length}</small></button>
+      ${chapters.map(g => `<button type="button" class="ex-ch" data-ex-ch="${esc(g.chapter)}" aria-pressed="${g.chapter === f.ch}">${esc(g.chapter)}${g.items.length > 1 ? `<small>${g.items.length}</small>` : ''}</button>`).join('')}
+    </div>` : '<p class="exnav-empty">這個科目還沒有考卷。按「＋ 新增考卷」，把題目整份貼上，網站會自動拆題、批改、統計。</p>'}
   </div>
-  <div class="write-cta">
-    <a class="btn" href="#examedit/new/${c.id}" data-new-cat="${esc(f.cat === OTHER_CATEGORY ? '' : f.cat)}">＋ 新增模擬考卷</a>
-    <span class="meta-label hide-m">把題目整份貼上，網站會自動拆題、批改、統計。</span>
-  </div>
-  ${groups.length ? `<p class="meta-label">這個科目共 ${total} 份考卷；目前顯示「${esc(f.cat)}」${f.ch ? ` › 「${esc(f.ch)}」` : ''} ${shown.length} 份。</p>` : ''}
   <div class="adminlist exam-adminlist">
     ${shown.map(({ e, ...i }) => `
       <div class="adminrow">
@@ -191,7 +189,12 @@ function examsAdminHtml() {
       </div>`).join('') || '<p class="empty">這個科目還沒有模擬考卷。</p>'}
   </div>`;
 }
-const examAdminFilter = {};   // 每個科目目前選的分類、章節
+const examAdminFilter = {};
+// 學期短名稱：2026_y1s1 → 2026 一上（選單用，手機才放得下）
+function shortSemLabel(code) {
+  const m = /^(\d{4})_y(\d)s(\d)$/.exec(code || '');
+  return m ? `${m[1]} ${'一二三四五'[m[2] - 1] || m[2]}${m[3] === '1' ? '上' : '下'}` : semesterLabel(code);
+}   // 每個科目目前選的分類、章節
 
 // 後台考卷清單：標題去掉重複的「科目名稱 - 分類 - 」前綴，完整標題放在滑鼠提示
 function shortExamTitle(e, c) {
@@ -207,9 +210,8 @@ let examNewCategory = '';   // 從某個分類按「新增」時，預先填好�
 function bindExamsAdmin() {
   const sel = document.getElementById('ex-course');
   if (sel) sel.onchange = () => { pagesCourse = Number(sel.value); render(); };
-  const cat = document.getElementById('ex-cat'), chap = document.getElementById('ex-chap');
-  if (cat) cat.onchange = () => { examAdminFilter[pagesCourse] = { cat: cat.value, ch: '' }; render(); };
-  if (chap) chap.onchange = () => { examAdminFilter[pagesCourse].ch = chap.value; render(); };
+  document.querySelectorAll('[data-ex-cat]').forEach(b => b.onclick = () => { examAdminFilter[pagesCourse] = { cat: b.dataset.exCat, ch: '' }; render(); });
+  document.querySelectorAll('[data-ex-ch]').forEach(b => b.onclick = () => { examAdminFilter[pagesCourse].ch = b.dataset.exCh; render(); });
   document.querySelectorAll('[data-new-cat]').forEach(a => a.addEventListener('click', () => { examNewCategory = a.dataset.newCat; }));
   document.querySelectorAll('[data-exam-delete]').forEach(b => b.onclick = async () => {
     const e = data.exams.find(x => x.id == b.dataset.examDelete);
