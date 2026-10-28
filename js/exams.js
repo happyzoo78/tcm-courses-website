@@ -423,6 +423,7 @@ async function mountAttempt() {
       ${canSelfScore && pending ? `<div class="notice">有 ${pending} 題申論題請對照參考答案<b>自評分數</b>，按最下方「儲存自評」後會計入總分。</div>` : ''}
       <div class="exam-actions">
         ${a.mine ? `<a class="btn" href="#exam/${a.examId}">再做一次</a>` : ''}
+        ${a.mine && !a.oldVersion && wrong ? `<a class="btn secondary" href="#retry/${a.id}">只練答錯的 ${wrong} 題</a>` : ''}
         <label class="check"><input type="checkbox" id="only-wrong"> 只看答錯的題目</label>
       </div>
     </div>
@@ -457,6 +458,76 @@ async function mountAttempt() {
     } catch (err) { handleError(err, msg); }
     save.disabled = false; save.textContent = '儲存自評';
   };
+}
+
+/* ---------- 錯題練習 #retry/作答編號（不留紀錄、不算進統計） ---------- */
+function retryPage() {
+  return '<div id="retry-root"><p class="empty">載入中…</p></div>';
+}
+
+async function mountRetry() {
+  const root = document.getElementById('retry-root');
+  let a;
+  try { a = await api(`/api/attempts/${encodeURIComponent(routeParts[1])}`); }
+  catch (err) { if (err.status === 401) return showLogin('登入已過期，請重新登入。'); root.innerHTML = `<div class="msg error">${esc(friendly(err))}</div>`; return; }
+  if (!document.getElementById('retry-root')) return;
+  if (!a.mine || a.oldVersion) { root.innerHTML = '<p class="empty">只能練習自己最新版本考卷的錯題。</p>'; return; }
+  const qs = a.questions.filter(q => q.type !== 'essay' && a.results[q.id] && !a.results[q.id].correct);
+  const groups = a.groups.filter(g => qs.some(q => q.group === g.id));
+  // 作答畫面不能帶出答案
+  const strip = q => { const { answer, explanation, reference, rubric, ...rest } = q; return rest; };
+  const head = `
+    <a class="btn secondary back" href="#attempt/${a.id}">← 回到成績頁</a>
+    <div class="exam-head">
+      <div class="eyebrow">錯題練習</div>
+      <h2>${esc(a.title)}</h2>
+      <p class="meta-label">共 ${qs.length} 題，都是你上次答錯的題目。練習結果<b>不會留下紀錄</b>，也不算進成績統計，可以重複練。</p>
+    </div>`;
+  if (!qs.length) { root.innerHTML = head + '<p class="empty">這次作答沒有答錯的客觀題，太棒了！</p>'; return; }
+
+  const showForm = () => {
+    root.innerHTML = head + `
+      <form id="retry-form" class="exam-form" autocomplete="off">
+        ${questionsHtml(qs.map(strip), groups, 'take', { answers: {} })}
+        <div class="exam-bar"><span id="retry-progress">已作答 0 / ${qs.length} 題</span><button class="btn" type="submit">對答案</button></div>
+        <div id="retry-msg"></div>
+      </form>`;
+    const form = document.getElementById('retry-form');
+    const collect = () => {
+      const out = {};
+      for (const q of qs) {
+        const els = [...form.querySelectorAll(`[name="a-${q.id}"]`)];
+        if (q.type === 'single') { const c = els.find(x => x.checked); if (c) out[q.id] = c.value; }
+        else if (q.type === 'multi') { const c = els.filter(x => x.checked).map(x => x.value); if (c.length) out[q.id] = c; }
+        else if (q.type === 'tf') { const c = els.find(x => x.checked); if (c) out[q.id] = c.value === 'true'; }
+        else if (q.type === 'fill') { const v = els.map(x => x.value); if (v.some(x => x.trim())) out[q.id] = v; }
+      }
+      return out;
+    };
+    form.oninput = form.onchange = () => { document.getElementById('retry-progress').textContent = `已作答 ${Object.keys(collect()).length} / ${qs.length} 題`; };
+    form.onsubmit = async ev => {
+      ev.preventDefault();
+      const btn = form.querySelector('[type=submit]');
+      btn.disabled = true; btn.textContent = '對答案中…';
+      try {
+        const r = await api(`/api/exams/${a.examId}/check`, { method: 'POST', body: { attemptId: a.id, answers: collect() } });
+        const right = r.questions.filter(q => r.results[q.id]?.correct).length;
+        root.innerHTML = head + `
+          <div class="score-big"><strong>${right}</strong> / ${r.questions.length} 題答對</div>
+          <div class="exam-actions">
+            <button type="button" class="btn" id="retry-again">再練一次</button>
+            <a class="btn secondary" href="#exam/${a.examId}">整份重新作答</a>
+          </div>
+          <div class="exam-form" style="margin-top:14px">${questionsHtml(r.questions, r.groups, 'result', { answers: r.given, results: r.results })}</div>`;
+        document.getElementById('retry-again').onclick = () => { showForm(); window.scrollTo(0, 0); };
+        window.scrollTo(0, 0);
+      } catch (err) {
+        btn.disabled = false; btn.textContent = '對答案';
+        handleError(err, document.getElementById('retry-msg'));
+      }
+    };
+  };
+  showForm();
 }
 
 /* ---------- 出題頁 #examedit/new/科目編號、#examedit/考卷編號 ---------- */
