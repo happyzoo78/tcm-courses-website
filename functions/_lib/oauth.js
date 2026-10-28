@@ -49,6 +49,14 @@ export function redirectHome(request, params = {}) {
   });
 }
 
+// 登入後要回去的頁面：只接受本站 /content/ 底下的路徑，避免被導到其他網站
+export function safeNext(value) {
+  const v = String(value || "");
+  if (!/^\/content\/[A-Za-z0-9_\-\/.]*(\?[A-Za-z0-9_\-=&.%]*)?$/.test(v)) return "";
+  if (v.includes("..") || v.includes("//")) return "";
+  return v;
+}
+
 // 解讀 Google 回傳的身分資料（JWT 的中間段）
 export function decodeJwtPayload(jwt) {
   const part = String(jwt || "").split(".")[1];

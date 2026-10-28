@@ -4,7 +4,7 @@ import { createSessionCookie } from "../../../_lib/auth.js";
 import { createSession } from "../../../_lib/session.js";
 import {
   OAUTH_COOKIE, GOOGLE_TOKEN_URL, getCookie, oauthCookie,
-  redirectUri, redirectHome, decodeJwtPayload
+  redirectUri, redirectHome, decodeJwtPayload, safeNext
 } from "../../../_lib/oauth.js";
 
 const GOOGLE_ISSUERS = ["https://accounts.google.com", "accounts.google.com"];
@@ -27,7 +27,9 @@ export async function onRequestGet({ request, env }) {
 
   // 1. 確認這次回應確實對應本站剛才發出的登入請求
   const saved = getCookie(request, OAUTH_COOKIE) || "";
-  const [savedState, savedNonce] = saved.split(".");
+  const [codes, savedNext = ""] = saved.split("|");
+  const [savedState, savedNonce] = codes.split(".");
+  const nextPath = safeNext(savedNext);
   const state = url.searchParams.get("state") || "";
   const code = url.searchParams.get("code") || "";
 
@@ -128,7 +130,10 @@ export async function onRequestGet({ request, env }) {
     console.error("Post-login bookkeeping failed", error);
   }
 
-  const res = redirectHome(request, { login: "ok" });
+  // 從受保護的頁面來的，就回到那一頁；否則回首頁
+  const res = nextPath
+    ? new Response(null, { status: 302, headers: { Location: nextPath, "Cache-Control": "no-store" } })
+    : redirectHome(request, { login: "ok" });
   res.headers.append("Set-Cookie", createSessionCookie(session.token, session.maxAge));
   res.headers.append("Set-Cookie", oauthCookie("", 0));
   return res;

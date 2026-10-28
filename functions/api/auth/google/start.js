@@ -1,6 +1,6 @@
 // GET /api/auth/google/start
 // 按下「使用 Google 帳號登入」後，先到這裡，再轉到 Google 的登入頁
-import { GOOGLE_AUTH_URL, randomHex, oauthCookie, redirectUri, redirectHome } from "../../../_lib/oauth.js";
+import { GOOGLE_AUTH_URL, randomHex, oauthCookie, redirectUri, redirectHome, safeNext } from "../../../_lib/oauth.js";
 
 export async function onRequestGet({ request, env }) {
   if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) {
@@ -23,7 +23,8 @@ export async function onRequestGet({ request, env }) {
     status: 302,
     headers: {
       Location: url.toString(),
-      "Set-Cookie": oauthCookie(`${state}.${nonce}`),
+      // 驗證碼與「登入後要回去的頁面」一起暫存
+      "Set-Cookie": oauthCookie(`${state}.${nonce}|${safeNext(new URL(request.url).searchParams.get("next"))}`),
       "Cache-Control": "no-store",
       "X-Robots-Tag": "noindex, nofollow"
     }
