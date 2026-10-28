@@ -247,6 +247,6 @@ function subjChipsHtml(sems, curId, count, attr) {
     const list = coursesIn(sm.code);
     if (!list.length) return '';
     return `<div class="subj-row"><span class="subj-sem">${esc(shortSemLabel(sm.code))}</span>
-      ${list.map(x => `<button type="button" class="subj-chip${count(x) ? '' : ' none'}" ${attr}="${x.id}" aria-pressed="${x.id === curId}">${esc(x.title)}${isExamSubject(x) ? '<i class="exam-dot" title="執醫考科"></i>' : ''}<small>${count(x)}</small></button>`).join('')}</div>`;
+      ${list.map(x => `<button type="button" class="subj-chip${count(x) ? '' : ' none'}" ${attr}="${x.id}" aria-pressed="${x.id === curId}">${esc(x.title)}<small>${count(x)}</small></button>`).join('')}</div>`;
   }).join('');
 }

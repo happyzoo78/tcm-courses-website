@@ -114,7 +114,7 @@ function examZonePage() {
   const head = '<h2 class="section">模擬考專區 <small>選年級、科目，再選分類與章節</small></h2>';
   if (!c) return head + tabs + '<p class="empty-note">目前沒有開放的學期。</p>';
   return `${head}${tabs}
-  <div class="subj-rows">${subjChipsHtml(inYear, c.id, count, 'data-zone-course')}${courses.some(isExamSubject) ? '<span class="subj-legend"><i class="exam-dot"></i> 執醫考科　數字＝考卷份數</span>' : ''}</div>
+  <div class="subj-rows">${subjChipsHtml(inYear, c.id, count, 'data-zone-course')}</div>
   <div class="exnav">
     <div class="exnav-top">
       <h3 class="exnav-title"><a class="link" href="#course/${c.id}">${esc(c.title)}</a>${isExamSubject(c) ? ' <span class="exam-tag">執醫考科</span>' : ''}</h3>

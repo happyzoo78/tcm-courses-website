@@ -235,8 +235,7 @@ const HW_DATA = [
           return `<button type="button" role="tab" class="hwz-year" data-hwz-year="${y}" aria-selected="${y === curYear}" ${ok ? '' : 'disabled'}>${n}${ok ? '' : '<small>尚未开课</small>'}</button>`;
         }).join('')}</div>
         ${inYear.map(se => `<div class="hwz-semrow"><span class="hwz-sem">${esc(label(se))}</span>${se.subjects.map(s =>
-          `<button type="button" class="hwz-subj${s.works.length ? '' : ' none'}" data-hwz-subj="${esc(key(se, s))}" aria-pressed="${key(se, s) === curKey}">${esc(s.name)}${isExam(s) ? '<i class="hwz-dot" title="执医考科"></i>' : ''}<small>${s.works.length}</small></button>`).join('')}</div>`).join('')}
-        ${all.some(x => isExam(x.s)) ? '<p class="hwz-legend"><i class="hwz-dot"></i> 执医考科　数字＝作业份数</p>' : ''}
+          `<button type="button" class="hwz-subj${s.works.length ? '' : ' none'}" data-hwz-subj="${esc(key(se, s))}" aria-pressed="${key(se, s) === curKey}">${esc(s.name)}<small>${s.works.length}</small></button>`).join('')}</div>`).join('')}
         ${cur ? `<div class="hwz-panel">
           <div class="hwz-title" role="heading" aria-level="3">${esc(cur.s.name)}${examTag(cur.s)}<small>${esc(cur.se.name)}</small></div>
           ${cur.s.works.length ? `<div class="hwz-list">${cur.s.works.map(w => `<a class="hwz-work" href="${esc(w.url)}">${esc(w.title)}<span aria-hidden="true">→</span></a>`).join('')}</div>`
