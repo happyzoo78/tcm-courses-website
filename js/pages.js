@@ -10,7 +10,7 @@ function courseCard(c, compact) {
   <article class="course">
     <div class="cover" aria-hidden="true">${TAIJI}<span>${esc(c.icon || c.title.slice(0, 2))}</span></div>
     <div class="course-body">
-      <h3>${esc(c.title)}</h3>
+      <h3>${esc(c.title)}${isExamSubject(c) ? ' <span class="exam-tag">執醫考科</span>' : ''}</h3>
       ${compact
         ? `<p class="meta-label">${n} 份網頁 · ${c.cards} 張圖卡</p>`
         : `<div class="numbers">

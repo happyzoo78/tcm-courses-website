@@ -397,3 +397,6 @@ fieldset.owners { border: 1px solid var(--line); border-radius: 8px; padding: 8p
 fieldset.owners legend { font-size: 15px; color: var(--muted); padding: 0 6px; }
 fieldset.owners .check small { color: var(--muted); }
 .adminrow > div:first-child { min-width: 0; overflow-wrap: anywhere; }
+
+/* 中醫執業醫師考科標籤 */
+.exam-tag { display: inline-block; margin-left: 6px; padding: 0 8px; border: 1px solid var(--red); border-radius: 999px; color: var(--red); font-size: 13px; font-family: inherit; font-weight: 600; vertical-align: 3px; white-space: nowrap; }

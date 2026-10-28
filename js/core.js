@@ -56,7 +56,7 @@ function showLogin(notice = '') {
 
 async function loadContent() {
   try {
-    data = await api('/api/content');
+    data = sortCourses(await api('/api/content'));
     loadState = 'ready';
   } catch (err) {
     if (err.status === 401) return showLogin('登入已過期，請重新登入。');
@@ -121,6 +121,38 @@ const cut = (s, n) => { s = String(s ?? ''); return s.length > n ? s.slice(0, n)
 const getCourse = id => data.courses.find(c => c.id == id);
 const courseName = id => getCourse(id)?.title || '未分類';
 const byDateDesc = (a, b) => String(b.date || '').localeCompare(String(a.date || ''));
+
+/* 中醫執業醫師考試科目：同一學期裡排在最前面，依下面的順序
+   比對科目名稱（去掉空白、簡體字也能對上）。要調整就改這張表 */
+const EXAM_SUBJECTS = [
+  ['中醫基礎理論', '中医基础理论'],
+  ['中醫診斷學', '中医诊断学'],
+  ['中藥學', '中药学'],
+  ['方劑學', '方剂学'],
+  ['針灸學', '针灸学'],
+  ['四大經典', '四大经典', '黃帝內經', '黄帝内经', '內經', '内经', '傷寒論', '伤寒论', '金匱要略', '金匮要略', '溫病學', '温病学'],
+  ['西醫診斷學', '西医诊断学', '診斷學基礎', '诊断学基础'],
+  ['西醫內科學', '西医内科学'],
+  ['西醫傳染病學', '西医传染病学', '傳染病學', '传染病学'],
+  ['中醫內科學', '中医内科学'],
+  ['中醫外科學', '中医外科学'],
+  ['中醫婦科學', '中医妇科学'],
+  ['中醫兒科學', '中医儿科学']
+];
+function examRank(title) {
+  const t = String(title || '').replace(/\s+/g, '');
+  const i = EXAM_SUBJECTS.findIndex(names => names.includes(t));
+  return i < 0 ? Infinity : i;
+}
+const isExamSubject = c => examRank(c.title) !== Infinity;
+// 考科在前（依上表順序），其他科目依建立順序
+function sortCourses(d) {
+  d.courses = [...(d.courses || [])].sort((a, b) => {
+    const ra = examRank(a.title), rb = examRank(b.title);
+    return ra === rb ? a.id - b.id : (ra === Infinity ? 1 : rb === Infinity ? -1 : ra - rb);
+  });
+  return d;
+}
 
 /* 學期、科目、網頁 */
 const getSemester = code => (data.semesters || []).find(s => s.code === code);

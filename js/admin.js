@@ -326,7 +326,7 @@ async function prepareImage(file) {
 async function reloadAfterChange(message) {
   adminFlash = message;
   try {
-    data = await api('/api/content');
+    data = sortCourses(await api('/api/content'));
     loadState = 'ready';
   } catch (err) {
     if (err.status === 401) return showLogin('登入已過期，請重新登入。');
