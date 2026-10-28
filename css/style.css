@@ -833,3 +833,4 @@ fieldset.owners .check small { color: var(--muted); }
 .sem-carousel .shelves[data-n="4"] .shelf { flex-basis: calc((100% - 42px) / 4); }
 @media (max-width: 1000px) { .sem-carousel .shelf, .sem-carousel .shelves[data-n="4"] .shelf { flex-basis: calc((100% - 14px) / 2); } }
 @media (max-width: 720px) { .sem-carousel .shelf, .sem-carousel .shelves[data-n="4"] .shelf { flex-basis: 100%; } }
+h2.section small.motto { font-family: "Noto Serif TC", serif; letter-spacing: .12em; color: var(--gold); }
