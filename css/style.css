@@ -720,3 +720,10 @@ fieldset.owners .check small { color: var(--muted); }
   .exnav-title { font-size: 18px; }
   .sec-title { margin-top: 22px; }
 }
+
+/* 關於我們：段落間距、避開右下角浮水印 */
+.about-hero { padding-bottom: 76px; }
+.about-hero p { max-width: 46em; line-height: 1.95; }
+.about-hero p + p { margin-top: 12px; }
+.about-hero .about-note { font-size: 14px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; margin-top: 18px; }
+@media (max-width: 1160px) { .about-hero { padding-bottom: 26px; } }
