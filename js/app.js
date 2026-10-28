@@ -32,6 +32,8 @@ function render() {
 }
 
 function bind() {
+  // 年級分頁（首頁、課程總覽、模擬考專區、後台共用）
+  document.querySelectorAll('[data-site-year]').forEach(b => b.onclick = () => { siteYear = Number(b.dataset.siteYear); render(); });
   const retry = document.getElementById('retry');
   if (retry) retry.onclick = () => boot();
 

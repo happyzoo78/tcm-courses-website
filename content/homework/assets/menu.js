@@ -112,7 +112,7 @@ const HW_DATA = [
   /* 作業專區首頁 */
   .hwz-years { display: flex; gap: 8px; margin: 18px 0 14px; overflow-x: auto; scrollbar-width: none; }
   .hwz-years::-webkit-scrollbar { display: none; }
-  .hwz-year { flex: 1 0 auto; min-width: 80px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); font: inherit; font-size: 16px; cursor: pointer; display: flex; flex-direction: column; align-items: center; line-height: 1.3; }
+  .hwz-year { flex: 1 0 auto; min-width: 80px; min-height: 58px; justify-content: center; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); font: inherit; font-size: 16px; cursor: pointer; display: flex; flex-direction: column; align-items: center; line-height: 1.3; }
   .hwz-year small { font-size: 12px; color: var(--muted); }
   .hwz-year[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
   .hwz-year:disabled { opacity: .55; cursor: not-allowed; }

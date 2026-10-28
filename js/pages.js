@@ -4,7 +4,7 @@
 /* =========================================================
    四、各頁面內容
    ========================================================= */
-function courseCard(c, compact) {
+function courseCard(c) {
   const n = pagesOf(c.id).length + filesOf(c.id).length;
   const x = publishedExamsOf(c.id).length;
   const k = itemsOf(c.id).length;
@@ -13,13 +13,7 @@ function courseCard(c, compact) {
     <div class="cover" aria-hidden="true">${TAIJI}<span>${esc(c.icon || c.title.slice(0, 2))}</span></div>
     <div class="course-body">
       <h3>${esc(c.title)}${isExamSubject(c) ? ' <span class="exam-tag">執醫考科</span>' : ''}</h3>
-      ${compact
-        ? `<p class="meta-label">${n} 份網頁 · ${x} 份考卷 · ${k} 張圖卡</p>`
-        : `<div class="numbers">
-             <div><strong>${n}</strong><small> 份　學習網頁</small></div>
-             <div><strong>${x}</strong><small> 份　模擬考卷</small></div>
-             <div><strong>${k}</strong><small> 張　圖卡</small></div>
-           </div>`}
+      <p class="meta-label">${n} 份網頁 · ${x} 份考卷 · ${k} 張圖卡</p>
       <p class="meta-label">最新一堂</p>
       <div class="latest">${esc(c.latest) || '—'}</div>
       <a class="link go" href="#course/${c.id}">進入科目 →</a>
@@ -27,13 +21,14 @@ function courseCard(c, compact) {
   </article>`;
 }
 
-// 依學期分組顯示科目（只顯示開放中的學期，新的在前）
-function semesterSections(compact) {
+// 依年級分頁顯示科目卡（只顯示開放中的學期），資料再多頁面也不會無限變長
+function yearCoursesHtml() {
   const sems = visibleSemesters().filter(s => coursesIn(s.code).length);
-  if (!sems.length) return '<p class="empty">目前沒有開放的科目。</p>';
-  return sems.map(s => `
+  if (!sems.length) return '<p class="empty-note">目前沒有開放的科目。</p>';
+  const tabs = yearTabsHtml(new Set(sems.map(s => yearOf(s.code))));
+  return tabs + semestersOfYear(sems, siteYear).map(s => `
     <h3 class="sem-title">${esc(s.label)}</h3>
-    <div class="cards">${coursesIn(s.code).map(c => courseCard(c, compact)).join('')}</div>`).join('');
+    <div class="cards">${coursesIn(s.code).map(courseCard).join('')}</div>`).join('');
 }
 
 function itemCard(i, type) {
@@ -57,7 +52,7 @@ function recentUpdates(limit) {
   const day = t => String(t || '').slice(0, 10);
   const list = [
     ...(data.pages || []).filter(p => visible(p.courseId)).map(p => ({ t: p.updatedAt, date: day(fmtTime(p.updatedAt)).replace(/\//g, '-'), kind: '學習網頁', courseId: p.courseId, title: p.title, desc: p.description, href: p.url })),
-    ...(data.exams || []).filter(e => e.published && visible(e.courseId)).map(e => ({ t: e.updatedAt, date: day(fmtTime(e.updatedAt)).replace(/\//g, '-'), kind: '模擬考', courseId: e.courseId, title: e.title, desc: `${e.category || '其他試題'} · ${e.questionCount} 題`, href: `#exam/${e.id}` })),
+    ...(data.exams || []).filter(e => e.published && visible(e.courseId)).map(e => ({ t: e.updatedAt, date: day(fmtTime(e.updatedAt)).replace(/\//g, '-'), kind: '模擬考', courseId: e.courseId, title: shortExamTitle(e, getCourse(e.courseId) || {}), desc: `${e.category || '其他試題'} · ${e.questionCount} 題`, href: `#exam/${e.id}` })),
     ...data.items.filter(i => visible(i.courseId)).map(i => ({ t: i.date, date: i.date, kind: '圖卡', courseId: i.courseId, title: i.title, desc: i.description, href: `#detail/item/${i.id}` })),
     ...data.courses.filter(c => open.has(c.semesterCode)).flatMap(c => filesOf(c.id).map(f => ({ t: f.updated, date: day(f.updated), kind: '學習網頁', courseId: c.id, title: f.title, desc: f.description || '', href: f.path })))
   ];
@@ -71,7 +66,7 @@ function homePage() {
   const totalPages = sum(pagesOf) + sum(filesOf);
   const totalExams = sum(publishedExamsOf);
   const totalCards = sum(itemsOf);
-  const updates = recentUpdates(8);
+  const updates = recentUpdates(6);
   return `
   <section class="hero">
     <div class="eyebrow"><span class="nw">中醫學習</span> · <span class="nw">大醫精誠</span></div>
@@ -85,121 +80,78 @@ function homePage() {
     </div>
   </section>
 
-  <h2 class="section">科目入口 <small>點擊進入該科目</small></h2>
-  ${semesterSections(false)}
+  <h2 class="section">科目入口 <small>選年級，點科目進入</small></h2>
+  ${yearCoursesHtml()}
 
   <h2 class="section">最新更新 <small>學習網頁、模擬考、圖卡依時間排序</small></h2>
-  <div class="panel">
+  <div class="pagelist">
     ${updates.map(u => `
-      <div class="update">
-        <time>${esc(u.date)}</time>
-        <div><span class="tag">${esc(courseName(u.courseId))}</span> <span class="kind-tag">${esc(u.kind)}</span></div>
-        <div class="desc"><a class="link" href="${esc(u.href)}">${esc(u.title)}</a>　${esc(cut(u.desc, 60))}</div>
-      </div>`).join('') || '<div class="empty">目前沒有更新紀錄</div>'}
+      <a class="pagerow" href="${esc(u.href)}">
+        <span class="pr-meta upd-meta"><time>${esc(u.date)}</time><span class="kind-tag">${esc(u.kind)}</span><span class="kind-tag">${esc(courseName(u.courseId))}</span></span>
+        <span class="pr-title">${esc(u.title)}</span>
+        ${u.desc ? `<span class="pr-desc">${esc(cut(u.desc, 80))}</span>` : ''}
+      </a>`).join('') || '<p class="empty-note">目前沒有更新紀錄。</p>'}
   </div>
 
   <h2 class="section">使用說明</h2>
   <div class="panel prose">
-    <p><b>瀏覽方式：</b>依學期找到科目，點「進入科目」查看該科的學習網頁、模擬考題與圖卡；上方「模擬考專區」可一次看到所有科目的考卷，「各科作業專區」不用登入也能看。</p>
+    <p><b>瀏覽方式：</b>選年級、點科目，查看該科的學習網頁、模擬考題與圖卡；上方「模擬考專區」可依年級、科目找考卷，「各科作業專區」不用登入也能看。</p>
     ${hasAdminAccess() ? `<p><b>資料管理：</b>點右上角「管理後台」，可以上傳網頁、出模擬考題${admin.canWrite ? '，或新增修改課程與圖卡' : '（限你負責的科目）'}。</p>` : ''}
     <p><b>使用範圍：</b>本站內容僅供班級成員學習使用，請勿轉貼或外流，並尊重教材著作權。</p>
   </div>`;
 }
 
-// 模擬考專區：一～五年級 → 學期 → 科目 → 分類標籤
-const YEAR_NAMES = ['一年級', '二年級', '三年級', '四年級', '五年級'];
-let zoneYear = 0;   // 0＝自動選最新開放的年級
-const yearOf = code => Number((/_y(\d)s/.exec(code || '') || [])[1]) || 0;
-
 const zoneCourseSel = {};   // 每個年級目前選的科目
-const zoneFilter = {};      // 每個科目目前選的分類、章節
 
-// 模擬考專區：年級 → 科目 → 分類 → 章節，一次只顯示一個科目的考卷，頁面不會越拉越長
+// 模擬考專區：年級 → 科目 → 分類 → 章節，一次只顯示一個科目
 function examZonePage() {
   const sems = visibleSemesters();
-  const years = new Set(sems.map(s => yearOf(s.code)));
-  if (!years.has(zoneYear)) zoneYear = Math.max(0, ...years);
-  const inYear = sems.filter(s => yearOf(s.code) === zoneYear).sort((a, b) => a.sortOrder - b.sortOrder);
-  const courses = inYear.flatMap(sm => coursesIn(sm.code).map(c => ({ c, sm })));
+  const tabs = yearTabsHtml(new Set(sems.map(s => yearOf(s.code))));
+  const inYear = semestersOfYear(sems, siteYear);
+  const courses = inYear.flatMap(sm => coursesIn(sm.code));
   const count = c => examsOf(c.id).length;
-  let cur = courses.find(x => x.c.id === zoneCourseSel[zoneYear]) || courses.find(x => count(x.c)) || courses[0];
-  const yearTabs = `
-  <div class="year-tabs" role="tablist">
-    ${YEAR_NAMES.map((n, i) => {
-      const y = i + 1, open = years.has(y);
-      return `<button type="button" role="tab" class="year-tab" data-zone-year="${y}" aria-selected="${y === zoneYear}" ${open ? '' : 'disabled title="尚未開課"'}>${n}${open ? '' : '<small>尚未開課</small>'}</button>`;
-    }).join('')}
-  </div>`;
-  if (!cur) return `<h2 class="section">模擬考專區</h2>${yearTabs}<p class="empty">目前沒有開放的學期。</p>`;
-  const c = cur.c;
-  // 科目列：依學期分組；沒有考卷的科目變淡
-  const subjRow = inYear.map(sm => {
-    const list = coursesIn(sm.code);
-    if (!list.length) return '';
-    return `<div class="zone-semrow"><span class="zone-sem">${esc(shortSemLabel(sm.code))}</span>
-      ${list.map(x => `<button type="button" class="zone-subj${count(x) ? '' : ' none'}" data-zone-course="${x.id}" aria-pressed="${x.id === c.id}">${esc(x.title)}${isExamSubject(x) ? '<i class="zone-dot" title="執醫考科"></i>' : ''}<small>${count(x)}</small></button>`).join('')}</div>`;
-  }).join('');
-  // 分類、章節
-  const groups = examGroups(c.id);
-  const f = zoneFilter[c.id] || (zoneFilter[c.id] = { cat: '', ch: '' });
-  if (!groups.some(g => g[0] === f.cat)) { f.cat = groups[0]?.[0] || ''; f.ch = ''; }
-  const rows = (groups.find(g => g[0] === f.cat) || [, []])[1];
-  const chapters = examChapters(rows, c);
-  if (f.ch && !chapters.some(g => g.chapter === f.ch)) f.ch = '';
-  const shown = f.ch ? chapters.find(g => g.chapter === f.ch).items.map(i => ({ ...i, label: i.sub || f.ch }))
-    : chapters.flatMap(g => g.items.map(i => ({ ...i, label: i.sub ? `${g.chapter} - ${i.sub}` : g.chapter })));
-  const showChaps = chapters.length > 1 || chapters.some(g => g.menu);
-  return `
-  <h2 class="section zone-title">模擬考專區</h2>
-  ${yearTabs}
-  <div class="zone-subjects">${subjRow}${courses.some(x => isExamSubject(x.c)) ? '<span class="zone-legend"><i class="zone-dot"></i> 執醫考科　數字＝考卷份數</span>' : ''}</div>
-  <div class="exnav zone-panel">
+  const c = courses.find(x => x.id === zoneCourseSel[siteYear]) || courses.find(count) || courses[0];
+  const head = '<h2 class="section">模擬考專區 <small>選年級、科目，再選分類與章節</small></h2>';
+  if (!c) return head + tabs + '<p class="empty-note">目前沒有開放的學期。</p>';
+  return `${head}${tabs}
+  <div class="subj-rows">${subjChipsHtml(inYear, c.id, count, 'data-zone-course')}${courses.some(isExamSubject) ? '<span class="subj-legend"><i class="exam-dot"></i> 執醫考科　數字＝考卷份數</span>' : ''}</div>
+  <div class="exnav">
     <div class="exnav-top">
-      <h3 class="zone-course-title"><a class="link" href="#course/${c.id}">${esc(c.title)}</a>${isExamSubject(c) ? ' <span class="exam-tag">執醫考科</span>' : ''}</h3>
-      ${canEditCourseUI(c.id) ? `<a class="link zone-manage" href="#admin/exams/${c.id}">管理考卷 →</a>` : ''}
+      <h3 class="exnav-title"><a class="link" href="#course/${c.id}">${esc(c.title)}</a>${isExamSubject(c) ? ' <span class="exam-tag">執醫考科</span>' : ''}</h3>
+      ${canEditCourseUI(c.id) ? `<a class="link sec-link" href="#admin/exams/${c.id}">管理考卷 →</a>` : ''}
     </div>
-    ${groups.length ? `
-    <div class="exnav-cats" role="tablist" aria-label="分類">${groups.map(([name, r]) => `<button type="button" role="tab" class="ex-cat" data-zone-cat="${esc(name)}" aria-selected="${name === f.cat}">${esc(name)}<small>${r.length}</small></button>`).join('<span class="ex-sep" aria-hidden="true">｜</span>')}</div>
-    ${showChaps ? `
-    <div class="exnav-chaps" aria-label="章節">
-      <span class="exnav-cap">${esc(f.cat)} › 章節</span>
-      <button type="button" class="ex-ch" data-zone-ch="" aria-pressed="${!f.ch}">全部<small>${rows.length}</small></button>
-      ${chapters.map(g => `<button type="button" class="ex-ch" data-zone-ch="${esc(g.chapter)}" aria-pressed="${g.chapter === f.ch}">${esc(g.chapter)}${g.items.length > 1 ? `<small>${g.items.length}</small>` : ''}</button>`).join('')}
-    </div>` : ''}
-    <div class="pagelist zone-list">${shown.map(i => examRowHtml(i.e, i.label)).join('')}</div>`
-    : '<p class="empty zone-empty">這個科目還沒有模擬考卷。</p>'}
+    ${examBrowserHtml(c)}
   </div>`;
 }
 
 function coursesPage() {
   return `
-  <h2 class="section">課程總覽</h2>
-  ${semesterSections(true)}`;
+  <h2 class="section">課程總覽 <small>選年級，點科目進入</small></h2>
+  ${yearCoursesHtml()}`;
 }
 
-// 單一科目頁：學習網頁清單＋圖卡
+// 單一科目頁：學習網頁 → 模擬考題 → 圖卡，三個區塊同一種標題樣式
 function coursePage() {
   const c = getCourse(courseTarget);
-  if (!c) return `<p class="empty">找不到這個科目。</p><a class="btn secondary" href="#courses">回課程總覽</a>`;
+  if (!c) return `<p class="empty-note">找不到這個科目。</p><a class="btn secondary" href="#courses">回課程總覽</a>`;
   const list = pagesOf(c.id);
   const items = data.items.filter(i => i.courseId == c.id).sort(byDateDesc);
+  const pages = [...list, ...filesOf(c.id).map(f => ({ url: f.path, title: f.title, description: f.description || '', updatedAt: f.updated, updatedBy: '', file: true }))];
   return `
-  <a class="btn secondary back" href="#courses">← 返回課程</a>
-  <h2 class="section">${esc(c.title)} <small>${esc(semesterLabel(c.semesterCode))}</small></h2>
-  ${c.owners?.length ? `<p class="meta-label">科目負責人：${c.owners.map(o => esc(o.name)).join('、')}</p>` : ''}
-  ${canEditCourseUI(c.id) ? `<p><a class="btn" href="#admin/pages/${c.id}">＋ 上傳或管理這個科目的網頁</a></p>` : ''}
-  <h3 class="sem-title">學習網頁</h3>
+  <a class="back-link" href="#courses">← 課程總覽</a>
+  <h2 class="section">${esc(c.title)}${isExamSubject(c) ? ' <span class="exam-tag">執醫考科</span>' : ''} <small>${esc(semesterLabel(c.semesterCode))}${c.owners?.length ? `　負責人：${c.owners.map(o => esc(o.name)).join('、')}` : ''}</small></h2>
+  <h3 class="sec-title">學習網頁${canEditCourseUI(c.id) ? `<a class="link sec-link" href="#admin/pages/${c.id}">管理網頁 →</a>` : ''}</h3>
   <div class="pagelist">
-    ${[...list.map(p => ({ ...p })), ...filesOf(c.id).map(f => ({ url: f.path, title: f.title, description: f.description || '', updatedAt: f.updated, updatedBy: '' , file: true }))].map(p => `
+    ${pages.map(p => `
       <a class="pagerow" href="${esc(p.url)}">
         <span class="pr-title">${esc(p.title)}</span>
         ${p.description ? `<span class="pr-desc">${esc(cut(p.description, 120))}</span>` : ''}
         <span class="pr-meta">更新：${esc(p.file ? String(p.updatedAt || '').slice(0, 10) : fmtTime(p.updatedAt).slice(0, 10))}${p.updatedBy ? ' · ' + esc(p.updatedBy) : ''}</span>
-      </a>`).join('') || '<p class="empty">這個科目還沒有上傳網頁。</p>'}
+      </a>`).join('') || '<p class="empty-note">這個科目還沒有學習網頁。</p>'}
   </div>
   ${courseExamsHtml(c)}
   ${items.length ? `
-  <h3 class="sem-title">圖卡 <small><a class="link" href="#items/${c.id}">搜尋圖卡 →</a></small></h3>
+  <h3 class="sec-title">圖卡<a class="link sec-link" href="#items/${c.id}">搜尋圖卡 →</a></h3>
   <div class="itemgrid">${items.map(i => itemCard(i, 'item')).join('')}</div>` : ''}`;
 }
 

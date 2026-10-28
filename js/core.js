@@ -211,3 +211,42 @@ function readHash() {
   if (page === 'admin' && parts[1]) { adminType = parts[1]; if (parts[2]) pagesCourse = Number(parts[2]) || 0; }
   if (page === 'detail') detailTarget = [parts[1] === 'project' ? 'project' : 'item', parts[2]];
 }
+
+
+/* =========================================================
+   全站共用導覽元件（設計語言統一）
+   第一層 年級：year-tab（方塊分頁）
+   第二層 科目：subj-chip（圓角膠囊，前面標學期）
+   第三層 分類：ex-cat（文字＋底線，用「｜」隔開）
+   第四層 章節：ex-ch（膠囊，放在內嵌小框 exnav-chaps 裡）
+   ========================================================= */
+const YEAR_NAMES = ['一年級', '二年級', '三年級', '四年級', '五年級'];
+let siteYear = 0;   // 目前選的年級，各頁共用；0＝自動選最新的
+const yearOf = code => Number((/_y(\d)s/.exec(code || '') || [])[1]) || 0;
+// 學期短名稱：2026_y1s1 → 2026 一上
+function shortSemLabel(code) {
+  const m = /^(\d{4})_y(\d)s(\d)$/.exec(code || '');
+  return m ? `${m[1]} ${'一二三四五'[m[2] - 1] || m[2]}${m[3] === '1' ? '上' : '下'}` : semesterLabel(code);
+}
+// 年級分頁；openYears＝可以點的年級
+function yearTabsHtml(openYears) {
+  if (!openYears.has(siteYear)) siteYear = Math.max(0, ...openYears);
+  return `
+  <div class="year-tabs" role="tablist" aria-label="年級">
+    ${YEAR_NAMES.map((n, i) => {
+      const y = i + 1, open = openYears.has(y);
+      return `<button type="button" role="tab" class="year-tab" data-site-year="${y}" aria-selected="${y === siteYear}" ${open ? '' : 'disabled title="尚未開課"'}>${n}${open ? '' : '<small>尚未開課</small>'}</button>`;
+    }).join('')}
+  </div>`;
+}
+// 目前年級的學期（上學期在前）
+const semestersOfYear = (sems, y) => sems.filter(s => yearOf(s.code) === y).sort((a, b) => a.sortOrder - b.sortOrder);
+// 科目膠囊列：每個學期一列
+function subjChipsHtml(sems, curId, count, attr) {
+  return sems.map(sm => {
+    const list = coursesIn(sm.code);
+    if (!list.length) return '';
+    return `<div class="subj-row"><span class="subj-sem">${esc(shortSemLabel(sm.code))}</span>
+      ${list.map(x => `<button type="button" class="subj-chip${count(x) ? '' : ' none'}" ${attr}="${x.id}" aria-pressed="${x.id === curId}">${esc(x.title)}${isExamSubject(x) ? '<i class="exam-dot" title="執醫考科"></i>' : ''}<small>${count(x)}</small></button>`).join('')}</div>`;
+  }).join('');
+}

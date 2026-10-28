@@ -115,20 +115,36 @@ function examListHtml(list, c, cat) {
     : examRowHtml(g.items[0].e, g.chapter)).join('');
 }
 
-function courseExamsHtml(c) {
+// 同學端考卷瀏覽：分類（｜）→ 章節（內嵌小框）→ 考卷清單。科目頁與模擬考專區共用
+const examFilter = {};   // 每個科目目前選的分類、章節
+function examBrowserHtml(c) {
   const groups = examGroups(c.id);
-  const manage = canEditCourseUI(c.id);
-  if (!groups.length && !manage) return '';   // 沒有考卷就整區隱藏
-  const names = groups.map(g => g[0]);
-  const current = names.includes(examTab[c.id]) ? examTab[c.id] : names[0];
+  if (!groups.length) return '<p class="empty-note">這個科目還沒有模擬考卷。</p>';
+  const f = examFilter[c.id] || (examFilter[c.id] = { cat: '', ch: '' });
+  if (!groups.some(g => g[0] === f.cat)) { f.cat = groups[0][0]; f.ch = ''; }
+  const rows = groups.find(g => g[0] === f.cat)[1];
+  const chapters = examChapters(rows, c);
+  if (f.ch && !chapters.some(g => g.chapter === f.ch)) f.ch = '';
+  const shown = f.ch ? chapters.find(g => g.chapter === f.ch).items.map(i => ({ ...i, label: i.sub || f.ch }))
+    : chapters.flatMap(g => g.items.map(i => ({ ...i, label: i.sub ? `${g.chapter} - ${i.sub}` : g.chapter })));
+  const showChaps = chapters.length > 1 || chapters.some(g => g.menu);
   return `
-  <h3 class="sem-title">模擬考題 ${manage ? `<small><a class="link" href="#admin/exams/${c.id}">管理考卷 →</a></small>` : ''}</h3>
-  ${groups.length ? `
-  <div class="exam-tabs" role="tablist">
-    ${groups.map(([name, list]) => `<button type="button" role="tab" class="exam-tab" data-exam-tab="${esc(name)}" data-course="${c.id}" aria-selected="${name === current}">${esc(name)}<span class="count">${list.length}</span></button>`).join('')}
-  </div>
-  ${groups.map(([name, list]) => `<div class="pagelist exam-panel" data-exam-panel="${esc(name)}" data-course="${c.id}" ${name === current ? '' : 'hidden'}>${examListHtml(list, c, name)}</div>`).join('')}`
-  : '<p class="empty">這個科目還沒有模擬考卷（同學看不到這一區）。</p>'}`;
+    <div class="exnav-cats" role="tablist" aria-label="分類">${groups.map(([name, r]) => `<button type="button" role="tab" class="ex-cat" data-xb-cat="${esc(name)}" data-course="${c.id}" aria-selected="${name === f.cat}">${esc(name)}<small>${r.length}</small></button>`).join('<span class="ex-sep" aria-hidden="true">｜</span>')}</div>
+    ${showChaps ? `
+    <div class="exnav-chaps" aria-label="章節">
+      <span class="exnav-cap">${esc(f.cat)} › 章節</span>
+      <button type="button" class="ex-ch" data-xb-ch="" data-course="${c.id}" aria-pressed="${!f.ch}">全部<small>${rows.length}</small></button>
+      ${chapters.map(g => `<button type="button" class="ex-ch" data-xb-ch="${esc(g.chapter)}" data-course="${c.id}" aria-pressed="${g.chapter === f.ch}">${esc(g.chapter)}${g.items.length > 1 ? `<small>${g.items.length}</small>` : ''}</button>`).join('')}
+    </div>` : ''}
+    <div class="pagelist xb-list">${shown.map(i => examRowHtml(i.e, i.label)).join('')}</div>`;
+}
+
+function courseExamsHtml(c) {
+  const manage = canEditCourseUI(c.id);
+  if (!examGroups(c.id).length && !manage) return '';   // 沒有考卷就整區隱藏
+  return `
+  <h3 class="sec-title">模擬考題${manage ? `<a class="link sec-link" href="#admin/exams/${c.id}">管理考卷 →</a>` : ''}</h3>
+  <div class="exnav">${examBrowserHtml(c)}</div>`;
 }
 
 // 分類標籤只切換同一個科目的區塊（模擬考專區同一頁有好幾個科目）
@@ -140,19 +156,9 @@ function bindExamTabs() {
     document.querySelectorAll(`[data-exam-panel][data-course="${cid}"]`).forEach(p => { p.hidden = p.dataset.examPanel !== b.dataset.examTab; });
   });
   document.querySelectorAll('details.exchap').forEach(d => d.addEventListener('toggle', () => examChapOpen[d.open ? 'add' : 'delete'](d.dataset.chap)));
-  document.querySelectorAll('[data-zone-course]').forEach(b => b.onclick = () => { zoneCourseSel[zoneYear] = Number(b.dataset.zoneCourse); render(); });
-  document.querySelectorAll('[data-zone-cat]').forEach(b => b.onclick = () => {
-    const cid = zoneCourseSel[zoneYear] || Number(document.querySelector('[data-zone-course][aria-pressed="true"]')?.dataset.zoneCourse);
-    zoneFilter[cid] = { cat: b.dataset.zoneCat, ch: '' }; render();
-  });
-  document.querySelectorAll('[data-zone-ch]').forEach(b => b.onclick = () => {
-    const cid = zoneCourseSel[zoneYear] || Number(document.querySelector('[data-zone-course][aria-pressed="true"]')?.dataset.zoneCourse);
-    zoneFilter[cid].ch = b.dataset.zoneCh; render();
-  });
-  document.querySelectorAll('[data-zone-year]').forEach(b => b.onclick = () => {
-    zoneYear = Number(b.dataset.zoneYear);
-    render();
-  });
+  document.querySelectorAll('[data-zone-course]').forEach(b => b.onclick = () => { zoneCourseSel[siteYear] = Number(b.dataset.zoneCourse); render(); });
+  document.querySelectorAll('[data-xb-cat]').forEach(b => b.onclick = () => { examFilter[b.dataset.course] = { cat: b.dataset.xbCat, ch: '' }; render(); });
+  document.querySelectorAll('[data-xb-ch]').forEach(b => b.onclick = () => { examFilter[b.dataset.course].ch = b.dataset.xbCh; render(); });
 }
 
 function examsAdminHtml() {
@@ -171,13 +177,7 @@ function examsAdminHtml() {
   const total = groups.reduce((n, g) => n + g[1].length, 0);
   return `
   <div class="exnav">
-    <div class="exnav-top">
-      <label class="exnav-course" title="切換科目">
-        <span class="sr-only">科目</span>
-        <select id="ex-course">${list.map(x => `<option value="${x.id}" ${x.id === pagesCourse ? 'selected' : ''}>${esc(shortSemLabel(x.semesterCode))}｜${esc(x.title)}</option>`).join('')}</select>
-      </label>
-      <a class="btn exnav-add" href="#examedit/new/${c.id}" data-new-cat="${esc(f.cat === OTHER_CATEGORY ? '' : f.cat)}" title="把題目整份貼上，網站會自動拆題、批改、統計">＋ 新增考卷</a>
-    </div>
+    ${adminCoursePicker(list, c.id, 'ex-course', `<a class="btn exnav-add" href="#examedit/new/${c.id}" data-new-cat="${esc(f.cat === OTHER_CATEGORY ? '' : f.cat)}" title="把題目整份貼上，網站會自動拆題、批改、統計">＋ 新增考卷</a>`)}
     ${groups.length ? `
     <div class="exnav-cats" role="tablist" aria-label="分類">${groups.map(([name, r]) => `<button type="button" role="tab" class="ex-cat" data-ex-cat="${esc(name)}" aria-selected="${name === f.cat}">${esc(name)}<small>${r.length}</small></button>`).join('<span class="ex-sep" aria-hidden="true">｜</span>')}</div>
     <div class="exnav-chaps" aria-label="章節">
@@ -196,15 +196,10 @@ function examsAdminHtml() {
           <a class="btn secondary" href="#examstats/${e.id}">統計</a>
           <button type="button" class="btn secondary danger" data-exam-delete="${e.id}">刪除</button>
         </div>
-      </div>`).join('') || '<p class="empty">這個科目還沒有模擬考卷。</p>'}
+      </div>`).join('') || '<p class="empty-note">這個科目還沒有模擬考卷。按「＋ 新增考卷」，把題目整份貼上。</p>'}
   </div>`;
 }
-const examAdminFilter = {};
-// 學期短名稱：2026_y1s1 → 2026 一上（選單用，手機才放得下）
-function shortSemLabel(code) {
-  const m = /^(\d{4})_y(\d)s(\d)$/.exec(code || '');
-  return m ? `${m[1]} ${'一二三四五'[m[2] - 1] || m[2]}${m[3] === '1' ? '上' : '下'}` : semesterLabel(code);
-}   // 每個科目目前選的分類、章節
+const examAdminFilter = {};   // 每個科目目前選的分類、章節
 
 // 後台考卷清單：標題去掉重複的「科目名稱 - 分類 - 」前綴，完整標題放在滑鼠提示
 function shortExamTitle(e, c) {

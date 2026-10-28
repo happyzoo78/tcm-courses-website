@@ -116,6 +116,18 @@ async function reloadMembers(message) {
 /* 網頁管理：上傳整份 HTML 網頁到自己負責的科目 */
 const MAX_PAGE_BYTES = 1_900_000;
 
+// 後台共用：科目大字選單＋右側主要按鈕（網頁管理、模擬考題管理共用）
+function adminCoursePicker(list, curId, selectId, actionHtml) {
+  return `
+    <div class="exnav-top">
+      <label class="exnav-course" title="切換科目">
+        <span class="sr-only">科目</span>
+        <select id="${selectId}">${list.map(x => `<option value="${x.id}" ${x.id === curId ? 'selected' : ''}>${esc(shortSemLabel(x.semesterCode))}｜${esc(x.title)}</option>`).join('')}</select>
+      </label>
+      ${actionHtml}
+    </div>`;
+}
+
 function pagesAdminHtml() {
   const list = editableCourses();
   if (!list.length) return '<p class="empty">你目前沒有負責的科目。如需上傳網頁，請聯絡網站管理者把你設為科目負責人。</p>';
@@ -123,24 +135,21 @@ function pagesAdminHtml() {
   const c = getCourse(pagesCourse);
   const rows = pagesOf(pagesCourse);
   return `
-  <div class="field" style="max-width:420px"><label for="pg-course">選擇科目</label>
-    <select id="pg-course">${list.map(x => `<option value="${x.id}" ${x.id === pagesCourse ? 'selected' : ''}>${esc(semesterLabel(x.semesterCode))}｜${esc(x.title)}</option>`).join('')}</select>
+  <div class="exnav">
+    ${adminCoursePicker(list, c.id, 'pg-course', `<a class="btn exnav-add" href="#editor/new/${c.id}" title="像 Word 一樣直接打字、插圖、做表格">✏️ 寫新網頁</a>`)}
+    <details class="exnav-more">
+      <summary>或：上傳做好的網頁檔（.html）</summary>
+      <form id="pageform">
+        <div class="field"><label for="pg-file">網頁檔（.html，上限約 1.9 MB）</label><input id="pg-file" name="file" type="file" accept=".html,.htm,text/html" required></div>
+        <div class="field"><label for="pg-title">標題（留空會自動使用網頁本身的標題）</label><input id="pg-title" name="title" maxlength="200"></div>
+        <div class="field"><label for="pg-desc">說明（選填）</label><textarea id="pg-desc" name="description" maxlength="1000"></textarea></div>
+        <div id="pageformmsg"></div>
+        <button class="btn" type="submit">上傳網頁</button>
+        <p class="meta-label">網頁上傳後只有登入的班級成員看得到。圖片請直接嵌在網頁檔裡（單一檔案）。</p>
+      </form>
+    </details>
   </div>
-  <div class="write-cta">
-    <a class="btn" href="#editor/new/${c.id}">✏️ 在網站裡寫新網頁</a>
-    <span class="meta-label">像 Word 一樣直接打字、插圖、做表格，不用自己做 HTML 檔。</span>
-  </div>
-  <div class="panel prose" style="margin:6px 0 16px">
-    <h3 style="margin-top:0">或：上傳做好的網頁檔到「${esc(c.title)}」</h3>
-    <form id="pageform">
-      <div class="field"><label for="pg-file">網頁檔（.html，上限約 1.9 MB）</label><input id="pg-file" name="file" type="file" accept=".html,.htm,text/html" required></div>
-      <div class="field"><label for="pg-title">標題（留空會自動使用網頁本身的標題）</label><input id="pg-title" name="title" maxlength="200"></div>
-      <div class="field"><label for="pg-desc">說明（選填）</label><textarea id="pg-desc" name="description" maxlength="1000"></textarea></div>
-      <div id="pageformmsg"></div>
-      <button class="btn" type="submit">上傳網頁</button>
-    </form>
-    <p class="meta-label">網頁上傳後只有登入的班級成員看得到。圖片請直接嵌在網頁檔裡（單一檔案）。</p>
-  </div>
+  <p class="meta-label">「${esc(c.title)}」共 ${rows.length} 份網頁</p>
   <div class="adminlist">
     ${rows.map(p => `
       <div class="adminrow">
@@ -151,7 +160,7 @@ function pagesAdminHtml() {
           <button type="button" class="btn secondary" data-page-edit="${p.id}">${p.editable ? '標題・排序' : '編輯'}</button>
           <button type="button" class="btn secondary danger" data-page-delete="${p.id}">刪除</button>
         </div>
-      </div>`).join('') || '<p class="empty">這個科目還沒有網頁。</p>'}
+      </div>`).join('') || '<p class="empty-note">這個科目還沒有網頁。按「✏️ 寫新網頁」或上傳網頁檔。</p>'}
   </div>
   <div id="editor"></div>`;
 }
@@ -183,14 +192,23 @@ async function readHtmlFile(file) {
 
 /* 學期開放設定 */
 function semestersAdminHtml() {
+  const sems = [...data.semesters].sort((a, b) => a.sortOrder - b.sortOrder);
   return `
-  <p class="meta-label">只有「開放中」的學期會顯示在首頁和課程總覽。新學期開始時，在這裡打開即可。</p>
-  <div class="adminlist">
-    ${[...data.semesters].sort((a, b) => a.sortOrder - b.sortOrder).map(s => `
-      <div class="adminrow">
-        <div><b>${esc(s.label)}</b>${s.visible ? '<span class="role">開放中</span>' : '<span class="role off">未開放</span>'}<br><small>${esc(s.code)} · ${coursesIn(s.code).length} 個科目</small></div>
-        <div class="row-actions"><button type="button" class="btn secondary" data-sem="${esc(s.code)}" data-to="${s.visible ? '0' : '1'}">${s.visible ? '關閉' : '開放'}</button></div>
-      </div>`).join('')}
+  <p class="meta-label">只有「開放中」的學期會顯示在首頁、課程總覽和模擬考專區。新學期開始時，在這裡打開即可。</p>
+  <div class="sem-grid">
+    ${YEAR_NAMES.map((n, i) => {
+      const list = sems.filter(s => yearOf(s.code) === i + 1);
+      if (!list.length) return '';
+      return `
+      <div class="sem-card">
+        <div class="sem-card-title">${n}<small>${esc(list[0].code.slice(0, 4))}</small></div>
+        ${list.map(s => `
+        <div class="sem-line">
+          <span>${/s1$/.test(s.code) ? '上學期' : '下學期'}<small>${coursesIn(s.code).length} 科</small></span>
+          <button type="button" class="sem-toggle" data-sem="${esc(s.code)}" data-to="${s.visible ? '0' : '1'}" aria-pressed="${s.visible}">${s.visible ? '開放中' : '未開放'}</button>
+        </div>`).join('')}
+      </div>`;
+    }).join('')}
   </div>`;
 }
 
@@ -218,10 +236,20 @@ function adminPage() {
   else if (adminType === 'pages') body = pagesAdminHtml();
   else if (adminType === 'exams') body = examsAdminHtml();
   else if (adminType === 'semesters') body = semestersAdminHtml();
-  else body = `
+  else {
+  // 課程、圖卡依年級分頁，資料多了也不會無限變長
+  let list = rows;
+  let tabs = '';
+  if (adminType === 'courses' || adminType === 'items') {
+    const semOf = i => adminType === 'courses' ? i.semesterCode : getCourse(i.courseId)?.semesterCode;
+    tabs = yearTabsHtml(new Set(adminType === 'courses' ? [1, 2, 3, 4, 5] : rows.map(i => yearOf(semOf(i))).filter(Boolean)));
+    list = rows.filter(i => yearOf(semOf(i)) === siteYear);
+  }
+  body = `
+  ${tabs}
   ${canAdd ? `<button type="button" class="btn" id="add">＋ 新增${TYPE_NAME[adminType]}</button>` : isCourses ? '<p class="meta-label">新增或修改科目由擁有者、管理員負責。</p>' : ''}
   <div class="adminlist">
-    ${rows.map(i => `
+    ${list.map(i => `
       <div class="adminrow">
         <div><b>${esc(i.title)}</b><br><small>${isCourses
           ? `${esc(semesterLabel(i.semesterCode))} · ${pagesOf(i.id).length} 份網頁 · 負責人：${i.owners?.length ? i.owners.map(o => esc(o.name)).join('、') : '未指派'}`
@@ -230,9 +258,10 @@ function adminPage() {
           ${canEditRow ? `<button type="button" class="btn secondary" data-edit="${i.id}">編輯</button>` : ''}
           ${admin.canDelete ? `<button type="button" class="btn secondary danger" data-delete="${i.id}">刪除</button>` : ''}
         </div>
-      </div>`).join('') || '<p class="empty">尚無資料</p>'}
+      </div>`).join('') || '<p class="empty-note">這個年級還沒有資料。</p>'}
   </div>
   <div id="editor"></div>`;
+  }
 
   return `
   <div class="admin-bar">
