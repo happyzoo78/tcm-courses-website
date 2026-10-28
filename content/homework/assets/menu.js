@@ -103,10 +103,22 @@ const HW_DATA = [
   /* 浮動標題列：手機／平板往下捲時自動收起，往上捲就出現 */
   header { transition: transform .25s ease; will-change: transform; }
   header.hw-hidden { transform: translateY(-100%); box-shadow: none; }
+  .hw-cur { display: none; }
+  /* 手機：一列只放「←」和一顆大按鈕（目前科目 · 學期 ▾），點開是完整的科目／作業清單 */
   @media (max-width: 720px) {
-    .hw-row { padding: 6px 14px; gap: 6px; }
-    .hw-all .t { display: none; }
-    .hw-sep { display: none; }
+    .hw-row { padding: 8px 14px; gap: 8px; }
+    .hw-all, .hw-sembtn, .hw-sep, .hw-chips, .hw-back .t { display: none; }
+    .hw-back { padding: 8px 12px; font-size: 16px; }
+    .hw-cur { display: flex; flex: 1; min-width: 0; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--accent); background: var(--surface); color: var(--ink); font: inherit; font-size: 15px; cursor: pointer; text-align: left; }
+    .hw-cur[aria-expanded="true"] { background: var(--accent-soft); }
+    .hw-cur-t { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .hw-cur-s { flex: none; font-size: 13px; color: var(--muted); }
+    .hw-cur .car { margin-left: auto; color: var(--accent); font-size: 12px; }
+    .hw-panel { max-height: calc(100vh - 140px); }
+    .hw-panel-in { padding: 12px 14px 16px; }
+    .hw-grid { grid-template-columns: 1fr; gap: 8px; }
+    .hw-subj a { padding: 10px 10px; font-size: 16px; }
+    .logo-sub { display: none !important; }
     html { scroll-padding-top: 120px !important; }
   }
   /* 作業專區首頁 */
@@ -162,8 +174,9 @@ const HW_DATA = [
         + (sems.length < 2 ? '<p class="hw-note">其他学期开放后，会出现在这里。</p>' : '');
       nav.innerHTML = `
         <div class="hw-row">
-          ${atHwHome ? '' : `<a class="hw-back" href="${HW_HOME}" title="回作业专区">← 作业专区</a>`}
+          ${atHwHome ? '' : `<a class="hw-back" href="${HW_HOME}" title="回作业专区" aria-label="回作业专区">←<span class="t"> 作业专区</span></a>`}
           <button class="hw-all" type="button" aria-expanded="false" data-p="all">☰<span class="t"> 科目选单</span></button>
+          <button class="hw-cur" type="button" aria-expanded="false" data-p="all"><span class="hw-cur-t">${esc(curSubj ? curSubj.name : '选择科目与作业')}</span><span class="hw-cur-s">${esc(label(active))}</span><span class="car">▾</span></button>
           <button class="hw-sembtn" type="button" aria-expanded="false" data-p="sem" title="${esc(active.name)}">${esc(label(active))}<span class="car">▾</span></button>
           <span class="hw-sep" aria-hidden="true"></span>
           <div class="hw-chips">${active.subjects.map((s, i) =>
