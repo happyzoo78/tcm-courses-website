@@ -175,13 +175,13 @@ function examsAdminHtml() {
   </div>
   <div class="write-cta">
     <a class="btn" href="#examedit/new/${c.id}" data-new-cat="${esc(f.cat === OTHER_CATEGORY ? '' : f.cat)}">＋ 新增模擬考卷</a>
-    <span class="meta-label">把題目整份貼上，網站會自動拆題、批改、統計。</span>
+    <span class="meta-label hide-m">把題目整份貼上，網站會自動拆題、批改、統計。</span>
   </div>
   ${groups.length ? `<p class="meta-label">這個科目共 ${total} 份考卷；目前顯示「${esc(f.cat)}」${f.ch ? ` › 「${esc(f.ch)}」` : ''} ${shown.length} 份。</p>` : ''}
-  <div class="adminlist">
+  <div class="adminlist exam-adminlist">
     ${shown.map(({ e, ...i }) => `
       <div class="adminrow">
-        <div><b title="${esc(e.title)}">${esc(label(i))}</b>${e.published ? '<span class="role">公開</span>' : '<span class="role off">草稿</span>'}<br><small>排序 ${e.sortOrder} · ${e.questionCount} 題 · 滿分 ${e.totalPoints} 分 · 更新：${esc(fmtTime(e.updatedAt))}</small></div>
+        <div><b title="${esc(e.title)}">${esc(label(i))}</b>${e.published ? '<span class="role">公開</span>' : '<span class="role off">草稿</span>'}<br><small>排序 ${e.sortOrder} · ${e.questionCount} 題 · 滿分 ${e.totalPoints} 分<span class="hide-m"> · 更新：${esc(fmtTime(e.updatedAt))}</span></small></div>
         <div class="row-actions">
           <a class="btn secondary" href="#exam/${e.id}">作答</a>
           <a class="btn secondary" href="#examedit/${e.id}">編輯</a>

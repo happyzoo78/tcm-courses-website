@@ -627,3 +627,29 @@ fieldset.owners .check small { color: var(--muted); }
 .ex-filter select { width: auto; }
 .ex-filter select { min-width: 160px; max-width: 260px; }
 @media (max-width: 720px) { .ex-filters { width: 100%; } .ex-filter { flex: 1 1 100%; } .ex-filter select { flex: 1; max-width: none; min-width: 0; } }
+
+/* ===== 手機版（720px 以下）：管理後台與考卷清單精簡 ===== */
+@media (max-width: 720px) {
+  .hide-m { display: none !important; }
+  /* 後台分頁按鈕：一排橫向滑動，不再佔三行 */
+  .admin-tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -16px 12px; padding: 0 16px 2px; }
+  .admin-tabs::-webkit-scrollbar { display: none; }
+  .admin-tabs .btn { flex: none; padding: 8px 14px; font-size: 15px; white-space: nowrap; }
+  .notice { margin: 10px 0; padding: 8px 12px; font-size: 13.5px; }
+  /* 篩選選單：科目一整行，分類、章節並排 */
+  .ex-filters { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; width: auto; }
+  .ex-filter { flex-direction: column; align-items: stretch; gap: 2px; font-size: 13px; min-width: 0; }
+  .ex-filter-course { grid-column: 1 / -1; }
+  .ex-filter select, .ex-filter-course select { width: 100%; max-width: none; min-width: 0; padding: 8px 10px; font-size: 15px; }
+  .write-cta { margin: 0 0 8px; }
+  /* 考卷列：按鈕一排四等分、較矮 */
+  .exam-adminlist .adminrow { padding: 10px 12px; gap: 8px; }
+  .exam-adminlist .adminrow > div:first-child { width: 100%; }
+  .exam-adminlist .row-actions { width: 100%; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .exam-adminlist .row-actions .btn { padding: 7px 0; font-size: 14px; text-align: center; min-width: 0; }
+  /* 同學端：分類標籤一排橫向滑動 */
+  .exam-tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -16px 12px; padding: 0 16px 2px; }
+  .exam-tabs::-webkit-scrollbar { display: none; }
+  .exam-tab { flex: none; white-space: nowrap; padding: 7px 12px; font-size: 14.5px; }
+}
+@media (max-width: 720px) { .zone-course .exam-tabs { margin: 0 0 12px; padding: 0 0 2px; } }
