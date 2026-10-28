@@ -619,3 +619,10 @@ fieldset.owners .check small { color: var(--muted); }
 .exchap-count { margin-left: auto; color: var(--muted); font-size: 14px; font-weight: 400; white-space: nowrap; }
 .exchap-list { padding: 0 12px 12px 26px; margin-top: 0; }
 .exchap-list .pagerow { border-left-width: 1px; }
+
+/* 後台模擬考題：分類、章節下拉選單 */
+.ex-filters { display: flex; flex-wrap: wrap; gap: 8px 12px; }
+.ex-filter { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); white-space: nowrap; }
+.ex-filter select { width: auto; }
+.ex-filter select { min-width: 160px; max-width: 260px; }
+@media (max-width: 720px) { .ex-filters { width: 100%; } .ex-filter { flex: 1 1 100%; } .ex-filter select { flex: 1; max-width: none; min-width: 0; } }
