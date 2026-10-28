@@ -206,7 +206,7 @@ function detailPage() {
 function aboutPage() {
   return `
   <section class="hero">
-    <div class="eyebrow">傳承岐黃 · 學以致用</div>
+    <div class="eyebrow"><span class="nw">中醫學習</span> · <span class="nw">大醫精誠</span></div>
     <h1>關於2026福建中醫台灣班網站</h1>
     <p>這是 2026 福建中醫藥大學台灣班同學共同整理的學習網站，收錄中醫與醫學課程的複習圖卡、筆記與讀書計畫。</p>
     <p>本站內容僅供班級成員學習使用。如需加入，請將你的 Gmail 提供給網站管理者。</p>
