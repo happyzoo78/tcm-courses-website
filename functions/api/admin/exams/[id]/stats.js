@@ -23,7 +23,7 @@ export async function onRequestGet({ request, env, params }) {
     const current = rows.filter(r => r.exam_version === exam.version);
     const scores = current.map(r => pct(r.score, r.max_score));
     const questions = exam.parsed.questions.map(q => {
-      const s = { id: q.id, no: q.no, type: q.type, stem: q.stem.slice(0, 80), points: q.points, answered: 0, correct: 0, earned: 0, choices: {} };
+      const s = { id: q.id, no: q.no, label: q.label, type: q.type, stem: q.stem.slice(0, 80), points: q.points, answered: 0, correct: 0, earned: 0, choices: {} };
       for (const r of current) {
         const res = parseJson(r.results, {})[q.id];
         const given = parseJson(r.answers, {})[q.id];

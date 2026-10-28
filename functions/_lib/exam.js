@@ -7,12 +7,12 @@ export const MAX_QUESTIONS = 300;
 const MAX_ESSAY_TEXT = 5000;
 
 const HEADINGS = [
-  [/共用|B1|配伍/i, "group"],
+  [/共用|B1|配伍|配對/i, "group"],
   [/多選|多选|X\s*型/i, "multi"],
   [/單選|单选|選擇題|选择题|A1|A2|最佳/i, "single"],
   [/是非|判斷|判断|對錯|对错/, "tf"],
   [/填空/, "fill"],
-  [/申論|申论|問答|问答|簡答|简答|論述|论述|名詞解釋|名词解释/, "essay"]
+  [/申論|申论|問答|问答|簡答|简答|論述|论述|名詞解釋|名词解释|病案|病例分析|默寫|默写/, "essay"]
 ];
 
 const RE = {
@@ -35,6 +35,8 @@ const FALSE_WORDS = ["錯", "错", "否", "錯誤", "错误", "x", "×", "✗", 
 
 const letter = s => String(s).normalize("NFKC").trim().toUpperCase();
 const norm = s => String(s ?? "").normalize("NFKC").replace(/\s+/g, "").toLowerCase();
+// 填空題比對：再忽略標點與書名號（《黃帝內經》＝黃帝內經）
+const normFill = s => norm(s).replace(/[《》〈〉「」『』“”"'‘’、，,。.．・·；;：:！!？?（）()\[\]【】\-—–]/g, "");
 
 // 一行裡有好幾個選項時拆開，例如「A.心 B.肝 C.脾」
 function splitOptions(text) {
@@ -208,6 +210,16 @@ export function parseExam(source) {
 
   if (!out.length && !errors.length) errors.push({ message: "沒有找到任何題目。題目請用「1.」「2.」這樣的題號開頭。" });
   if (out.length > MAX_QUESTIONS) errors.push({ message: `題目太多（${out.length} 題），一份考卷最多 ${MAX_QUESTIONS} 題。` });
+  // 顯示用題號：照原文題號；同一題號連續出現（例如配伍題的各小題）時加上 -1、-2…
+  out.forEach((x, i) => {
+    const src = questions[i].srcNo;
+    const sameBefore = i > 0 && questions[i - 1].srcNo === src;
+    const sameAfter = i + 1 < out.length && questions[i + 1].srcNo === src;
+    if (sameBefore || sameAfter) {
+      let k = 1; for (let j = i - 1; j >= 0 && questions[j].srcNo === src; j--) k++;
+      x.label = `${src}-${k}`;
+    } else x.label = String(src);
+  });
   const usedGroups = groups.filter(g => out.some(x => x.group === g.id));
   return { questions: out, groups: usedGroups, errors };
 }
@@ -250,7 +262,7 @@ export function grade(parsed, answers) {
       correct = g !== null && g === q.answer;
     } else if (q.type === "fill") {
       g = Array.isArray(a) ? a.slice(0, q.blanks).map(x => String(x ?? "").slice(0, 200)) : [];
-      const marks = q.answer.map((alts, i) => alts.some(alt => norm(alt) === norm(g[i])));
+      const marks = q.answer.map((alts, i) => alts.some(alt => normFill(alt) !== "" && normFill(alt) === normFill(g[i])));
       const right = marks.filter(Boolean).length;
       earned = q.answer.length ? Math.round(q.points * right / q.answer.length * 100) / 100 : 0;
       correct = right === q.answer.length;

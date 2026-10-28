@@ -171,7 +171,7 @@ function questionHtml(q, groups, mode, ctx = {}) {
       : res?.correct ? '<span class="q-badge ok">✓ 答對</span>'
       : res?.earned > 0 ? `<span class="q-badge part">部分答對 ${res.earned} 分</span>` : '<span class="q-badge bad">✗ 答錯</span>';
   }
-  const head = `<div class="q-top"><span class="q-no">${q.no}</span><span class="q-type">${EXAM_TYPE[q.type]}${q.type === 'multi' ? '（可複選）' : ''} · ${q.points} 分</span>${badge}</div>`;
+  const head = `<div class="q-top"><span class="q-no">${esc(q.label || q.no)}</span><span class="q-type">${EXAM_TYPE[q.type]}${q.type === 'multi' ? '（可複選）' : ''} · ${q.points} 分</span>${badge}</div>`;
 
   let body = '';
   if (q.type === 'single' || q.type === 'multi') {
@@ -207,7 +207,7 @@ function questionHtml(q, groups, mode, ctx = {}) {
   } else if (q.type === 'essay') {
     body = `<textarea class="q-essay" name="${name}" rows="6" maxlength="5000" ${mode === 'take' ? '' : 'readonly'} placeholder="${mode === 'take' ? '在這裡寫下你的答案' : ''}">${esc(given || '')}</textarea>`;
     if (mode !== 'take') {
-      body += `<div class="q-ref"><b>參考答案</b><div>${nl2br(q.reference || '')}</div>${q.rubric ? `<b>評分要點</b><div>${nl2br(q.rubric)}</div>` : ''}</div>`;
+      body += `<div class="q-ref"><b>參考答案</b>${formatExplanation(q.reference || '')}${q.rubric ? `<b>評分要點</b>${formatExplanation(q.rubric)}` : ''}</div>`;
       if (mode === 'result' && ctx.canSelfScore) {
         const steps = []; for (let v = 0; v <= q.points; v += 0.5) steps.push(v);
         body += `<label class="q-self">我的自評分數
@@ -252,13 +252,15 @@ const BADGE_RE = /(🚨★?|🔥|⚠️|🎯)\s*([^🚨🔥⚠️🎯／　\s]+)
 function formatExplanation(text) {
   const lines = String(text).split('\n');
   let head = '';
-  if (lines.length && !/^【/.test(lines[0]) && /分類：|🚨|🔥|⚠️|🎯/u.test(lines[0])) {
+  if (lines.length && !/^【/.test(lines[0]) && /分類：|難度：|🚨|🔥|⚠️|🎯/u.test(lines[0])) {
     const first = lines.shift();
     const chips = [];
     for (const m of first.matchAll(BADGE_RE)) {
       const cls = m[1].startsWith('🚨') ? 'hard' : m[1] === '🔥' ? 'hot' : m[1] === '⚠️' ? 'warn' : 'key';
       chips.push(`<span class="xp-chip ${cls}">${esc(m[1].replace('★', ''))} ${esc(m[2])}</span>`);
     }
+    const lv = /難度：\s*(\S+)/.exec(first);
+    if (lv) chips.push(`<span class="xp-chip ${/難/.test(lv[1]) ? 'hard' : 'key'}">難度：${esc(lv[1])}</span>`);
     const cat = /分類：\s*(.+?)\s*$/.exec(first);
     if (cat) chips.push(`<span class="xp-chip cat">${esc(cat[1])}</span>`);
     head = chips.length ? `<div class="xp-head">${chips.join('')}</div>` : `<p>${esc(first)}</p>`;
@@ -314,7 +316,7 @@ function questionsHtml(questions, groups, mode, ctx) {
     let pre = '';
     if (q.group && q.group !== lastGroup) {
       const g = groups.find(x => x.id === q.group);
-      pre = `<div class="q-group"><b>共用選項</b>（第 ${q.no} 題起的題目共用）<ol type="A">${g.options.map(o => `<li><b>${o.key}.</b> ${esc(o.text)}</li>`).join('')}</ol></div>`;
+      pre = `<div class="q-group"><b>共用選項</b>（第 ${esc(q.label || q.no)} 題起的題目共用）<ol type="A">${g.options.map(o => `<li><b>${o.key}.</b> ${esc(o.text)}</li>`).join('')}</ol></div>`;
     }
     lastGroup = q.group || null;
     return pre + questionHtml(q, groups, mode, ctx);
@@ -680,7 +682,7 @@ async function mountExamStats() {
     <div class="table-wrap"><table class="stat-table">
       <thead><tr><th>題</th><th>題型</th><th>題目</th><th>答案</th><th>答對率</th><th>作答分布</th></tr></thead>
       <tbody>${[...s.questions].sort((x, y) => (x.correctRate ?? 101) - (y.correctRate ?? 101)).map(q => `
-        <tr><td>${q.no}</td><td>${EXAM_TYPE[q.type]}</td><td>${esc(q.stem)}</td><td>${esc(q.answer || '—')}</td>
+        <tr><td>${esc(q.label || q.no)}</td><td>${EXAM_TYPE[q.type]}</td><td>${esc(q.stem)}</td><td>${esc(q.answer || '—')}</td>
           <td>${q.type === 'essay' ? `平均自評 ${q.avgEarned} / ${q.points}` : q.answered ? `<div class="rate-bar"><span style="width:${q.correctRate}%"></span></div>${q.correctRate}%（${q.correct}/${q.answered}）` : '—'}</td>
           <td>${Object.entries(q.choices).sort((a, b) => b[1] - a[1]).map(([k, n]) => `${esc(k)}：${n}`).join('　') || '—'}</td></tr>`).join('')}</tbody>
     </table></div>
