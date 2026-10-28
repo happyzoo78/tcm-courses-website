@@ -132,10 +132,10 @@ function homePage() {
     </div>
   </section>
 
-  <h2 class="section">各科圖卡 <small class="motto">博觀而約取，厚積而薄發</small></h2>
+  <h2 class="section">各科圖卡 <small class="motto">博觀約取，厚積薄發</small></h2>
   ${shelfCardsHtml()}
 
-  <h2 class="section">最新更新 <small class="motto">苟日新，日日新，又日新</small></h2>
+  <h2 class="section">最新更新 <small class="motto">日新又新，學無止境</small></h2>
   <div class="upd-list">
     ${updates.map(u => `
       <a class="upd-row" href="${esc(u.href)}" title="${esc(u.desc || u.title)}">
@@ -164,7 +164,7 @@ function examZonePage() {
   const courses = inYear.flatMap(sm => coursesIn(sm.code));
   const count = c => examsOf(c.id).length;
   const c = courses.find(x => x.id === zoneCourseSel[siteYear]) || courses.find(count) || courses[0];
-  const head = '<h2 class="section">線上題庫 <small class="motto">學而時習之，不亦說乎</small></h2>';
+  const head = '<h2 class="section">線上題庫 <small class="motto">學而時習，溫故知新</small></h2>';
   if (!c) return head + tabs + '<p class="empty-note">目前沒有開放的學期。</p>';
   return `${head}${tabs}
   <div class="subj-rows">${subjChipsHtml(inYear, c.id, count, 'data-zone-course')}</div>
@@ -179,7 +179,7 @@ function examZonePage() {
 
 function coursesPage() {
   return `
-  <h2 class="section">各科書架 <small class="motto">博學、審問、慎思、明辨、篤行</small></h2>
+  <h2 class="section">各科書架 <small class="motto">博學審問，慎思明辨</small></h2>
   ${yearCoursesHtml()}`;
 }
 
@@ -234,7 +234,7 @@ function itemsPage() {
 
 function projectsPage() {
   return `
-  <h2 class="section">活動專案 <small class="motto">獨學而無友，則孤陋而寡聞</small></h2>
+  <h2 class="section">活動專案 <small class="motto">切磋琢磨，教學相長</small></h2>
   <div class="itemgrid">${[...data.projects].sort(byDateDesc).map(i => itemCard(i, 'project')).join('') || '<p class="empty">尚無活動專案。</p>'}</div>`;
 }
 
