@@ -4,7 +4,7 @@
 /* =========================================================
    一、資料來源：Cloudflare D1 雲端資料庫（透過 /api/content 讀取）
    ========================================================= */
-let data = { courses: [], items: [], projects: [] };
+let data = { courses: [], items: [], projects: [], semesters: [], pages: [] };
 let loadState = 'loading';   // loading 載入中 | ready 完成 | error 失敗 | login 需要登入
 let loadError = '';
 let admin = null;            // 目前登入的使用者（含權限）；null＝未登入
@@ -47,7 +47,7 @@ function friendly(err) {
 // 回到登入畫面（例如登入過期、登出）
 function showLogin(notice = '') {
   admin = null;
-  data = { courses: [], items: [], projects: [] };
+  data = { courses: [], items: [], projects: [], semesters: [], pages: [] };
   members = null;
   loginNotice = notice;
   loadState = 'login';
@@ -122,18 +122,36 @@ const getCourse = id => data.courses.find(c => c.id == id);
 const courseName = id => getCourse(id)?.title || '未分類';
 const byDateDesc = (a, b) => String(b.date || '').localeCompare(String(a.date || ''));
 
+/* 學期、科目、網頁 */
+const getSemester = code => (data.semesters || []).find(s => s.code === code);
+const semesterLabel = code => getSemester(code)?.label || code || '';
+// 開放中的學期，新的在前
+const visibleSemesters = () => (data.semesters || []).filter(s => s.visible).sort((a, b) => b.sortOrder - a.sortOrder);
+const coursesIn = code => data.courses.filter(c => c.semesterCode === code);
+const pagesOf = courseId => (data.pages || []).filter(p => p.courseId == courseId)
+  .sort((a, b) => a.sortOrder - b.sortOrder || a.id - b.id);
+// 目前的帳號能不能管理某個科目的網頁（擁有者、管理員、該科目負責人）
+const canEditCourseUI = id => !!admin && (admin.canManageCourses || (admin.ownedCourseIds || []).includes(Number(id)));
+const editableCourses = () => data.courses.filter(c => canEditCourseUI(c.id));
+// 能不能進管理後台：編輯者以上，或是任一科目的負責人
+const hasAdminAccess = () => !!admin && (admin.canWrite || (admin.ownedCourseIds || []).length > 0);
+const fmtSize = n => n >= 1048576 ? (n / 1048576).toFixed(2) + ' MB' : Math.max(1, Math.round((n || 0) / 1024)) + ' KB';
+
 /* =========================================================
    三、頁面狀態與網址（網址會跟著頁面改變，可用「上一頁」）
-   #home  #courses  #items/科目編號  #projects  #about  #admin
+   #home  #courses  #course/科目編號  #items/科目編號  #projects  #about  #admin
    #detail/item/編號  #detail/project/編號
    ========================================================= */
-const PAGES = ['home', 'courses', 'items', 'projects', 'detail', 'about', 'admin'];
-let page = 'home', filter = 'all', query = '', adminType = 'items', detailTarget = ['item', 0];
+const PAGES = ['home', 'courses', 'course', 'items', 'projects', 'detail', 'about', 'admin'];
+let page = 'home', filter = 'all', query = '', adminType = 'pages', detailTarget = ['item', 0], courseTarget = 0;
+let pagesCourse = 0;   // 後台「網頁管理」目前選的科目
 const app = document.getElementById('app');
 
 function readHash() {
   const parts = decodeURIComponent(location.hash.slice(1)).split('/');
   page = PAGES.includes(parts[0]) ? parts[0] : 'home';
   if (page === 'items') filter = parts[1] || 'all';
+  if (page === 'course') courseTarget = parts[1];
+  if (page === 'admin' && parts[1]) { adminType = parts[1]; if (parts[2]) pagesCourse = Number(parts[2]) || 0; }
   if (page === 'detail') detailTarget = [parts[1] === 'project' ? 'project' : 'item', parts[2]];
 }

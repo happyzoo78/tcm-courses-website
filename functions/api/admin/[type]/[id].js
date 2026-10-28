@@ -14,7 +14,8 @@ export async function onRequestPut({ request, env, params }) {
   const target = parseTarget(params);
   if (!target) return jsonResponse({ error: "Not found" }, 404);
 
-  const auth = await requireAdmin(request, env, "write");
+  // 修改科目只限擁有者與管理員；圖卡、活動維持 write 權限
+  const auth = await requireAdmin(request, env, target.type === "courses" ? "publish" : "write");
   if (auth.error) return auth.error;
 
   const parsed = await readJson(request);
@@ -57,6 +58,10 @@ export async function onRequestDelete({ request, env, params }) {
       const used = await env.DB.prepare("SELECT 1 AS ok FROM items WHERE course_id = ? LIMIT 1")
         .bind(target.id).first();
       if (used) return jsonResponse({ error: "請先刪除或調整此課程所屬的圖卡。" }, 409);
+      const hasPages = await env.DB.prepare("SELECT 1 AS ok FROM pages WHERE course_id = ? LIMIT 1")
+        .bind(target.id).first();
+      if (hasPages) return jsonResponse({ error: "請先刪除此科目裡的網頁。" }, 409);
+      await env.DB.prepare("DELETE FROM course_owners WHERE course_id = ?").bind(target.id).run();
     }
 
     const row = await env.DB.prepare(`SELECT title FROM ${target.table} WHERE id = ?`)

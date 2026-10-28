@@ -5,22 +5,32 @@
    四、各頁面內容
    ========================================================= */
 function courseCard(c, compact) {
+  const n = pagesOf(c.id).length;
   return `
   <article class="course">
     <div class="cover" aria-hidden="true">${TAIJI}<span>${esc(c.icon || c.title.slice(0, 2))}</span></div>
     <div class="course-body">
       <h3>${esc(c.title)}</h3>
       ${compact
-        ? `<p class="meta-label">${c.lessons} 堂課 · ${c.cards} 張圖卡</p>`
+        ? `<p class="meta-label">${n} 份網頁 · ${c.cards} 張圖卡</p>`
         : `<div class="numbers">
-             <div><strong>${c.lessons}</strong><small> 堂　收錄課堂</small></div>
+             <div><strong>${n}</strong><small> 份　學習網頁</small></div>
              <div><strong>${c.cards}</strong><small> 張　圖卡數量</small></div>
            </div>`}
       <p class="meta-label">最新一堂</p>
       <div class="latest">${esc(c.latest) || '—'}</div>
-      <a class="link go" href="#items/${c.id}">進入圖卡目錄 →</a>
+      <a class="link go" href="#course/${c.id}">進入科目 →</a>
     </div>
   </article>`;
+}
+
+// 依學期分組顯示科目（只顯示開放中的學期，新的在前）
+function semesterSections(compact) {
+  const sems = visibleSemesters().filter(s => coursesIn(s.code).length);
+  if (!sems.length) return '<p class="empty">目前沒有開放的科目。</p>';
+  return sems.map(s => `
+    <h3 class="sem-title">${esc(s.label)}</h3>
+    <div class="cards">${coursesIn(s.code).map(c => courseCard(c, compact)).join('')}</div>`).join('');
 }
 
 function itemCard(i, type) {
@@ -38,8 +48,11 @@ function itemCard(i, type) {
 }
 
 function homePage() {
-  const totalCards = data.courses.reduce((s, c) => s + (Number(c.cards) || 0), 0);
-  const totalLessons = data.courses.reduce((s, c) => s + (Number(c.lessons) || 0), 0);
+  const open = new Set(visibleSemesters().map(s => s.code));
+  const shown = data.courses.filter(c => open.has(c.semesterCode));
+  const shownIds = new Set(shown.map(c => c.id));
+  const totalCards = shown.reduce((s, c) => s + (Number(c.cards) || 0), 0);
+  const totalPages = (data.pages || []).filter(p => shownIds.has(p.courseId)).length;
   const updates = [...data.items].sort(byDateDesc).slice(0, 5);
   return `
   <section class="hero">
@@ -47,14 +60,14 @@ function homePage() {
     <h1 class="hero-title"><span><em>2026</em>福建中醫台灣班 -</span> <span>圖卡總目錄</span></h1>
     <p>從經典出發，走向臨床實用 · 系統整理，圖文並茂</p>
     <div class="stats">
-      <div class="stat"><strong>${data.courses.length}</strong><span>收錄科目</span></div>
-      <div class="stat"><strong>${totalLessons}</strong><span>收錄課堂</span></div>
+      <div class="stat"><strong>${shown.length}</strong><span>收錄科目</span></div>
+      <div class="stat"><strong>${totalPages}</strong><span>學習網頁</span></div>
       <div class="stat"><strong>${totalCards}</strong><span>圖卡總數</span></div>
     </div>
   </section>
 
-  <h2 class="section">科目入口 <small>點擊進入該科目圖卡目錄</small></h2>
-  <div class="cards">${data.courses.map(c => courseCard(c, false)).join('')}</div>
+  <h2 class="section">科目入口 <small>點擊進入該科目</small></h2>
+  ${semesterSections(false)}
 
   <h2 class="section">更新說明 <small>依最新資料排序</small></h2>
   <div class="panel">
@@ -68,8 +81,8 @@ function homePage() {
 
   <h2 class="section">使用說明</h2>
   <div class="panel prose">
-    <p><b>瀏覽方式：</b>可依科目查看圖卡，點擊卡片進入詳細內容。</p>
-    ${admin?.canWrite ? '<p><b>資料管理：</b>點右上角「管理後台」，可以新增或修改課程、圖卡與活動專案。</p>' : ''}
+    <p><b>瀏覽方式：</b>依學期找到科目，點「進入科目」查看該科的學習網頁與圖卡。</p>
+    ${hasAdminAccess() ? `<p><b>資料管理：</b>點右上角「管理後台」，可以上傳網頁${admin.canWrite ? '，或新增修改課程、圖卡與活動專案' : '到你負責的科目'}。</p>` : ''}
     <p><b>使用範圍：</b>本站內容僅供班級成員學習使用，請勿轉貼或外流，並尊重教材著作權。</p>
   </div>`;
 }
@@ -77,7 +90,32 @@ function homePage() {
 function coursesPage() {
   return `
   <h2 class="section">課程總覽</h2>
-  <div class="cards">${data.courses.map(c => courseCard(c, true)).join('')}</div>`;
+  ${semesterSections(true)}`;
+}
+
+// 單一科目頁：學習網頁清單＋圖卡
+function coursePage() {
+  const c = getCourse(courseTarget);
+  if (!c) return `<p class="empty">找不到這個科目。</p><a class="btn secondary" href="#courses">回課程總覽</a>`;
+  const list = pagesOf(c.id);
+  const items = data.items.filter(i => i.courseId == c.id).sort(byDateDesc);
+  return `
+  <a class="btn secondary back" href="#courses">← 返回課程</a>
+  <h2 class="section">${esc(c.title)} <small>${esc(semesterLabel(c.semesterCode))}</small></h2>
+  ${c.owners?.length ? `<p class="meta-label">科目負責人：${c.owners.map(o => esc(o.name)).join('、')}</p>` : ''}
+  ${canEditCourseUI(c.id) ? `<p><a class="btn" href="#admin/pages/${c.id}">＋ 上傳或管理這個科目的網頁</a></p>` : ''}
+  <h3 class="sem-title">學習網頁</h3>
+  <div class="pagelist">
+    ${list.map(p => `
+      <a class="pagerow" href="${esc(p.url)}">
+        <span class="pr-title">${esc(p.title)}</span>
+        ${p.description ? `<span class="pr-desc">${esc(cut(p.description, 120))}</span>` : ''}
+        <span class="pr-meta">更新：${esc(fmtTime(p.updatedAt).slice(0, 10))}${p.updatedBy ? ' · ' + esc(p.updatedBy) : ''}</span>
+      </a>`).join('') || '<p class="empty">這個科目還沒有上傳網頁。</p>'}
+  </div>
+  ${items.length ? `
+  <h3 class="sem-title">圖卡 <small><a class="link" href="#items/${c.id}">搜尋圖卡 →</a></small></h3>
+  <div class="itemgrid">${items.map(i => itemCard(i, 'item')).join('')}</div>` : ''}`;
 }
 
 function filteredItems() {
@@ -92,7 +130,7 @@ function itemGridHtml() {
 }
 function itemsPage() {
   return `
-  <a class="btn secondary back" href="#courses">← 返回課程</a>
+  <a class="btn secondary back" href="${filter !== 'all' ? '#course/' + esc(filter) : '#courses'}">← 返回</a>
   <h2 class="section">圖卡目錄 ${filter !== 'all' ? `<small>${esc(courseName(filter))}</small>` : ''}</h2>
   <div class="toolbar">
     <input id="search" type="search" placeholder="搜尋圖卡或內容…" aria-label="搜尋圖卡" value="${esc(query)}">
@@ -115,7 +153,7 @@ function detailPage() {
   const list = type === 'item' ? data.items : data.projects;
   const i = list.find(x => x.id == id);
   if (!i) return `<p class="empty">找不到內容。</p><a class="btn secondary" href="#home">回首頁</a>`;
-  const backHref = type === 'item' ? `#items/${i.courseId}` : '#projects';
+  const backHref = type === 'item' ? `#course/${i.courseId}` : '#projects';
   return `
   <div class="reading">
     <a class="btn secondary back" href="${backHref}">← 返回列表</a>

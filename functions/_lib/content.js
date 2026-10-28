@@ -116,6 +116,18 @@ export async function validate(type, body, env) {
       pick("lessons", cleanInt(body.lessons, "課堂數"));
       pick("cards",   cleanInt(body.cards, "圖卡數"));
       pick("latest",  cleanText(body.latest, 200, "最新課程名稱", false));
+      if ("semesterCode" in body || "semester_code" in body) {
+        const code = String(body.semesterCode ?? body.semester_code ?? "").trim();
+        const sem = await env.DB.prepare("SELECT 1 AS ok FROM semesters WHERE code = ?").bind(code).first();
+        if (!sem) throw new Error("請選擇學期");
+        out.semester_code = code;
+      }
+      if ("slug" in body) {
+        const slug = String(body.slug || "").trim().toLowerCase();
+        if (slug && !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) throw new Error("英文代碼只能用小寫英文、數字和連字號，例如 medical-biology");
+        if (slug.length > 60) throw new Error("英文代碼不可超過 60 字");
+        out.slug = slug;
+      }
       return { values: out };
     }
 

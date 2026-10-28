@@ -112,45 +112,143 @@ async function reloadMembers(message) {
   await loadMembers();
 }
 
+/* 網頁管理：上傳整份 HTML 網頁到自己負責的科目 */
+const MAX_PAGE_BYTES = 1_900_000;
+
+function pagesAdminHtml() {
+  const list = editableCourses();
+  if (!list.length) return '<p class="empty">你目前沒有負責的科目。如需上傳網頁，請聯絡網站管理者把你設為科目負責人。</p>';
+  if (!list.some(c => c.id === pagesCourse)) pagesCourse = list[0].id;
+  const c = getCourse(pagesCourse);
+  const rows = pagesOf(pagesCourse);
+  return `
+  <div class="field" style="max-width:420px"><label for="pg-course">選擇科目</label>
+    <select id="pg-course">${list.map(x => `<option value="${x.id}" ${x.id === pagesCourse ? 'selected' : ''}>${esc(semesterLabel(x.semesterCode))}｜${esc(x.title)}</option>`).join('')}</select>
+  </div>
+  <div class="panel prose" style="margin:6px 0 16px">
+    <h3 style="margin-top:0">上傳新網頁到「${esc(c.title)}」</h3>
+    <form id="pageform">
+      <div class="field"><label for="pg-file">網頁檔（.html，上限約 1.9 MB）</label><input id="pg-file" name="file" type="file" accept=".html,.htm,text/html" required></div>
+      <div class="field"><label for="pg-title">標題（留空會自動使用網頁本身的標題）</label><input id="pg-title" name="title" maxlength="200"></div>
+      <div class="field"><label for="pg-desc">說明（選填）</label><textarea id="pg-desc" name="description" maxlength="1000"></textarea></div>
+      <div id="pageformmsg"></div>
+      <button class="btn" type="submit">上傳網頁</button>
+    </form>
+    <p class="meta-label">網頁上傳後只有登入的班級成員看得到。圖片請直接嵌在網頁檔裡（單一檔案）。</p>
+  </div>
+  <div class="adminlist">
+    ${rows.map(p => `
+      <div class="adminrow">
+        <div><b>${esc(p.title)}</b><br><small>${fmtSize(p.size)} · 更新：${esc(fmtTime(p.updatedAt))}${p.updatedBy ? ' · ' + esc(p.updatedBy) : ''}</small></div>
+        <div class="row-actions">
+          <a class="btn secondary" href="${esc(p.url)}" target="_blank" rel="noopener">開啟</a>
+          <button type="button" class="btn secondary" data-page-edit="${p.id}">編輯</button>
+          <button type="button" class="btn secondary danger" data-page-delete="${p.id}">刪除</button>
+        </div>
+      </div>`).join('') || '<p class="empty">這個科目還沒有網頁。</p>'}
+  </div>
+  <div id="editor"></div>`;
+}
+
+function pageEditorHtml(p) {
+  return `
+  <div class="panel prose" style="margin-top:20px">
+    <h2>編輯網頁</h2>
+    <form id="pageeditform">
+      <div class="field"><label for="pe-title">標題</label><input id="pe-title" name="title" required maxlength="200" value="${esc(p.title)}"></div>
+      <div class="field"><label for="pe-desc">說明</label><textarea id="pe-desc" name="description" maxlength="1000">${esc(p.description || '')}</textarea></div>
+      <div class="field"><label for="pe-sort">排序（數字小的排前面）</label><input id="pe-sort" name="sortOrder" type="number" min="0" value="${p.sortOrder}"></div>
+      <div class="field"><label for="pe-file">換成新版網頁檔（選填，不選就保留原本的）</label><input id="pe-file" name="file" type="file" accept=".html,.htm,text/html"></div>
+      <div id="pageeditmsg"></div>
+      <button class="btn" type="submit">儲存</button>
+      <button class="btn secondary" type="button" id="cancel">取消</button>
+    </form>
+  </div>`;
+}
+
+// 讀取使用者選的 .html 檔，先在瀏覽器檢查，避免傳到一半才失敗
+async function readHtmlFile(file) {
+  if (!/\.html?$/i.test(file.name)) throw new Error('請選擇 .html 結尾的網頁檔。');
+  if (file.size > MAX_PAGE_BYTES) throw new Error(`網頁檔案太大：${fmtSize(file.size)}，上限約 1.9 MB。請把網頁裡的大圖片縮小後再試。`);
+  const html = await file.text();
+  if (!/<html[\s>]|<!doctype html/i.test(html)) throw new Error('這個檔案看起來不是網頁，請確認是 .html 檔。');
+  return html;
+}
+
+/* 學期開放設定 */
+function semestersAdminHtml() {
+  return `
+  <p class="meta-label">只有「開放中」的學期會顯示在首頁和課程總覽。新學期開始時，在這裡打開即可。</p>
+  <div class="adminlist">
+    ${[...data.semesters].sort((a, b) => a.sortOrder - b.sortOrder).map(s => `
+      <div class="adminrow">
+        <div><b>${esc(s.label)}</b>${s.visible ? '<span class="role">開放中</span>' : '<span class="role off">未開放</span>'}<br><small>${esc(s.code)} · ${coursesIn(s.code).length} 個科目</small></div>
+        <div class="row-actions"><button type="button" class="btn secondary" data-sem="${esc(s.code)}" data-to="${s.visible ? '0' : '1'}">${s.visible ? '關閉' : '開放'}</button></div>
+      </div>`).join('')}
+  </div>`;
+}
+
 function adminPage() {
-  if (!admin?.canWrite) {
+  if (!hasAdminAccess()) {
     return '<h2 class="section">管理後台</h2><p class="empty">你的帳號是「觀看者」，沒有後台權限。如需上傳資料，請聯絡網站管理者。</p>';
   }
-  if (adminType === 'members' && !admin.canManageMembers) adminType = 'items';
+  const tabs = {
+    pages: '網頁',
+    ...(admin.canWrite ? TYPE_NAME : {}),
+    ...(admin.canManageCourses ? { semesters: '學期' } : {}),
+    ...(admin.canManageMembers ? { members: '成員' } : {})
+  };
+  if (!tabs[adminType]) adminType = 'pages';
 
-  const tabs = { ...TYPE_NAME, ...(admin.canManageMembers ? { members: '成員' } : {}) };
-  const rows = data[adminType] || [];
   const flash = adminFlash ? `<div class="msg ok">${esc(adminFlash)}</div>` : '';
   adminFlash = '';
-  return `
-  <div class="admin-bar">
-    <h2 class="section" style="margin:0;border:0;padding:0">管理後台</h2>
-    <div><span class="who">${esc(admin.displayName)}（${ROLE_NAME[admin.role] || admin.role}）</span></div>
-  </div>
-  <div class="notice">在這裡新增、修改或刪除的內容，會<b>立即儲存到雲端資料庫</b>，所有成員都會看到。${admin.canDelete ? '' : '你的帳號可以新增與修改，但不能刪除。'}</div>
-  ${flash}
-  <div class="admin-tabs">
-    ${Object.keys(tabs).map(t => `<button type="button" class="btn ${adminType === t ? '' : 'secondary'}" data-admin-type="${t}" aria-pressed="${adminType === t}">${tabs[t]}管理</button>`).join('')}
-  </div>
-  ${adminType === 'members' ? membersHtml() : `
-  ${admin.canWrite ? `<button type="button" class="btn" id="add">＋ 新增${TYPE_NAME[adminType]}</button>` : '<p class="empty">你的帳號只能檢視。</p>'}
+  const isCourses = adminType === 'courses';
+  const canAdd = isCourses ? admin.canManageCourses : admin.canWrite;
+  const canEditRow = isCourses ? admin.canManageCourses : admin.canWrite;
+  const rows = data[adminType] || [];
+  let body;
+  if (adminType === 'members') body = membersHtml();
+  else if (adminType === 'pages') body = pagesAdminHtml();
+  else if (adminType === 'semesters') body = semestersAdminHtml();
+  else body = `
+  ${canAdd ? `<button type="button" class="btn" id="add">＋ 新增${TYPE_NAME[adminType]}</button>` : isCourses ? '<p class="meta-label">新增或修改科目由擁有者、管理員負責。</p>' : ''}
   <div class="adminlist">
     ${rows.map(i => `
       <div class="adminrow">
-        <div><b>${esc(i.title)}</b><br><small>${adminType === 'courses' ? `${i.lessons} 堂 · ${i.cards} 張` : esc(i.date || '')}${adminType === 'items' ? ' · ' + esc(courseName(i.courseId)) : ''}</small></div>
+        <div><b>${esc(i.title)}</b><br><small>${isCourses
+          ? `${esc(semesterLabel(i.semesterCode))} · ${pagesOf(i.id).length} 份網頁 · 負責人：${i.owners?.length ? i.owners.map(o => esc(o.name)).join('、') : '未指派'}`
+          : esc(i.date || '')}${adminType === 'items' ? ' · ' + esc(courseName(i.courseId)) : ''}</small></div>
         <div class="row-actions">
-          ${admin.canWrite ? `<button type="button" class="btn secondary" data-edit="${i.id}">編輯</button>` : ''}
+          ${canEditRow ? `<button type="button" class="btn secondary" data-edit="${i.id}">編輯</button>` : ''}
           ${admin.canDelete ? `<button type="button" class="btn secondary danger" data-delete="${i.id}">刪除</button>` : ''}
         </div>
       </div>`).join('') || '<p class="empty">尚無資料</p>'}
   </div>
-  <div id="editor"></div>`}`;
+  <div id="editor"></div>`;
+
+  return `
+  <div class="admin-bar">
+    <h2 class="section" style="margin:0;border:0;padding:0">管理後台</h2>
+    <div><span class="who">${esc(admin.displayName)}（${ROLE_NAME[admin.role] || admin.role}${(admin.ownedCourseIds || []).length ? '・科目負責人' : ''}）</span></div>
+  </div>
+  <div class="notice">在這裡新增、修改或刪除的內容，會<b>立即儲存到雲端資料庫</b>，所有成員都會看到。</div>
+  ${flash}
+  <div class="admin-tabs">
+    ${Object.keys(tabs).map(t => `<button type="button" class="btn ${adminType === t ? '' : 'secondary'}" data-admin-type="${t}" aria-pressed="${adminType === t}">${tabs[t]}管理</button>`).join('')}
+  </div>
+  ${body}`;
 }
 
 function editorHtml(i) {
   i = i || {};
   const isCourse = adminType === 'courses';
   const courseFields = `
+    <div class="field"><label for="f-sem">學期</label>
+      <select id="f-sem" name="semesterCode">${[...data.semesters].sort((a, b) => a.sortOrder - b.sortOrder).map(s => `<option value="${esc(s.code)}" ${(i.semesterCode || visibleSemesters()[0]?.code) === s.code ? 'selected' : ''}>${esc(s.label)}</option>`).join('')}</select></div>
+    <div class="field"><label for="f-slug">英文代碼（小寫英文與連字號，例如 medical-biology）</label><input id="f-slug" name="slug" maxlength="60" pattern="[a-z0-9]+(-[a-z0-9]+)*" value="${esc(i.slug || '')}"></div>
+    ${admin.canManageMembers ? `<fieldset class="field owners"><legend>科目負責人（可上傳、修改、刪除這個科目的網頁）</legend>
+      ${members ? members.filter(m => m.status === 'active' && m.role !== 'owner').map(m => `<label class="check"><input type="checkbox" name="owner" value="${m.id}" ${(i.owners || []).some(o => o.id === m.id) ? 'checked' : ''}> ${esc(m.displayName)} <small>${esc(m.email)}</small></label>`).join('') || '<p class="meta-label">名單上還沒有其他成員。</p>' : '<p class="meta-label">成員名單載入中…</p>'}
+    </fieldset>` : ''}
     <div class="field"><label for="f-icon">封面文字（最多 10 字）</label><input id="f-icon" name="icon" maxlength="10" value="${esc(i.icon || '')}"></div>
     <div class="field"><label for="f-lessons">課堂數</label><input id="f-lessons" name="lessons" type="number" min="0" value="${i.lessons ?? 0}"></div>
     <div class="field"><label for="f-cards">圖卡數</label><input id="f-cards" name="cards" type="number" min="0" value="${i.cards ?? 0}"></div>
@@ -244,7 +342,10 @@ function handleError(err, box) {
   else alert(friendly(err));
 }
 
-function showEditor(i) {
+async function showEditor(i) {
+  if (adminType === 'courses' && admin.canManageMembers && !members) {
+    try { members = (await api('/api/admin/members')).members; } catch (err) { return handleError(err, null); }
+  }
   const box = document.getElementById('editor');
   box.innerHTML = editorHtml(i);
   box.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -261,7 +362,7 @@ function showEditor(i) {
     try {
       const body = {};
       for (const [k, v] of new FormData(form).entries()) {
-        if (k !== 'image' && k !== 'removeImage') body[k] = v;
+        if (k !== 'image' && k !== 'removeImage' && k !== 'owner') body[k] = v;
       }
       const file = form.elements.image?.files[0];
       if (file) {
@@ -271,8 +372,13 @@ function showEditor(i) {
       } else if (form.elements.removeImage?.checked) {
         body.image = '';
       }
-      if (i?.id) await api(`/api/admin/${adminType}/${i.id}`, { method: 'PUT', body });
-      else await api(`/api/admin/${adminType}`, { method: 'POST', body });
+      let id = i?.id;
+      if (id) await api(`/api/admin/${adminType}/${id}`, { method: 'PUT', body });
+      else id = (await api(`/api/admin/${adminType}`, { method: 'POST', body })).id;
+      if (adminType === 'courses' && admin.canManageMembers && members && id) {
+        const userIds = [...form.querySelectorAll('[name=owner]:checked')].map(x => Number(x.value));
+        await api(`/api/admin/courses/${id}/owners`, { method: 'PUT', body: { userIds } });
+      }
       await reloadAfterChange(`已儲存「${body.title}」`);
     } catch (err) {
       btn.disabled = false;

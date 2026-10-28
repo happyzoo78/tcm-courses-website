@@ -4,11 +4,11 @@
 /* =========================================================
    六、畫面更新與按鈕綁定
    ========================================================= */
-const VIEWS = { home: homePage, courses: coursesPage, items: itemsPage, projects: projectsPage, detail: detailPage, about: aboutPage, admin: adminPage };
+const VIEWS = { home: homePage, courses: coursesPage, course: coursePage, items: itemsPage, projects: projectsPage, detail: detailPage, about: aboutPage, admin: adminPage };
 
 function render() {
   document.body.classList.toggle('signed-out', !admin);
-  document.getElementById('admin-link').hidden = !admin?.canWrite;
+  document.getElementById('admin-link').hidden = !hasAdminAccess();
   document.getElementById('logout-top').hidden = !admin;
 
   if (loadState === 'login') {
@@ -21,7 +21,7 @@ function render() {
     app.innerHTML = VIEWS[page]();
   }
   // 導覽列目前位置
-  const navKey = page === 'items' ? 'courses' : page === 'detail' ? (detailTarget[0] === 'project' ? 'projects' : 'courses') : page;
+  const navKey = (page === 'items' || page === 'course') ? 'courses' : page === 'detail' ? (detailTarget[0] === 'project' ? 'projects' : 'courses') : page;
   document.querySelectorAll('[data-nav]').forEach(a => {
     if (a.dataset.nav === navKey) a.setAttribute('aria-current', 'page');
     else a.removeAttribute('aria-current');
@@ -129,6 +129,20 @@ function bind() {
     }
   });
 
+  bindPagesAdmin();
+
+  document.querySelectorAll('[data-sem]').forEach(b => b.onclick = async () => {
+    const sem = getSemester(b.dataset.sem);
+    b.disabled = true;
+    try {
+      await api(`/api/admin/semesters/${encodeURIComponent(sem.code)}`, { method: 'PUT', body: { visible: b.dataset.to === '1' } });
+      await reloadAfterChange(`已${b.dataset.to === '1' ? '開放' : '關閉'}「${sem.label}」`);
+    } catch (err) {
+      b.disabled = false;
+      handleError(err, null);
+    }
+  });
+
   const add = document.getElementById('add');
   if (add) add.onclick = () => showEditor(null);
 
@@ -138,8 +152,8 @@ function bind() {
 
   document.querySelectorAll('[data-delete]').forEach(b => b.onclick = async () => {
     const id = Number(b.dataset.delete);
-    if (adminType === 'courses' && data.items.some(x => x.courseId === id)) {
-      alert('請先刪除或調整此課程所屬的圖卡。');
+    if (adminType === 'courses' && (data.items.some(x => x.courseId === id) || pagesOf(id).length)) {
+      alert('請先刪除或調整此科目裡的網頁和圖卡。');
       return;
     }
     const row = data[adminType].find(x => x.id === id);
@@ -148,6 +162,75 @@ function bind() {
     try {
       await api(`/api/admin/${adminType}/${id}`, { method: 'DELETE' });
       await reloadAfterChange(`已刪除「${row?.title || ''}」`);
+    } catch (err) {
+      b.disabled = false;
+      handleError(err, null);
+    }
+  });
+}
+
+// 網頁管理的按鈕
+function bindPagesAdmin() {
+  const sel = document.getElementById('pg-course');
+  if (sel) sel.onchange = () => { pagesCourse = Number(sel.value); render(); };
+
+  const pf = document.getElementById('pageform');
+  if (pf) pf.onsubmit = async e => {
+    e.preventDefault();
+    const btn = pf.querySelector('[type=submit]');
+    const msg = document.getElementById('pageformmsg');
+    msg.innerHTML = '';
+    btn.disabled = true;
+    btn.textContent = '上傳中…';
+    try {
+      const html = await readHtmlFile(pf.elements.file.files[0]);
+      const res = await api('/api/admin/pages', { method: 'POST', body: {
+        courseId: pagesCourse, title: pf.elements.title.value, description: pf.elements.description.value, html } });
+      await reloadAfterChange(`已上傳，網址：${location.origin}${res.url}`);
+      const added = data.pages.find(x => x.id === res.id);
+      if (added) { adminFlash = `已上傳「${added.title}」，網址：${location.origin}${res.url}`; render(); }
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = '上傳網頁';
+      handleError(err, msg);
+    }
+  };
+
+  document.querySelectorAll('[data-page-edit]').forEach(b => b.onclick = () => {
+    const p = data.pages.find(x => x.id == b.dataset.pageEdit);
+    const box = document.getElementById('editor');
+    box.innerHTML = pageEditorHtml(p);
+    box.scrollIntoView({ block: 'start' });
+    document.getElementById('cancel').onclick = () => { box.innerHTML = ''; };
+    const form = document.getElementById('pageeditform');
+    form.onsubmit = async e => {
+      e.preventDefault();
+      const sbtn = form.querySelector('[type=submit]');
+      const msg = document.getElementById('pageeditmsg');
+      msg.innerHTML = '';
+      sbtn.disabled = true;
+      sbtn.textContent = '儲存中…';
+      try {
+        const body = { title: form.elements.title.value, description: form.elements.description.value, sortOrder: Number(form.elements.sortOrder.value) };
+        const file = form.elements.file.files[0];
+        if (file) body.html = await readHtmlFile(file);
+        await api(`/api/admin/pages/${p.id}`, { method: 'PUT', body });
+        await reloadAfterChange(`已儲存「${body.title}」${file ? '（已換成新版網頁）' : ''}`);
+      } catch (err) {
+        sbtn.disabled = false;
+        sbtn.textContent = '儲存';
+        handleError(err, msg);
+      }
+    };
+  });
+
+  document.querySelectorAll('[data-page-delete]').forEach(b => b.onclick = async () => {
+    const p = data.pages.find(x => x.id == b.dataset.pageDelete);
+    if (!confirm(`確定刪除網頁「${p.title}」？刪除後無法復原，網址也會失效。`)) return;
+    b.disabled = true;
+    try {
+      await api(`/api/admin/pages/${p.id}`, { method: 'DELETE' });
+      await reloadAfterChange(`已刪除「${p.title}」`);
     } catch (err) {
       b.disabled = false;
       handleError(err, null);

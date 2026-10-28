@@ -380,3 +380,20 @@ footer {
   * { transition: none !important; scroll-behavior: auto !important; }
   .course:hover { transform: none; }
 }
+
+/* 學期分組、科目頁的網頁清單、科目負責人勾選 */
+.sem-title { margin: 22px 0 12px; font-size: 19px; color: var(--accent); }
+.sem-title small { font-size: 15px; font-weight: normal; margin-left: 8px; }
+.pagelist { display: grid; gap: 10px; }
+.pagerow {
+  display: grid; gap: 2px; padding: 14px 18px; text-decoration: none; color: var(--ink);
+  background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 8px;
+}
+.pagerow:hover, .pagerow:focus-visible { border-color: var(--accent); }
+.pr-title { font-weight: 700; font-size: 17px; }
+.pr-desc { color: var(--ink); font-size: 15px; }
+.pr-meta { color: var(--muted); font-size: 14px; }
+fieldset.owners { border: 1px solid var(--line); border-radius: 8px; padding: 8px 14px; }
+fieldset.owners legend { font-size: 15px; color: var(--muted); padding: 0 6px; }
+fieldset.owners .check small { color: var(--muted); }
+.adminrow > div:first-child { min-width: 0; overflow-wrap: anywhere; }

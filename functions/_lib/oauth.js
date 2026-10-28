@@ -49,10 +49,12 @@ export function redirectHome(request, params = {}) {
   });
 }
 
-// 登入後要回去的頁面：只接受本站 /content/ 底下的路徑，避免被導到其他網站
+// 登入後要回去的頁面：只接受本站 /content/ 底下的路徑與 /p/編號，避免被導到其他網站
 export function safeNext(value) {
   const v = String(value || "");
-  if (!/^\/content\/[A-Za-z0-9_\-\/.]*(\?[A-Za-z0-9_\-=&.%]*)?$/.test(v)) return "";
+  const ok = /^\/content\/[A-Za-z0-9_\-\/.]*(\?[A-Za-z0-9_\-=&.%]*)?$/.test(v) ||   // content/ 底下的頁面
+             /^\/p\/\d{1,9}$/.test(v);                                              // 上傳的網頁 /p/編號
+  if (!ok) return "";
   if (v.includes("..") || v.includes("//")) return "";
   return v;
 }

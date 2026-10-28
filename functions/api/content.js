@@ -27,9 +27,9 @@ export async function onRequestGet({ request, env }) {
   }
 
   try {
-    const [courses, items, projects] = await env.DB.batch([
+    const [courses, items, projects, semesters, pages, owners] = await env.DB.batch([
       env.DB.prepare(`
-        SELECT id, title, icon, lessons, cards, latest
+        SELECT id, title, icon, lessons, cards, latest, semester_code, slug
         FROM courses
         ORDER BY id
       `),
@@ -44,6 +44,21 @@ export async function onRequestGet({ request, env }) {
                (image <> '') AS has_image
         FROM projects
         ORDER BY date DESC, id DESC
+      `),
+      env.DB.prepare(`
+        SELECT code, label, sort_order, visible FROM semesters ORDER BY sort_order
+      `),
+      // 網頁清單（不含網頁本體，打開時才從 /p/編號 讀取）
+      env.DB.prepare(`
+        SELECT p.id, p.course_id, p.title, p.description, p.size, p.sort_order, p.updated_at,
+               u.display_name AS updated_by_name
+        FROM pages p LEFT JOIN admin_users u ON u.id = p.updated_by
+        ORDER BY p.course_id, p.sort_order, p.id
+      `),
+      env.DB.prepare(`
+        SELECT o.course_id, u.id AS user_id, u.display_name
+        FROM course_owners o JOIN admin_users u ON u.id = o.user_id
+        ORDER BY o.course_id, u.display_name
       `)
     ]);
 
@@ -54,7 +69,16 @@ export async function onRequestGet({ request, env }) {
         icon: c.icon || "",
         lessons: c.lessons,
         cards: c.cards,
-        latest: c.latest || ""
+        latest: c.latest || "",
+        semesterCode: c.semester_code,
+        slug: c.slug || "",
+        owners: owners.results.filter(o => o.course_id === c.id).map(o => ({ id: o.user_id, name: o.display_name }))
+      })),
+      semesters: semesters.results.map(s => ({ code: s.code, label: s.label, sortOrder: s.sort_order, visible: Boolean(s.visible) })),
+      pages: pages.results.map(p => ({
+        id: p.id, courseId: p.course_id, title: p.title, description: p.description,
+        size: p.size, sortOrder: p.sort_order, updatedAt: p.updated_at,
+        updatedBy: p.updated_by_name || "", url: `/p/${p.id}`
       })),
       items: items.results.map(i => ({
         id: i.id,

@@ -7,7 +7,8 @@ export async function onRequestPost({ request, env, params }) {
   const type = params.type;
   if (!TYPES[type]) return jsonResponse({ error: "Not found" }, 404);
 
-  const auth = await requireAdmin(request, env, "write");
+  // 建立科目只限擁有者與管理員；圖卡、活動維持 write 權限
+  const auth = await requireAdmin(request, env, type === "courses" ? "publish" : "write");
   if (auth.error) return auth.error;
 
   const parsed = await readJson(request);
