@@ -289,11 +289,10 @@ html[lang="zh-Hant"] .a-note::before { content: "補充說明"; }
   <div class="bar">
     <div class="logo"><span class="seal">醫</span><span class="logo-text"><span>2026福建中醫</span><span>台灣班網站</span></span><span class="logo-sub">作業專區</span></div>
     <div class="actions">
-      <button class="tool-btn" id="zhBtn" type="button"><span class="zh-g">繁</span><span class="label">切換繁體</span></button>
       <button class="tool-btn" id="theme" type="button"></button>
     </div>
   </div>
-  <nav class="hw-menu" id="hw-menu" aria-label="科目选单"></nav>
+  <nav class="hw-menu" id="hw-menu" aria-label="科目選單"></nav>
 </header>
 
 <div class="layout hw-home-layout">
@@ -301,10 +300,10 @@ html[lang="zh-Hant"] .a-note::before { content: "補充說明"; }
   <main>
     <section class="hero">
       <div class="eyebrow">2026福建中醫台灣班 · 作業專區</div>
-      <h1>作业专区</h1>
+      <h1>作業專區</h1>
     </section>
     <article class="doc">
-      <p>依学期 → 科目整理全班的作业答案与作答页。上方的「科目选单」在每一页都看得到，随时可以切换到其他科目或作业。</p>
+      <p>依學期 → 科目整理全班的作業答案與作答頁。點進作業頁後，右上角可以切換繁體／簡體；上方的「科目選單」在每一頁都看得到，隨時可以切換到其他科目或作業。</p>
       <div id="hw-index"></div>
     </article>
   </main>
@@ -359,68 +358,30 @@ toTop.onclick = () => scrollTo({ top: 0 });
 </script>
 <script src="/content/homework/assets/menu.js"></script>
 <script>
-/* 繁／簡切換：只轉字形（OpenCC cn→tw），不改用詞，保留大陸醫學名詞（如 线粒体→線粒體，不會改成「粒線體」） */
+/* 作業專區首頁固定顯示繁體：科目選單與作業清單來自共用的 menu.js（簡體原文），載入後自動轉成繁體字形。
+   繁簡切換按鈕只放在各作業頁裡。只轉字形（OpenCC cn→tw），不改用詞。 */
 (function () {
-  const btn = document.getElementById('zhBtn');
   const SRC = 'https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/cn2t.js';
-  const orig = new Map();          // 文字節點 → 原始簡體
-  let conv = null, isTrad = false, loading = null;
-  const roots = () => [document.getElementById('hw-menu'), document.querySelector('.layout'), document.querySelector('footer')].filter(Boolean);
-  function paint() {
-    btn.querySelector('.zh-g').textContent = isTrad ? '简' : '繁';
-    btn.querySelector('.label').textContent = isTrad ? '切换简体' : '切換繁體';
-    btn.setAttribute('aria-label', isTrad ? '切换为简体中文' : '切換為繁體中文');
-    document.documentElement.lang = isTrad ? 'zh-Hant' : 'zh-Hans';
-  }
-  function load() {
-    if (conv) return Promise.resolve(conv);
-    if (loading) return loading;
-    loading = new Promise((ok, bad) => {
-      const s = document.createElement('script'); s.src = SRC;
-      s.onload = () => {
-        const base = OpenCC.Converter({ from: 'cn', to: 'tw' });
-        /* 人工校對：修正 OpenCC 一對多誤轉（醫學名詞） */
-        const FIX = [['麵','面'],['錶','表'],['癥','症'],['遊離','游離'],['髮育','發育'],['臺灣','台灣'],['復等位','複等位'],['併合成','並合成'],['菌併成功','菌並成功'],['顎','腭'],['睪','睾'],['汙','污']];
-        conv = t => FIX.reduce((x, [a, b]) => x.split(a).join(b), base(t));
-        ok(conv);
-      };
-      s.onerror = () => { loading = null; bad(new Error('load')); };
-      document.head.appendChild(s);
-    });
-    return loading;
-  }
-  function walk(fn, only) {
+  let conv = null;
+  const roots = () => [document.getElementById('hw-menu'), document.querySelector('.layout')].filter(Boolean);
+  function walk(only) {
     (only ? [only] : roots()).forEach(r => {
       const w = document.createTreeWalker(r, NodeFilter.SHOW_TEXT, { acceptNode: n => n.nodeValue.trim() && !n.parentElement.closest('script,style') ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT });
-      let n; while ((n = w.nextNode())) fn(n);
+      let n; while ((n = w.nextNode())) { const t = conv(n.nodeValue); if (t !== n.nodeValue) n.nodeValue = t; }
     });
   }
-  async function toTrad() {
-    btn.disabled = true; btn.querySelector('.label').textContent = '轉換中…';
-    try { await load(); } catch (e) { btn.disabled = false; paint(); btn.querySelector('.label').textContent = '載入失敗，請重試'; return; }
-    walk(n => { if (!orig.has(n)) orig.set(n, n.nodeValue); n.nodeValue = conv(orig.get(n)); });
-    document.title = conv(document.title);
-    isTrad = true; btn.disabled = false; paint();
-  }
-  function toSimp() {
-    orig.forEach((v, n) => { n.nodeValue = v; });
-    document.title = window.__zhTitle;
-    isTrad = false; paint();
-  }
-  window.__zhTitle = document.title;
-  /* 科目選單切換學期後會重畫，若目前是繁體就把新內容也轉成繁體 */
-  window.__hwAfterRender = root => {
-    if (!isTrad || !conv) return;
-    walk(n => { if (!orig.has(n)) orig.set(n, n.nodeValue); n.nodeValue = conv(orig.get(n)); }, root);
+  /* 科目選單切換學期後會重畫，新內容也轉成繁體 */
+  window.__hwAfterRender = root => { if (conv) walk(root); };
+  const s = document.createElement('script'); s.src = SRC;
+  s.onload = () => {
+    const base = OpenCC.Converter({ from: 'cn', to: 'tw' });
+    /* 人工校對：修正 OpenCC 一對多誤轉（醫學名詞） */
+    const FIX = [['麵','面'],['錶','表'],['癥','症'],['遊離','游離'],['髮育','發育'],['臺灣','台灣'],['復等位','複等位'],['併合成','並合成'],['菌併成功','菌並成功'],['顎','腭'],['睪','睾'],['汙','污']];
+    conv = t => FIX.reduce((x, [a, b]) => x.split(a).join(b), base(t));
+    document.documentElement.lang = 'zh-Hant';
+    walk();
   };
-  btn.onclick = () => {
-    const next = isTrad ? 's' : 't';
-    try { localStorage.setItem('tcm-zh', next); } catch (e) {}
-    next === 't' ? toTrad() : toSimp();
-  };
-  paint();
-  let saved = null; try { saved = localStorage.getItem('tcm-zh'); } catch (e) {}
-  if (saved === 't') toTrad();
+  document.head.appendChild(s);
 })();
 </script>
 </body>
