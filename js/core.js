@@ -250,3 +250,35 @@ function subjChipsHtml(sems, curId, count, attr) {
       ${list.map(x => `<button type="button" class="subj-chip${count(x) ? '' : ' none'}" ${attr}="${x.id}" aria-pressed="${x.id === curId}">${esc(x.title)}<small>${count(x)}</small></button>`).join('')}</div>`;
   }).join('');
 }
+
+/* 首頁、關於我們的底圖：水墨遠山、雲霧、一枝藥草與月輪（原創向量圖，顏色跟著深淺色主題） */
+const HERO_ART = `<svg class="hero-art" viewBox="0 0 640 300" preserveAspectRatio="xMaxYMax slice" aria-hidden="true">
+  <defs>
+    <linearGradient id="ha-m1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--accent)" stop-opacity=".22"/><stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></linearGradient>
+    <linearGradient id="ha-m2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--accent)" stop-opacity=".38"/><stop offset="1" stop-color="var(--accent)" stop-opacity=".04"/></linearGradient>
+    <radialGradient id="ha-sun" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="var(--gold)" stop-opacity=".55"/><stop offset=".7" stop-color="var(--gold)" stop-opacity=".18"/><stop offset="1" stop-color="var(--gold)" stop-opacity="0"/></radialGradient>
+  </defs>
+  <circle cx="470" cy="92" r="70" fill="url(#ha-sun)"/>
+  <circle cx="470" cy="92" r="34" fill="none" stroke="var(--gold)" stroke-opacity=".35" stroke-width="1.2"/>
+  <path d="M120 300 C170 230 205 205 245 180 C270 166 285 150 305 128 C322 110 338 112 356 132 C380 158 398 150 420 128 C440 108 462 104 486 126 C512 150 530 176 560 168 C590 160 610 140 640 132 L640 300 Z" fill="url(#ha-m1)"/>
+  <path d="M220 300 C262 262 300 238 340 214 C366 198 384 176 410 168 C432 162 446 180 468 196 C492 214 512 206 536 188 C560 170 584 172 606 190 C620 202 630 208 640 210 L640 300 Z" fill="url(#ha-m2)"/>
+  <g fill="none" stroke="var(--ink)" stroke-opacity=".10" stroke-linecap="round">
+    <path d="M300 236 C340 228 380 232 420 226" stroke-width="2"/>
+    <path d="M440 250 C480 244 520 248 570 240" stroke-width="2"/>
+    <path d="M360 262 C400 256 430 260 470 256" stroke-width="1.5"/>
+  </g>
+  <g fill="none" stroke="var(--ink)" stroke-opacity=".28" stroke-width="1.4" stroke-linecap="round">
+    <path d="M392 70 q5 -5 10 0 q5 -5 10 0"/>
+    <path d="M418 54 q4 -4 8 0 q4 -4 8 0"/>
+  </g>
+  <g class="hero-herb" stroke-linecap="round">
+    <path d="M612 300 C604 250 590 214 566 182 C548 158 530 144 508 136" fill="none" stroke="var(--accent)" stroke-opacity=".55" stroke-width="2"/>
+    <path d="M566 182 C580 168 600 166 616 172 C602 186 584 190 566 182 Z" fill="var(--accent)" fill-opacity=".30"/>
+    <path d="M548 158 C540 140 544 122 556 110 C562 128 560 146 548 158 Z" fill="var(--accent)" fill-opacity=".26"/>
+    <path d="M590 232 C606 220 624 222 636 232 C622 244 604 244 590 232 Z" fill="var(--accent)" fill-opacity=".28"/>
+    <path d="M530 145 C512 152 496 148 486 138 C502 130 518 134 530 145 Z" fill="var(--accent)" fill-opacity=".24"/>
+    <circle cx="508" cy="136" r="4.5" fill="var(--red)" fill-opacity=".55"/>
+    <circle cx="500" cy="128" r="3.2" fill="var(--red)" fill-opacity=".45"/>
+    <circle cx="514" cy="126" r="3" fill="var(--red)" fill-opacity=".4"/>
+  </g>
+</svg>`;

@@ -78,7 +78,7 @@ function homePage() {
   const totalCards = sum(itemsOf);
   const updates = recentUpdates(5);
   return `
-  <section class="hero">
+  <section class="hero has-art">${HERO_ART}
     <div class="eyebrow"><span class="nw">中醫學習</span> · <span class="nw">大醫精誠</span></div>
     <h1 class="hero-title"><span><em>2026</em>福建中醫台灣班 -</span> <span>學習圖書館</span></h1>
     <p>從台灣到福建，深耕中醫學問 · 經典為本，辨證為綱，系統整理，臨床致用。</p>
@@ -217,7 +217,7 @@ function detailPage() {
 
 function aboutPage() {
   return `
-  <section class="hero about-hero">
+  <section class="hero about-hero has-art">${HERO_ART}
     <div class="eyebrow"><span class="nw">中醫學習</span> · <span class="nw">大醫精誠</span></div>
     <h1>關於2026福建中醫台灣班網站</h1>
     <p>這是 2026 福建中醫藥大學台灣班同學共同耕耘的學習園地。我們從台灣負笈福建，在經典與臨床、中醫與西醫之間往返求索：把課堂重點整理成學習網頁，把章節考點編成模擬試題，把難記的概念繪成圖卡，也把每一份作業、每一道錯題，都留作彼此的參照。</p>
