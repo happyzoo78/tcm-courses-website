@@ -88,7 +88,7 @@ function shelfCardsHtml() {
             <span class="mini-text"><b>${esc(i.title)}</b><small>${esc(i.date || '')}</small></span>
           </a>`).join('')}</div>`
           : '<p class="empty-note">這個書架還沒有圖卡。</p>'}
-        <a class="link shelf-more" href="#course/${c.id}">More：打開書架${items.length > 3 ? `（共 ${items.length} 張）` : ''} →</a>
+        <a class="link shelf-more" href="#course/${c.id}" title="打開「${esc(c.title)}」書架" aria-label="打開「${esc(c.title)}」書架">More ...</a>
       </div>`;
   };
   const start = sems.length - 1;   // 預設停在最新的學期
