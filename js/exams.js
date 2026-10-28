@@ -172,6 +172,7 @@ function examsAdminHtml() {
     ${groups.length ? `
     <div class="exnav-cats" role="tablist" aria-label="分類">${groups.map(([name, r]) => `<button type="button" role="tab" class="ex-cat" data-ex-cat="${esc(name)}" aria-selected="${name === f.cat}">${esc(name)}<small>${r.length}</small></button>`).join('<span class="ex-sep" aria-hidden="true">｜</span>')}</div>
     <div class="exnav-chaps" aria-label="章節">
+      <span class="exnav-cap">${esc(f.cat)} › 章節</span>
       <button type="button" class="ex-ch" data-ex-ch="" aria-pressed="${!f.ch}">全部<small>${rows.length}</small></button>
       ${chapters.map(g => `<button type="button" class="ex-ch" data-ex-ch="${esc(g.chapter)}" aria-pressed="${g.chapter === f.ch}">${esc(g.chapter)}${g.items.length > 1 ? `<small>${g.items.length}</small>` : ''}</button>`).join('')}
     </div>` : '<p class="exnav-empty">這個科目還沒有考卷。按「＋ 新增考卷」，把題目整份貼上，網站會自動拆題、批改、統計。</p>'}
