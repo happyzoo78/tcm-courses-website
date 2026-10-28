@@ -31,7 +31,7 @@ function render() {
   bind();
 }
 
-// 首頁圖卡輪播：左右按鈕、學期按鈕、每 8 秒自動換下一頁（滑鼠停留或手指操作時暫停）
+// 首頁圖卡輪播：左右按鈕、學期按鈕（自動換頁預設關閉）（滑鼠停留或手指操作時暫停）
 let carouselTimer = null;
 function bindCarousels() {
   clearInterval(carouselTimer); carouselTimer = null;
@@ -63,7 +63,8 @@ function bindCarousels() {
     const start = Number(box.dataset.carStart || 0);
     if (start) track.scrollLeft = start * step();
     paint();
-    if (!matchMedia('(prefers-reduced-motion: reduce)').matches && slides.length > perView()) {
+    // 自動輪播：目前內容不多先關閉；要開啟時在輪播加上 data-car-auto 即可
+    if (box.dataset.carAuto !== undefined && !matchMedia('(prefers-reduced-motion: reduce)').matches && slides.length > perView()) {
       carouselTimer = setInterval(() => { if (!paused && document.visibilityState === 'visible' && box.isConnected) go(index() + 1); }, 8000);
     }
   });
