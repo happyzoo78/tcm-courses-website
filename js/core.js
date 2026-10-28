@@ -54,9 +54,20 @@ function showLogin(notice = '') {
   render();
 }
 
+// Claude 代為上傳到 content/courses/ 的網頁清單（manifest.json）；讀不到就當作沒有
+let extraFiles = [];
+async function loadExtraFiles() {
+  try {
+    const res = await fetch('/content/courses/manifest.json', { credentials: 'same-origin', cache: 'no-store' });
+    const j = res.ok ? await res.json() : null;
+    extraFiles = Array.isArray(j?.files) ? j.files.filter(f => f && f.path && f.title) : [];
+  } catch { extraFiles = []; }
+}
+
 async function loadContent() {
   try {
-    data = sortCourses(await api('/api/content'));
+    const [d] = await Promise.all([api('/api/content'), loadExtraFiles()]);
+    data = sortCourses(d);
     loadState = 'ready';
   } catch (err) {
     if (err.status === 401) return showLogin('登入已過期，請重新登入。');
@@ -162,6 +173,14 @@ const visibleSemesters = () => (data.semesters || []).filter(s => s.visible).sor
 const coursesIn = code => data.courses.filter(c => c.semesterCode === code);
 const pagesOf = courseId => (data.pages || []).filter(p => p.courseId == courseId)
   .sort((a, b) => a.sortOrder - b.sortOrder || a.id - b.id);
+// 某科目在 content/courses/ 裡的網頁（依學期代碼＋英文代碼對應）
+const filesOf = courseId => {
+  const c = getCourse(courseId);
+  if (!c || !c.slug) return [];
+  return extraFiles.filter(f => f.semester === c.semesterCode && f.course === c.slug);
+};
+const itemsOf = courseId => data.items.filter(i => i.courseId == courseId);
+const publishedExamsOf = courseId => (data.exams || []).filter(e => e.courseId == courseId && e.published);
 // 目前的帳號能不能管理某個科目的網頁（擁有者、管理員、該科目負責人）
 const canEditCourseUI = id => !!admin && (admin.canManageCourses || (admin.ownedCourseIds || []).includes(Number(id)));
 const editableCourses = () => data.courses.filter(c => canEditCourseUI(c.id));
@@ -175,7 +194,7 @@ const fmtSize = n => n >= 1048576 ? (n / 1048576).toFixed(2) + ' MB' : Math.max(
    #exam/考卷編號  #attempt/作答編號  #examedit/new/科目編號  #examedit/考卷編號  #examstats/考卷編號  #courses  #course/科目編號  #items/科目編號  #projects  #about  #admin
    #detail/item/編號  #detail/project/編號
    ========================================================= */
-const PAGES = ['home', 'courses', 'course', 'items', 'projects', 'detail', 'about', 'admin', 'account', 'editor', 'exam', 'attempt', 'retry', 'examedit', 'examstats'];
+const PAGES = ['home', 'courses', 'course', 'items', 'projects', 'detail', 'about', 'admin', 'account', 'editor', 'exam', 'attempt', 'retry', 'examedit', 'examstats', 'examzone'];
 let page = 'home', filter = 'all', query = '', adminType = 'pages', detailTarget = ['item', 0], courseTarget = 0;
 let pagesCourse = 0;
 let editorTarget = ['new', 0];

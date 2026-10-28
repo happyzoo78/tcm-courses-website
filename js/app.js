@@ -5,7 +5,7 @@
    六、畫面更新與按鈕綁定
    ========================================================= */
 const VIEWS = { home: homePage, courses: coursesPage, course: coursePage, items: itemsPage, projects: projectsPage, detail: detailPage, about: aboutPage, admin: adminPage, account: accountPage, editor: editorPage,
-  exam: examPage, attempt: attemptPage, retry: retryPage, examedit: examEditPage, examstats: examStatsPage };
+  exam: examPage, attempt: attemptPage, retry: retryPage, examedit: examEditPage, examstats: examStatsPage, examzone: examZonePage };
 
 function render() {
   document.body.classList.toggle('signed-out', !admin);
@@ -23,7 +23,7 @@ function render() {
     app.innerHTML = VIEWS[page]();
   }
   // 導覽列目前位置
-  const navKey = ['editor', 'examedit', 'examstats'].includes(page) ? 'admin' : ['exam', 'attempt', 'retry'].includes(page) ? 'courses' : (page === 'items' || page === 'course') ? 'courses' : page === 'detail' ? (detailTarget[0] === 'project' ? 'projects' : 'courses') : page;
+  const navKey = ['editor', 'examedit', 'examstats'].includes(page) ? 'admin' : ['exam', 'attempt', 'retry'].includes(page) ? 'examzone' : (page === 'items' || page === 'course') ? 'courses' : page === 'detail' ? (detailTarget[0] === 'project' ? 'projects' : 'courses') : page;
   document.querySelectorAll('[data-nav]').forEach(a => {
     if (a.dataset.nav === navKey) a.setAttribute('aria-current', 'page');
     else a.removeAttribute('aria-current');
@@ -338,6 +338,7 @@ function updateThemeButton() {
   const dark = isDark();
   themeBtn.innerHTML = dark ? ICON_SUN + '<span class="label"> 淺色模式</span>' : ICON_MOON + '<span class="label"> 深色模式</span>';
   themeBtn.setAttribute('aria-label', dark ? '切換為淺色模式' : '切換為深色模式');
+  themeBtn.title = dark ? '切換為淺色模式' : '切換為深色模式';
 }
 themeBtn.onclick = () => {
   const next = isDark() ? 'light' : 'dark';

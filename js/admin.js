@@ -258,8 +258,6 @@ function editorHtml(i) {
       ${members ? members.filter(m => m.status === 'active' && m.role !== 'owner').map(m => `<label class="check"><input type="checkbox" name="owner" value="${m.id}" ${(i.owners || []).some(o => o.id === m.id) ? 'checked' : ''}> ${esc(m.displayName)} <small>${esc(m.email)}</small></label>`).join('') || '<p class="meta-label">名單上還沒有其他成員。</p>' : '<p class="meta-label">成員名單載入中…</p>'}
     </fieldset>` : ''}
     <div class="field"><label for="f-icon">封面文字（最多 10 字）</label><input id="f-icon" name="icon" maxlength="10" value="${esc(i.icon || '')}"></div>
-    <div class="field"><label for="f-lessons">課堂數</label><input id="f-lessons" name="lessons" type="number" min="0" value="${i.lessons ?? 0}"></div>
-    <div class="field"><label for="f-cards">圖卡數</label><input id="f-cards" name="cards" type="number" min="0" value="${i.cards ?? 0}"></div>
     <div class="field"><label for="f-latest">最新課程名稱</label><input id="f-latest" name="latest" maxlength="200" value="${esc(i.latest || '')}"></div>`;
   const entryFields = `
     ${adminType === 'items' ? `

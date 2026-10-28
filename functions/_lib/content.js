@@ -113,6 +113,7 @@ export async function validate(type, body, env) {
     if (type === "courses") {
       pick("title",   cleanText(body.title, 100, "標題", true));
       pick("icon",    cleanText(body.icon, 10, "封面文字", false));
+      // 課堂數、圖卡數改由前台自動計算；欄位保留，沒傳就存 0
       pick("lessons", cleanInt(body.lessons, "課堂數"));
       pick("cards",   cleanInt(body.cards, "圖卡數"));
       pick("latest",  cleanText(body.latest, 200, "最新課程名稱", false));
