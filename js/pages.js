@@ -75,8 +75,8 @@ function homePage() {
   return `
   <section class="hero">
     <div class="eyebrow">學科複習考試速記圖卡</div>
-    <h1 class="hero-title"><span><em>2026</em>福建中醫台灣班 -</span> <span>圖卡總目錄</span></h1>
-    <p>從經典出發，走向臨床實用 · 系統整理，圖文並茂</p>
+    <h1 class="hero-title"><span><em>2026</em>福建中醫台灣班 -</span> <span>學習圖書館</span></h1>
+    <p>從台灣到福建，深耕中醫學問 · 經典為本，辨證為綱，系統整理，臨床致用。</p>
     <div class="stats">
       <div class="stat"><strong>${shown.length}</strong><span>收錄科目</span></div>
       <div class="stat"><strong>${totalPages}</strong><span>學習網頁</span></div>
