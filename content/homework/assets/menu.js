@@ -47,12 +47,16 @@ const HW_DATA = [
   const curSubj = semOfPage && semOfPage.subjects.find(s => s.works.some(isCur));
   const yearOf = se => (se.id || '').slice(0, 4);
   const label = se => `${yearOf(se)} ${se.short || se.name}`;
-  let active = semOfPage || sems[0];   // 目前選單顯示的學期：所在頁面的學期，否則最新學期
+  let active = semOfPage || sems[0];
+  const HW_HOME = '/content/homework/';
+  const atHwHome = here === norm(HW_HOME);   // 作業專區首頁不需要「回作業專區」按鈕   // 目前選單顯示的學期：所在頁面的學期，否則最新學期
 
   /* ---------- 樣式 ---------- */
   const css = `
   .hw-menu { border-top: 1px solid var(--line); background: var(--surface); }
   .hw-row { max-width: 1240px; margin: 0 auto; padding: 6px 20px; display: flex; align-items: center; gap: 8px; min-height: 46px; }
+  .hw-back { flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font-size: 14.5px; font-weight: 700; text-decoration: none; white-space: nowrap; }
+  .hw-back:hover { border-color: var(--accent); color: var(--accent); }
   .hw-all { flex: none; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer; }
   .hw-sembtn { flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 6px 10px; border-radius: 8px; border: 1.5px solid var(--accent); background: var(--surface); color: var(--accent); font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer; white-space: nowrap; }
   .hw-sembtn .car { font-size: 11px; }
@@ -118,6 +122,7 @@ const HW_DATA = [
         + (sems.length < 2 ? '<p class="hw-note">其他学期开放后，会出现在这里。</p>' : '');
       nav.innerHTML = `
         <div class="hw-row">
+          ${atHwHome ? '' : `<a class="hw-back" href="${HW_HOME}" title="回作业专区">← 作业专区</a>`}
           <button class="hw-all" type="button" aria-expanded="false" data-p="all">☰<span class="t"> 科目选单</span></button>
           <button class="hw-sembtn" type="button" aria-expanded="false" data-p="sem" title="${esc(active.name)}">${esc(label(active))}<span class="car">▾</span></button>
           <span class="hw-sep" aria-hidden="true"></span>
