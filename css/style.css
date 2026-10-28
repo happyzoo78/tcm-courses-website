@@ -583,3 +583,4 @@ fieldset.owners .check small { color: var(--muted); }
 .zone-course { margin: 0 0 14px; padding: 14px 18px; }
 .zone-head { font-size: 18px; margin-bottom: 6px; }
 .zone-cat { margin: 10px 0 6px; }
+.eyebrow .nw { white-space: nowrap; }
