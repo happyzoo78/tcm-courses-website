@@ -41,6 +41,8 @@ export function cleanPage(body, { requireHtml }) {
     const size = encoder.encode(html).length;
     if (size > MAX_PAGE_BYTES) throw new Error(`網頁檔案太大：${(size / 1048576).toFixed(2)} MB，上限約 1.9 MB`);
     out.html = html; out.size = size;
+    // 用網站內編輯器寫的網頁，開頭有這個標記，之後可以再用編輯器修改
+    out.editor = html.slice(0, 120).includes("<!--tcm-editor v1-->") ? 1 : 0;
   }
   if ("title" in body || requireHtml) {
     let title = typeof body.title === "string" ? body.title.trim() : "";
@@ -62,3 +64,6 @@ export function cleanPage(body, { requireHtml }) {
   return out;
 }
 
+
+// 資料庫還沒加上 editor 欄位時（尚未執行 SQL），改用不含這個欄位的寫法，網站不會壞掉
+export const missingEditorColumn = e => /editor/i.test(String(e?.message || e)) && /column/i.test(String(e?.message || e));

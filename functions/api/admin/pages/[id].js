@@ -4,7 +4,7 @@
 import { jsonResponse } from "../../../_lib/auth.js";
 import { audit } from "../../../_lib/content.js";
 import { canEditCourse } from "../../../_lib/pages.js";
-import { pageRequest, cleanPage } from "../../../_lib/pageapi.js";
+import { pageRequest, cleanPage, missingEditorColumn } from "../../../_lib/pageapi.js";
 
 async function loadPage(env, params) {
   const id = Number(params.id);
@@ -32,13 +32,19 @@ export async function onRequestPut({ request, env, params }) {
     v.course_id = to;
   }
 
-  const cols = Object.keys(v);
+  let cols = Object.keys(v);
   if (!cols.length) return jsonResponse({ error: "沒有要修改的內容" }, 400);
-  try {
-    await env.DB.prepare(`
+  const update = () => env.DB.prepare(`
       UPDATE pages SET ${cols.map(c => `${c} = ?`).join(", ")}, updated_by = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?
     `).bind(...cols.map(c => v[c]), user.id, page.id).run();
-    await audit(env, user, "update", "page", page.id, { title: v.title || page.title, fields: cols.filter(c => c !== "html") , newFile: "html" in v });
+  try {
+    try { await update(); }
+    catch (e) {
+      if (!missingEditorColumn(e) || !cols.includes("editor")) throw e;
+      cols = cols.filter(c => c !== "editor");
+      await update();
+    }
+    await audit(env, user, "update", "page", page.id, { title: v.title || page.title, fields: cols.filter(c => c !== "html" && c !== "editor"), newFile: "html" in v });
     return jsonResponse({ success: true });
   } catch (error) {
     console.error("Page update failed", error);

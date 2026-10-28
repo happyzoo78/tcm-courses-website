@@ -171,12 +171,13 @@ const fmtSize = n => n >= 1048576 ? (n / 1048576).toFixed(2) + ' MB' : Math.max(
 
 /* =========================================================
    三、頁面狀態與網址（網址會跟著頁面改變，可用「上一頁」）
-   #home  #account  #courses  #course/科目編號  #items/科目編號  #projects  #about  #admin
+   #home  #account  #editor/new/科目編號  #editor/網頁編號  #courses  #course/科目編號  #items/科目編號  #projects  #about  #admin
    #detail/item/編號  #detail/project/編號
    ========================================================= */
-const PAGES = ['home', 'courses', 'course', 'items', 'projects', 'detail', 'about', 'admin', 'account'];
+const PAGES = ['home', 'courses', 'course', 'items', 'projects', 'detail', 'about', 'admin', 'account', 'editor'];
 let page = 'home', filter = 'all', query = '', adminType = 'pages', detailTarget = ['item', 0], courseTarget = 0;
-let pagesCourse = 0;   // 後台「網頁管理」目前選的科目
+let pagesCourse = 0;
+let editorTarget = ['new', 0];   // 網站內編輯器：['new', 科目編號] 或 ['page', 網頁編號]   // 後台「網頁管理」目前選的科目
 const app = document.getElementById('app');
 
 function readHash() {
@@ -184,6 +185,7 @@ function readHash() {
   page = PAGES.includes(parts[0]) ? parts[0] : 'home';
   if (page === 'items') filter = parts[1] || 'all';
   if (page === 'course') courseTarget = parts[1];
+  if (page === 'editor') editorTarget = parts[1] === 'new' ? ['new', parts[2]] : ['page', parts[1]];
   if (page === 'admin' && parts[1]) { adminType = parts[1]; if (parts[2]) pagesCourse = Number(parts[2]) || 0; }
   if (page === 'detail') detailTarget = [parts[1] === 'project' ? 'project' : 'item', parts[2]];
 }

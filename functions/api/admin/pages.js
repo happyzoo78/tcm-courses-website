@@ -2,7 +2,7 @@
 import { jsonResponse } from "../../_lib/auth.js";
 import { audit } from "../../_lib/content.js";
 import { canEditCourse } from "../../_lib/pages.js";
-import { pageRequest, cleanPage } from "../../_lib/pageapi.js";
+import { pageRequest, cleanPage, missingEditorColumn } from "../../_lib/pageapi.js";
 
 export async function onRequestPost({ request, env }) {
   const req = await pageRequest(request, env);
@@ -23,10 +23,19 @@ export async function onRequestPost({ request, env }) {
   }
 
   try {
-    const r = await env.DB.prepare(`
-      INSERT INTO pages (course_id, title, description, html, size, sort_order, created_by, updated_by)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `).bind(courseId, v.title, v.description || "", v.html, v.size, v.sort_order, user.id, user.id).run();
+    let r;
+    try {
+      r = await env.DB.prepare(`
+        INSERT INTO pages (course_id, title, description, html, size, sort_order, editor, created_by, updated_by)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).bind(courseId, v.title, v.description || "", v.html, v.size, v.sort_order, v.editor, user.id, user.id).run();
+    } catch (e) {
+      if (!missingEditorColumn(e)) throw e;
+      r = await env.DB.prepare(`
+        INSERT INTO pages (course_id, title, description, html, size, sort_order, created_by, updated_by)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `).bind(courseId, v.title, v.description || "", v.html, v.size, v.sort_order, user.id, user.id).run();
+    }
     const id = r.meta?.last_row_id;
     await audit(env, user, "create", "page", id, { title: v.title, course: course.title, size: v.size });
     return jsonResponse({ success: true, id, url: `/p/${id}` }, 201);

@@ -126,8 +126,12 @@ function pagesAdminHtml() {
   <div class="field" style="max-width:420px"><label for="pg-course">選擇科目</label>
     <select id="pg-course">${list.map(x => `<option value="${x.id}" ${x.id === pagesCourse ? 'selected' : ''}>${esc(semesterLabel(x.semesterCode))}｜${esc(x.title)}</option>`).join('')}</select>
   </div>
+  <div class="write-cta">
+    <a class="btn" href="#editor/new/${c.id}">✏️ 在網站裡寫新網頁</a>
+    <span class="meta-label">像 Word 一樣直接打字、插圖、做表格，不用自己做 HTML 檔。</span>
+  </div>
   <div class="panel prose" style="margin:6px 0 16px">
-    <h3 style="margin-top:0">上傳新網頁到「${esc(c.title)}」</h3>
+    <h3 style="margin-top:0">或：上傳做好的網頁檔到「${esc(c.title)}」</h3>
     <form id="pageform">
       <div class="field"><label for="pg-file">網頁檔（.html，上限約 1.9 MB）</label><input id="pg-file" name="file" type="file" accept=".html,.htm,text/html" required></div>
       <div class="field"><label for="pg-title">標題（留空會自動使用網頁本身的標題）</label><input id="pg-title" name="title" maxlength="200"></div>
@@ -140,10 +144,11 @@ function pagesAdminHtml() {
   <div class="adminlist">
     ${rows.map(p => `
       <div class="adminrow">
-        <div><b>${esc(p.title)}</b><br><small>${fmtSize(p.size)} · 更新：${esc(fmtTime(p.updatedAt))}${p.updatedBy ? ' · ' + esc(p.updatedBy) : ''}</small></div>
+        <div><b>${esc(p.title)}</b>${p.editable ? '<span class="role">網站內編輯</span>' : ''}<br><small>${fmtSize(p.size)} · 更新：${esc(fmtTime(p.updatedAt))}${p.updatedBy ? ' · ' + esc(p.updatedBy) : ''}</small></div>
         <div class="row-actions">
           <a class="btn secondary" href="${esc(p.url)}" target="_blank" rel="noopener">開啟</a>
-          <button type="button" class="btn secondary" data-page-edit="${p.id}">編輯</button>
+          ${p.editable ? `<a class="btn secondary" href="#editor/${p.id}">線上編輯</a>` : ''}
+          <button type="button" class="btn secondary" data-page-edit="${p.id}">${p.editable ? '標題・排序' : '編輯'}</button>
           <button type="button" class="btn secondary danger" data-page-delete="${p.id}">刪除</button>
         </div>
       </div>`).join('') || '<p class="empty">這個科目還沒有網頁。</p>'}

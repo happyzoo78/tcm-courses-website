@@ -4,7 +4,7 @@
 /* =========================================================
    六、畫面更新與按鈕綁定
    ========================================================= */
-const VIEWS = { home: homePage, courses: coursesPage, course: coursePage, items: itemsPage, projects: projectsPage, detail: detailPage, about: aboutPage, admin: adminPage, account: accountPage };
+const VIEWS = { home: homePage, courses: coursesPage, course: coursePage, items: itemsPage, projects: projectsPage, detail: detailPage, about: aboutPage, admin: adminPage, account: accountPage, editor: editorPage };
 
 function render() {
   document.body.classList.toggle('signed-out', !admin);
@@ -22,7 +22,7 @@ function render() {
     app.innerHTML = VIEWS[page]();
   }
   // 導覽列目前位置
-  const navKey = (page === 'items' || page === 'course') ? 'courses' : page === 'detail' ? (detailTarget[0] === 'project' ? 'projects' : 'courses') : page;
+  const navKey = page === 'editor' ? 'admin' : (page === 'items' || page === 'course') ? 'courses' : page === 'detail' ? (detailTarget[0] === 'project' ? 'projects' : 'courses') : page;
   document.querySelectorAll('[data-nav]').forEach(a => {
     if (a.dataset.nav === navKey) a.setAttribute('aria-current', 'page');
     else a.removeAttribute('aria-current');
@@ -131,6 +131,7 @@ function bind() {
   });
 
   bindPagesAdmin();
+  if (page === 'editor' && loadState === 'ready') mountEditor();
 
   document.querySelectorAll('[data-sem]').forEach(b => b.onclick = async () => {
     const sem = getSemester(b.dataset.sem);
@@ -284,7 +285,19 @@ logoutTop.onclick = async () => {
 };
 
 // 網址改變時切換頁面
+let lastHash = location.hash;
 window.addEventListener('hashchange', () => {
+  // 編輯器還有沒儲存的內容時，先確認
+  if (page === 'editor' && editorDirty) {
+    if (!confirm('網頁還沒儲存，確定要離開嗎？\n（草稿會暫存在這台電腦，下次打開編輯器可以恢復）')) {
+      history.replaceState(null, '', lastHash || '#home');
+      return;
+    }
+    saveDraft();
+    editorDirty = false;
+  }
+  if (page === 'editor') clearInterval(draftTimer);
+  lastHash = location.hash;
   const prev = page;
   readHash();
   if (page !== 'items') query = '';

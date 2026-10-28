@@ -27,7 +27,7 @@ export async function onRequestGet({ request, env }) {
   }
 
   try {
-    const [courses, items, projects, semesters, pages, owners] = await env.DB.batch([
+    const query = withEditor => env.DB.batch([
       env.DB.prepare(`
         SELECT id, title, icon, lessons, cards, latest, semester_code, slug
         FROM courses
@@ -51,6 +51,7 @@ export async function onRequestGet({ request, env }) {
       // 網頁清單（不含網頁本體，打開時才從 /p/編號 讀取）
       env.DB.prepare(`
         SELECT p.id, p.course_id, p.title, p.description, p.size, p.sort_order, p.updated_at,
+               ${withEditor ? "p.editor" : "0 AS editor"},
                u.display_name AS updated_by_name
         FROM pages p LEFT JOIN admin_users u ON u.id = p.updated_by
         ORDER BY p.course_id, p.sort_order, p.id
@@ -61,6 +62,14 @@ export async function onRequestGet({ request, env }) {
         ORDER BY o.course_id, u.display_name
       `)
     ]);
+    // 資料庫還沒加 editor 欄位時，先用 0 代替，網站照常運作
+    let results;
+    try { results = await query(true); }
+    catch (e) {
+      if (!/editor/i.test(String(e?.message || e))) throw e;
+      results = await query(false);
+    }
+    const [courses, items, projects, semesters, pages, owners] = results;
 
     return jsonResponse({
       courses: courses.results.map(c => ({
@@ -78,7 +87,7 @@ export async function onRequestGet({ request, env }) {
       pages: pages.results.map(p => ({
         id: p.id, courseId: p.course_id, title: p.title, description: p.description,
         size: p.size, sortOrder: p.sort_order, updatedAt: p.updated_at,
-        updatedBy: p.updated_by_name || "", url: `/p/${p.id}`
+        updatedBy: p.updated_by_name || "", url: `/p/${p.id}`, editable: Boolean(p.editor)
       })),
       items: items.results.map(i => ({
         id: i.id,

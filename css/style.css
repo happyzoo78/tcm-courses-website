@@ -414,3 +414,44 @@ fieldset.owners .check small { color: var(--muted); }
   .tool-btn { padding: 6px 8px; }
 }
 @media (max-width: 340px) { .logo { font-size: 14px; } }
+
+/* 網站內編輯器 */
+.write-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 4px 0 14px; }
+.editor-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-bottom: 14px; }
+.editor-head .back { margin: 0; }
+.editor-panel { max-width: 980px; }
+.ed-body { min-height: 360px; }
+#ed-toolbar.ql-toolbar, #ed-body.ql-container { border-color: var(--line); font-family: inherit; }
+#ed-toolbar.ql-toolbar { border-radius: 10px 10px 0 0; background: var(--surface-2); position: sticky; top: 0; z-index: 5; }
+#ed-body.ql-container { border-radius: 0 0 10px 10px; background: var(--bg); font-size: 17px; }
+.ed-body .ql-editor { min-height: 360px; line-height: 1.85; color: var(--ink); }
+.ed-body .ql-editor.ql-blank::before { color: var(--muted); font-style: normal; }
+.ed-body .ql-editor img { max-width: 100%; height: auto; }
+.ed-body .ql-editor table { border-collapse: collapse; width: 100%; table-layout: fixed; }
+.ed-body .ql-editor td { border: 1px solid var(--line); padding: 4px 8px; }
+.ed-body .ql-editor blockquote { border-left: 4px solid var(--accent); padding-left: 12px; }
+#ed-toolbar .ql-stroke { stroke: var(--ink); }
+#ed-toolbar .ql-fill, #ed-toolbar .ql-stroke.ql-fill { fill: var(--ink); }
+#ed-toolbar .ql-picker { color: var(--ink); }
+#ed-toolbar .ql-picker-options { background: var(--surface); border-color: var(--line); }
+#ed-toolbar button:hover .ql-stroke, #ed-toolbar button.ql-active .ql-stroke,
+#ed-toolbar .ql-picker-label:hover .ql-stroke, #ed-toolbar .ql-picker-label.ql-active .ql-stroke { stroke: var(--accent); }
+#ed-toolbar button:hover .ql-fill, #ed-toolbar button.ql-active .ql-fill { fill: var(--accent); }
+#ed-toolbar button.ql-active, #ed-toolbar .ql-picker-label.ql-active, #ed-toolbar .ql-picker-label:hover { color: var(--accent); }
+.ed-body .ql-editor table, .ed-body .ql-editor td { border: 1px solid var(--line) !important; }
+#ed-body .ql-tooltip, .ql-snow .ql-tooltip { background: var(--surface); color: var(--ink); border-color: var(--line); box-shadow: 0 2px 10px rgba(0,0,0,.2); z-index: 6; }
+#ed-body .ql-tooltip input[type=text] { background: var(--bg); color: var(--ink); border-color: var(--line); }
+#ed-body .ql-tooltip[data-mode=link]::before { content: "連結網址："; }
+#ed-body .ql-tooltip.ql-editing a.ql-action::after { content: "儲存"; }
+#ed-body .ql-tooltip::before { content: "開啟連結："; }
+#ed-body .ql-tooltip a.ql-action::after { content: "修改"; }
+#ed-body .ql-tooltip a.ql-remove::before { content: "移除"; }
+.ql-snow .ql-picker.ql-header .ql-picker-label::before, .ql-snow .ql-picker.ql-header .ql-picker-item::before { content: "內文"; }
+.ql-snow .ql-picker.ql-header .ql-picker-label[data-value="1"]::before, .ql-snow .ql-picker.ql-header .ql-picker-item[data-value="1"]::before { content: "大標題"; }
+.ql-snow .ql-picker.ql-header .ql-picker-label[data-value="2"]::before, .ql-snow .ql-picker.ql-header .ql-picker-item[data-value="2"]::before { content: "中標題"; }
+.ql-snow .ql-picker.ql-header .ql-picker-label[data-value="3"]::before, .ql-snow .ql-picker.ql-header .ql-picker-item[data-value="3"]::before { content: "小標題"; }
+.ed-tbtn { width: auto !important; padding: 2px 6px !important; font-size: 13px; color: var(--ink); border: 1px solid var(--line) !important; border-radius: 6px; margin: 0 2px; }
+.ed-tbtn:hover { color: var(--accent); }
+.ed-actions { display: flex; gap: 8px; margin: 10px 0; }
+#ed-size.over { color: var(--red); font-weight: 600; }
+@media (max-width: 720px) { .ed-body .ql-editor { min-height: 260px; font-size: 16px; } }
