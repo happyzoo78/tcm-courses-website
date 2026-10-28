@@ -266,16 +266,21 @@ html[lang="zh-Hant"] .page-tabs a[aria-current="page"]::after { content: "目前
 .np-lab { font-size: 13px; color: var(--muted); }
 .np-name { font-size: 18px; font-weight: 700; color: var(--accent); }
 @media print { .page-tabs, .next-page { display: none; } }
+/* 注解：與答案分開、不搶粗體 */
+.a-note { margin-top: 8px; padding: 6px 10px; border-radius: 6px; background: color-mix(in srgb, var(--surface) 70%, transparent); font-size: 14px; line-height: 1.7; color: var(--muted); }
+.a-note::before { content: "补充说明"; display: block; margin-bottom: 2px; font-size: 12px; font-weight: 700; letter-spacing: .1em; color: var(--muted); }
+html[lang="zh-Hant"] .a-note::before { content: "補充說明"; }
+.doc .a-note p { margin: 2px 0; }
+.doc .a-text .a-note strong { color: var(--ink); font-weight: 600; }
 </style>
 </head>
 <body>
 <header>
   <div class="bar">
-    <a class="logo" href="/"><span class="seal">醫</span><span class="logo-text"><span>2026福建中醫</span><span>台灣班網站</span></span></a>
+    <div class="logo"><span class="seal">醫</span><span class="logo-text"><span>2026福建中醫</span><span>台灣班網站</span></span></div>
     <div class="actions">
       <button class="tool-btn" id="zhBtn" type="button"><span class="zh-g">繁</span><span class="label">切換繁體</span></button>
       <button class="tool-btn" id="theme" type="button"></button>
-      <a class="tool-btn" href="/" aria-label="回到網站"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg><span class="label">回到網站</span></a>
     </div>
   </div>
 </header>
@@ -367,15 +372,15 @@ html[lang="zh-Hant"] .page-tabs a[aria-current="page"]::after { content: "目前
 <tbody>
 <tr class="odd">
 <td>1</td>
-<td><div class="q-text">真核细胞光镜下的结构包括<span class="blank"></span>、<span class="blank"></span>和<span class="blank"></span>三部分，而电镜下结构则分为<span class="blank"></span>结构与<span class="blank"></span>结构两大部分。</div><div class="a-text"><span class="ans-lab">答</span><strong>细胞膜、细胞质、细胞核</strong> （光镜三分区）；<strong>膜相结构</strong>与<strong>非膜相结构</strong> （电镜两相）<br/>膜相：细胞膜、内质网、高尔基复合体、线粒体、溶酶体、过氧化物酶体、核膜；非膜相：核糖体、中心粒、微管、微丝、中间纤维、细胞质基质、核仁、染色质、核基质<div class="a-src"><span class="src-lab">依据</span><span class="src-item"><span class="tag tag-ok">课堂确认·明言必考</span></span></div></div></td>
+<td><div class="q-text">真核细胞光镜下的结构包括<span class="blank"></span>、<span class="blank"></span>和<span class="blank"></span>三部分，而电镜下结构则分为<span class="blank"></span>结构与<span class="blank"></span>结构两大部分。</div><div class="a-text"><span class="ans-lab">答</span><strong>细胞膜、细胞质、细胞核</strong> （光镜三分区）；<strong>膜相结构</strong>与<strong>非膜相结构</strong> （电镜两相）<div class="a-note"><p>膜相：细胞膜、内质网、高尔基复合体、线粒体、溶酶体、过氧化物酶体、核膜；非膜相：核糖体、中心粒、微管、微丝、中间纤维、细胞质基质、核仁、染色质、核基质</p></div><div class="a-src"><span class="src-lab">依据</span><span class="src-item"><span class="tag tag-ok">课堂确认·明言必考</span></span></div></div></td>
 </tr>
 <tr class="even">
 <td>2</td>
-<td><div class="q-text">电镜下，单位膜是由内外两层<span class="blank"></span>和中间一层<span class="blank"></span>组成。</div><div class="a-text"><span class="ans-lab">答</span>内外两层<strong>电子密度高的深色（致密）层</strong>，中间一层<strong>电子密度低的浅色（疏松）层</strong> （"两暗夹一明"）<br/><span class="tag tag-warn">存疑</span> 教师明确要求：<strong>按字面写外形，不要写成"两边是蛋白质、中间是双层脂分子"</strong>。厚度：教师口径最厚约<strong>10 nm</strong>；<span class="tag tag-book">教材</span> 教材 7.5 nm（见名解 1）<div class="a-src"><span class="src-lab">依据</span><span class="src-item"><span class="tag tag-ok">课堂确认</span></span></div></div></td>
+<td><div class="q-text">电镜下，单位膜是由内外两层<span class="blank"></span>和中间一层<span class="blank"></span>组成。</div><div class="a-text"><span class="ans-lab">答</span>内外两层<strong>电子密度高的深色（致密）层</strong>，中间一层<strong>电子密度低的浅色（疏松）层</strong> （"两暗夹一明"）<div class="a-note"><p><span class="tag tag-warn">存疑</span> 教师明确要求：<strong>按字面写外形，不要写成"两边是蛋白质、中间是双层脂分子"</strong>。厚度：教师口径最厚约<strong>10 nm</strong>；<span class="tag tag-book">教材</span> 教材 7.5 nm（见名解 1）</p></div><div class="a-src"><span class="src-lab">依据</span><span class="src-item"><span class="tag tag-ok">课堂确认</span></span></div></div></td>
 </tr>
 <tr class="odd">
 <td>3</td>
-<td><div class="q-text">细胞膜的化学成分主要是<span class="blank"></span>、<span class="blank"></span>和少量的<span class="blank"></span>。</div><div class="a-text"><span class="ans-lab">答</span><strong>脂类</strong>、<strong>蛋白质</strong>和少量的<strong>糖类</strong><br/>比例：脂类约 50%（<span class="tag tag-book">教材</span> 磷脂<strong>占膜脂 50% 以上</strong>、糖脂<strong>＜5%</strong>〔神经细胞膜 5%~10%〕、胆固醇一般<strong>不超过膜脂 1/3</strong>）、蛋白质 40–50%、糖类 2–10%（不独立存在，只以糖脂／糖蛋白形式）<div class="a-src"><span class="src-lab">依据</span><span class="src-item"><span class="tag tag-ok">课堂确认</span></span></div></div></td>
+<td><div class="q-text">细胞膜的化学成分主要是<span class="blank"></span>、<span class="blank"></span>和少量的<span class="blank"></span>。</div><div class="a-text"><span class="ans-lab">答</span><strong>脂类</strong>、<strong>蛋白质</strong>和少量的<strong>糖类</strong><div class="a-note"><p>比例：脂类约 50%（<span class="tag tag-book">教材</span> 磷脂<strong>占膜脂 50% 以上</strong>、糖脂<strong>＜5%</strong>〔神经细胞膜 5%~10%〕、胆固醇一般<strong>不超过膜脂 1/3</strong>）、蛋白质 40–50%、糖类 2–10%（不独立存在，只以糖脂／糖蛋白形式）</p></div><div class="a-src"><span class="src-lab">依据</span><span class="src-item"><span class="tag tag-ok">课堂确认</span></span></div></div></td>
 </tr>
 <tr class="even">
 <td>4</td>
@@ -423,7 +428,7 @@ html[lang="zh-Hant"] .page-tabs a[aria-current="page"]::after { content: "目前
 </tr>
 <tr class="odd">
 <td>15</td>
-<td><div class="q-text">根据膜蛋白在膜中排列部位的不同可分为<span class="blank"></span>和<span class="blank"></span>两类。膜脂中含量最多的是<span class="blank"></span>，它是一种兼性分子，有一个<span class="blank"></span>头部和两条<span class="blank"></span>尾部。</div><div class="a-text"><span class="ans-lab">答</span><span class="tag tag-new">本轮修订</span> 题目只问<strong>两类</strong>：<strong>内在蛋白（镶嵌蛋白）</strong>和<strong>外在蛋白（外周蛋白）</strong>；膜脂中含量最多的是<strong>磷脂</strong>，有一个<strong>亲水（极性）</strong>头部和两条<strong>疏水（非极性）</strong>尾部 <br/>补充：课堂另讲第三类<strong>脂锚定蛋白</strong> （少量）；内在蛋白 70–80%、外在蛋白 20–30%。判别关键＝<strong>肽链是否进入疏水区</strong>＋结合方式（<span class="tag tag-book">教材</span> 内在蛋白「以疏水氨基酸与膜脂的疏水端<strong>共价结合</strong>」，须<strong>去垢剂</strong>方能分离；外在蛋白以离子键等非共价键结合，易分离）<div class="a-src"><span class="src-lab">依据</span><span class="src-item"><span class="tag tag-ok">课堂确认</span></span></div></div></td>
+<td><div class="q-text">根据膜蛋白在膜中排列部位的不同可分为<span class="blank"></span>和<span class="blank"></span>两类。膜脂中含量最多的是<span class="blank"></span>，它是一种兼性分子，有一个<span class="blank"></span>头部和两条<span class="blank"></span>尾部。</div><div class="a-text"><span class="ans-lab">答</span><span class="tag tag-new">本轮修订</span> 题目只问<strong>两类</strong>：<strong>内在蛋白（镶嵌蛋白）</strong>和<strong>外在蛋白（外周蛋白）</strong>；膜脂中含量最多的是<strong>磷脂</strong>，有一个<strong>亲水（极性）</strong>头部和两条<strong>疏水（非极性）</strong>尾部 <div class="a-note"><p>课堂另讲第三类<strong>脂锚定蛋白</strong> （少量）；内在蛋白 70–80%、外在蛋白 20–30%。判别关键＝<strong>肽链是否进入疏水区</strong>＋结合方式（<span class="tag tag-book">教材</span> 内在蛋白「以疏水氨基酸与膜脂的疏水端<strong>共价结合</strong>」，须<strong>去垢剂</strong>方能分离；外在蛋白以离子键等非共价键结合，易分离）</p></div><div class="a-src"><span class="src-lab">依据</span><span class="src-item"><span class="tag tag-ok">课堂确认</span></span></div></div></td>
 </tr>
 <tr class="even">
 <td>16</td>
@@ -617,7 +622,7 @@ html[lang="zh-Hant"] .page-tabs a[aria-current="page"]::after { content: "目前
 <tbody>
 <tr class="odd">
 <td>1</td>
-<td><div class="q-text">遗传病是由于<span class="blank"></span>改变而导致的疾病，具有<span class="blank"></span>、<span class="blank"></span>和<span class="blank"></span>等特点。根据现代遗传学遗传病分为五大类型，包括<span class="blank"></span>、<span class="blank"></span>、<span class="blank"></span>、<span class="blank"></span>、<span class="blank"></span>和<span class="blank"></span>。</div><div class="a-text"><span class="ans-lab">答</span><strong>遗传物质（基因或染色体）</strong>改变；特点（原卷 3 空）：<strong>遗传性（垂直传递）、家族性、终身性</strong><br/>五大类型（原卷留 6 空，五类填满即可）<span class="tag tag-book">教材</span>：<strong>染色体病、单基因遗传病、多基因遗传病、线粒体遗传病、体细胞遗传病</strong><br/>补充：改变发生于<strong>生殖细胞／受精卵</strong>→传给子代；发生于<strong>体细胞</strong>→只传给子代细胞（肿瘤）。记忆锚点：元朝王珪《泰定养生主论》"父母俱有痰疾，我禀此疾，则与生俱生也"<div class="a-src"><span class="src-lab">依据</span><span class="src-item"><span class="tag tag-ok">课堂确认</span><span class="tag-note">老师讲四特点＝遗传性、先天性、家族性、终身性，空格不够可一并写上</span></span></div></div></td>
+<td><div class="q-text">遗传病是由于<span class="blank"></span>改变而导致的疾病，具有<span class="blank"></span>、<span class="blank"></span>和<span class="blank"></span>等特点。根据现代遗传学遗传病分为五大类型，包括<span class="blank"></span>、<span class="blank"></span>、<span class="blank"></span>、<span class="blank"></span>、<span class="blank"></span>和<span class="blank"></span>。</div><div class="a-text"><span class="ans-lab">答</span><strong>遗传物质（基因或染色体）</strong>改变；特点（原卷 3 空）：<strong>遗传性（垂直传递）、家族性、终身性</strong><br/>五大类型（原卷留 6 空，五类填满即可）<span class="tag tag-book">教材</span>：<strong>染色体病、单基因遗传病、多基因遗传病、线粒体遗传病、体细胞遗传病</strong><div class="a-note"><p>改变发生于<strong>生殖细胞／受精卵</strong>→传给子代；发生于<strong>体细胞</strong>→只传给子代细胞（肿瘤）。记忆锚点：元朝王珪《泰定养生主论》"父母俱有痰疾，我禀此疾，则与生俱生也"</p></div><div class="a-src"><span class="src-lab">依据</span><span class="src-item"><span class="tag tag-ok">课堂确认</span><span class="tag-note">老师讲四特点＝遗传性、先天性、家族性、终身性，空格不够可一并写上</span></span></div></div></td>
 </tr>
 <tr class="even">
 <td>2</td>
@@ -645,7 +650,7 @@ html[lang="zh-Hant"] .page-tabs a[aria-current="page"]::after { content: "目前
 </tr>
 <tr class="even">
 <td>8</td>
-<td><div class="q-text">嵌合体产生的机制是<span class="blank"></span>分裂时，<span class="blank"></span>和<span class="blank"></span>。</div><div class="a-text"><span class="ans-lab">答</span><strong>受精卵早期卵裂（有丝分裂）</strong>时，<strong>染色体不分离</strong>和<strong>染色体丢失</strong><br/>判别口诀：<strong>丢失 → 45/46 型；不分离 → 46/47 或 45/47 型</strong>；第 5 次卵裂之后才发生 → 异常细胞仅约 3%，检不出、视为正常<div class="a-src"><span class="src-lab">依据</span><span class="src-item"><span class="tag tag-ok">课堂确认</span></span></div></div></td>
+<td><div class="q-text">嵌合体产生的机制是<span class="blank"></span>分裂时，<span class="blank"></span>和<span class="blank"></span>。</div><div class="a-text"><span class="ans-lab">答</span><strong>受精卵早期卵裂（有丝分裂）</strong>时，<strong>染色体不分离</strong>和<strong>染色体丢失</strong><div class="a-note"><p>判别口诀：<strong>丢失 → 45/46 型；不分离 → 46/47 或 45/47 型</strong>；第 5 次卵裂之后才发生 → 异常细胞仅约 3%，检不出、视为正常</p></div><div class="a-src"><span class="src-lab">依据</span><span class="src-item"><span class="tag tag-ok">课堂确认</span></span></div></div></td>
 </tr>
 <tr class="odd">
 <td>9</td>
@@ -669,7 +674,7 @@ html[lang="zh-Hant"] .page-tabs a[aria-current="page"]::after { content: "目前
 </tr>
 <tr class="even">
 <td>14</td>
-<td><div class="q-text">根据染色体<span class="blank"></span>位置的不同,可将人类染色体分为<span class="blank"></span>、<span class="blank"></span>和<span class="blank"></span>三类。</div><div class="a-text"><span class="ans-lab">答</span><strong>着丝粒</strong>位置；分为<strong>中着丝粒染色体</strong>、<strong>亚中着丝粒染色体</strong>、<strong>近端着丝粒染色体</strong><br/><span class="tag tag-warn">存疑</span> 标准名是"中着丝粒"，<strong>不写"中央着丝粒"</strong>；人类<strong>无端着丝粒染色体</strong>；中着丝粒＝1、3、16、19、20 号；近端着丝粒＝13、14、15、21、22 号<div class="a-src"><span class="src-lab">依据</span><span class="src-item"><span class="tag tag-ok">课堂确认</span></span></div></div></td>
+<td><div class="q-text">根据染色体<span class="blank"></span>位置的不同,可将人类染色体分为<span class="blank"></span>、<span class="blank"></span>和<span class="blank"></span>三类。</div><div class="a-text"><span class="ans-lab">答</span><strong>着丝粒</strong>位置；分为<strong>中着丝粒染色体</strong>、<strong>亚中着丝粒染色体</strong>、<strong>近端着丝粒染色体</strong><div class="a-note"><p><span class="tag tag-warn">存疑</span> 标准名是"中着丝粒"，<strong>不写"中央着丝粒"</strong>；人类<strong>无端着丝粒染色体</strong>；中着丝粒＝1、3、16、19、20 号；近端着丝粒＝13、14、15、21、22 号</p></div><div class="a-src"><span class="src-lab">依据</span><span class="src-item"><span class="tag tag-ok">课堂确认</span></span></div></div></td>
 </tr>
 <tr class="odd">
 <td>15</td>
@@ -693,7 +698,7 @@ html[lang="zh-Hant"] .page-tabs a[aria-current="page"]::after { content: "目前
 </tr>
 <tr class="even">
 <td>20</td>
-<td><div class="q-text">三倍体产生的机制有<span class="blank"></span>和<span class="blank"></span>。</div><div class="a-text"><span class="ans-lab">答</span><strong>双雄受精</strong> （<span class="tag tag-ppt">PPT</span> diandry，一卵＋两精→69,XXX／XXY／XYY）和<strong>双雌受精</strong> （digyny，二倍体卵＋一精→69,XXX／XXY）<br/><span class="tag tag-warn">存疑</span> 四倍体（92）成因另为核内复制与核内有丝分裂，勿混用<div class="a-src"><span class="src-lab">依据</span><span class="src-item"><span class="tag tag-ok">课堂确认</span></span></div></div></td>
+<td><div class="q-text">三倍体产生的机制有<span class="blank"></span>和<span class="blank"></span>。</div><div class="a-text"><span class="ans-lab">答</span><strong>双雄受精</strong> （<span class="tag tag-ppt">PPT</span> diandry，一卵＋两精→69,XXX／XXY／XYY）和<strong>双雌受精</strong> （digyny，二倍体卵＋一精→69,XXX／XXY）<div class="a-note"><p><span class="tag tag-warn">存疑</span> 四倍体（92）成因另为核内复制与核内有丝分裂，勿混用</p></div><div class="a-src"><span class="src-lab">依据</span><span class="src-item"><span class="tag tag-ok">课堂确认</span></span></div></div></td>
 </tr>
 </tbody>
 </table></div>
@@ -2095,7 +2100,13 @@ toTop.onclick = () => scrollTo({ top: 0 });
     if (loading) return loading;
     loading = new Promise((ok, bad) => {
       const s = document.createElement('script'); s.src = SRC;
-      s.onload = () => { conv = OpenCC.Converter({ from: 'cn', to: 'tw' }); ok(conv); };
+      s.onload = () => {
+        const base = OpenCC.Converter({ from: 'cn', to: 'tw' });
+        /* 人工校對：修正 OpenCC 一對多誤轉（醫學名詞） */
+        const FIX = [['麵','面'],['錶','表'],['癥','症'],['遊離','游離'],['髮育','發育'],['臺灣','台灣'],['復等位','複等位'],['併合成','並合成'],['菌併成功','菌並成功'],['顎','腭'],['睪','睾'],['汙','污']];
+        conv = t => FIX.reduce((x, [a, b]) => x.split(a).join(b), base(t));
+        ok(conv);
+      };
       s.onerror = () => { loading = null; bad(new Error('load')); };
       document.head.appendChild(s);
     });

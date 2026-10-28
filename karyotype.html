@@ -266,16 +266,21 @@ html[lang="zh-Hant"] .page-tabs a[aria-current="page"]::after { content: "目前
 .np-lab { font-size: 13px; color: var(--muted); }
 .np-name { font-size: 18px; font-weight: 700; color: var(--accent); }
 @media print { .page-tabs, .next-page { display: none; } }
+/* 注解：與答案分開、不搶粗體 */
+.a-note { margin-top: 8px; padding: 6px 10px; border-radius: 6px; background: color-mix(in srgb, var(--surface) 70%, transparent); font-size: 14px; line-height: 1.7; color: var(--muted); }
+.a-note::before { content: "补充说明"; display: block; margin-bottom: 2px; font-size: 12px; font-weight: 700; letter-spacing: .1em; color: var(--muted); }
+html[lang="zh-Hant"] .a-note::before { content: "補充說明"; }
+.doc .a-note p { margin: 2px 0; }
+.doc .a-text .a-note strong { color: var(--ink); font-weight: 600; }
 </style>
 </head>
 <body>
 <header>
   <div class="bar">
-    <a class="logo" href="/"><span class="seal">醫</span><span class="logo-text"><span>2026福建中醫</span><span>台灣班網站</span></span></a>
+    <div class="logo"><span class="seal">醫</span><span class="logo-text"><span>2026福建中醫</span><span>台灣班網站</span></span></div>
     <div class="actions">
       <button class="tool-btn" id="zhBtn" type="button"><span class="zh-g">繁</span><span class="label">切換繁體</span></button>
       <button class="tool-btn" id="theme" type="button"></button>
-      <a class="tool-btn" href="/" aria-label="回到網站"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg><span class="label">回到網站</span></a>
     </div>
   </div>
 </header>
@@ -555,7 +560,13 @@ toTop.onclick = () => scrollTo({ top: 0 });
     if (loading) return loading;
     loading = new Promise((ok, bad) => {
       const s = document.createElement('script'); s.src = SRC;
-      s.onload = () => { conv = OpenCC.Converter({ from: 'cn', to: 'tw' }); ok(conv); };
+      s.onload = () => {
+        const base = OpenCC.Converter({ from: 'cn', to: 'tw' });
+        /* 人工校對：修正 OpenCC 一對多誤轉（醫學名詞） */
+        const FIX = [['麵','面'],['錶','表'],['癥','症'],['遊離','游離'],['髮育','發育'],['臺灣','台灣'],['復等位','複等位'],['併合成','並合成'],['菌併成功','菌並成功'],['顎','腭'],['睪','睾'],['汙','污']];
+        conv = t => FIX.reduce((x, [a, b]) => x.split(a).join(b), base(t));
+        ok(conv);
+      };
       s.onerror = () => { loading = null; bad(new Error('load')); };
       document.head.appendChild(s);
     });
