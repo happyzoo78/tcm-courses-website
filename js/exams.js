@@ -102,15 +102,21 @@ function courseExamsHtml(c) {
   <div class="exam-tabs" role="tablist">
     ${groups.map(([name, list]) => `<button type="button" role="tab" class="exam-tab" data-exam-tab="${esc(name)}" data-course="${c.id}" aria-selected="${name === current}">${esc(name)}<span class="count">${list.length}</span></button>`).join('')}
   </div>
-  ${groups.map(([name, list]) => `<div class="pagelist exam-panel" data-exam-panel="${esc(name)}" ${name === current ? '' : 'hidden'}>${list.map(examRowHtml).join('')}</div>`).join('')}`
+  ${groups.map(([name, list]) => `<div class="pagelist exam-panel" data-exam-panel="${esc(name)}" data-course="${c.id}" ${name === current ? '' : 'hidden'}>${list.map(examRowHtml).join('')}</div>`).join('')}`
   : '<p class="empty">這個科目還沒有模擬考卷（同學看不到這一區）。</p>'}`;
 }
 
+// 分類標籤只切換同一個科目的區塊（模擬考專區同一頁有好幾個科目）
 function bindExamTabs() {
   document.querySelectorAll('[data-exam-tab]').forEach(b => b.onclick = () => {
-    examTab[b.dataset.course] = b.dataset.examTab;
-    document.querySelectorAll('[data-exam-tab]').forEach(x => x.setAttribute('aria-selected', String(x === b)));
-    document.querySelectorAll('[data-exam-panel]').forEach(p => { p.hidden = p.dataset.examPanel !== b.dataset.examTab; });
+    const cid = b.dataset.course;
+    examTab[cid] = b.dataset.examTab;
+    document.querySelectorAll(`[data-exam-tab][data-course="${cid}"]`).forEach(x => x.setAttribute('aria-selected', String(x === b)));
+    document.querySelectorAll(`[data-exam-panel][data-course="${cid}"]`).forEach(p => { p.hidden = p.dataset.examPanel !== b.dataset.examTab; });
+  });
+  document.querySelectorAll('[data-zone-year]').forEach(b => b.onclick = () => {
+    zoneYear = Number(b.dataset.zoneYear);
+    render();
   });
 }
 

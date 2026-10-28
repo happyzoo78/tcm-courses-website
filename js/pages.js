@@ -106,20 +106,48 @@ function homePage() {
   </div>`;
 }
 
-// 模擬考專區：所有開放學期、所有科目的考卷
-function examZonePage() {
-  const sems = visibleSemesters().map(sm => ({ sm, courses: coursesIn(sm.code).filter(c => examGroups(c.id).length) })).filter(x => x.courses.length);
+// 模擬考專區：一～五年級 → 學期 → 科目 → 分類標籤
+const YEAR_NAMES = ['一年級', '二年級', '三年級', '四年級', '五年級'];
+let zoneYear = 0;   // 0＝自動選最新開放的年級
+const yearOf = code => Number((/_y(\d)s/.exec(code || '') || [])[1]) || 0;
+
+function zoneCourseHtml(c) {
+  const groups = examGroups(c.id);
+  const names = groups.map(g => g[0]);
+  const current = names.includes(examTab[c.id]) ? examTab[c.id] : names[0];
+  const manage = canEditCourseUI(c.id);
   return `
-  <h2 class="section">模擬考專區 <small>依學期、科目整理；點考卷開始作答</small></h2>
-  ${sems.map(({ sm, courses }) => `
+  <div class="panel zone-course">
+    <div class="zone-head">
+      <a class="link" href="#course/${c.id}"><b>${esc(c.title)}</b></a>${isExamSubject(c) ? ' <span class="exam-tag">執醫考科</span>' : ''}
+      ${manage ? `<a class="link zone-manage" href="#admin/exams/${c.id}">管理考卷 →</a>` : ''}
+    </div>
+    ${groups.length ? `
+      <div class="exam-tabs" role="tablist">
+        ${groups.map(([name, list]) => `<button type="button" role="tab" class="exam-tab" data-exam-tab="${esc(name)}" data-course="${c.id}" aria-selected="${name === current}">${esc(name)}<span class="count">${list.length}</span></button>`).join('')}
+      </div>
+      ${groups.map(([name, list]) => `<div class="pagelist exam-panel" data-exam-panel="${esc(name)}" data-course="${c.id}" ${name === current ? '' : 'hidden'}>${list.map(examRowHtml).join('')}</div>`).join('')}`
+      : '<p class="empty zone-empty">這個科目還沒有模擬考卷。</p>'}
+  </div>`;
+}
+
+function examZonePage() {
+  const sems = visibleSemesters();
+  const years = new Set(sems.map(s => yearOf(s.code)));
+  if (!years.has(zoneYear)) zoneYear = Math.max(0, ...years);
+  const inYear = sems.filter(s => yearOf(s.code) === zoneYear).sort((a, b) => a.sortOrder - b.sortOrder);
+  return `
+  <h2 class="section">模擬考專區 <small>選年級 → 科目 → 試題分類，點考卷開始作答</small></h2>
+  <div class="year-tabs" role="tablist">
+    ${YEAR_NAMES.map((n, i) => {
+      const y = i + 1, open = years.has(y);
+      return `<button type="button" role="tab" class="year-tab" data-zone-year="${y}" aria-selected="${y === zoneYear}" ${open ? '' : 'disabled title="尚未開課"'}>${n}${open ? '' : '<small>尚未開課</small>'}</button>`;
+    }).join('')}
+  </div>
+  ${inYear.map(sm => `
     <h3 class="sem-title">${esc(sm.label)}</h3>
-    ${courses.map(c => `
-      <div class="panel zone-course">
-        <div class="zone-head"><a class="link" href="#course/${c.id}"><b>${esc(c.title)}</b></a>${isExamSubject(c) ? ' <span class="exam-tag">執醫考科</span>' : ''}</div>
-        ${examGroups(c.id).map(([name, list]) => `
-          <div class="zone-cat"><span class="kind-tag">${esc(name)}</span></div>
-          <div class="pagelist">${list.map(examRowHtml).join('')}</div>`).join('')}
-      </div>`).join('')}`).join('') || '<p class="empty">目前還沒有公開的模擬考卷。</p>'}`;
+    ${coursesIn(sm.code).map(zoneCourseHtml).join('') || '<p class="empty">這個學期還沒有科目。</p>'}`).join('')
+    || '<p class="empty">目前沒有開放的學期。</p>'}`;
 }
 
 function coursesPage() {
