@@ -199,8 +199,8 @@ function bind() {
 
   document.querySelectorAll('[data-delete]').forEach(b => b.onclick = async () => {
     const id = Number(b.dataset.delete);
-    if (adminType === 'courses' && (data.items.some(x => x.courseId === id) || pagesOf(id).length)) {
-      alert('請先刪除或調整此科目裡的網頁和圖卡。');
+    if (adminType === 'courses' && (data.items.some(x => x.courseId === id) || pagesOf(id).length || examsOf(id).length)) {
+      alert('請先刪除或調整此科目裡的網頁、模擬考卷和圖卡。');
       return;
     }
     const row = data[adminType].find(x => x.id === id);

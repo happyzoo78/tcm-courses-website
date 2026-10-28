@@ -61,6 +61,11 @@ export async function onRequestDelete({ request, env, params }) {
       const hasPages = await env.DB.prepare("SELECT 1 AS ok FROM pages WHERE course_id = ? LIMIT 1")
         .bind(target.id).first();
       if (hasPages) return jsonResponse({ error: "請先刪除此科目裡的網頁。" }, 409);
+      let hasExams = null;
+      try {
+        hasExams = await env.DB.prepare("SELECT 1 AS ok FROM exams WHERE course_id = ? LIMIT 1").bind(target.id).first();
+      } catch { /* 還沒建立模擬考題資料表 */ }
+      if (hasExams) return jsonResponse({ error: "請先刪除此科目裡的模擬考卷。" }, 409);
       await env.DB.prepare("DELETE FROM course_owners WHERE course_id = ?").bind(target.id).run();
     }
 

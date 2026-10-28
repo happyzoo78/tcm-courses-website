@@ -97,7 +97,11 @@ export async function onRequestDelete({ request, env, params }) {
   }
 
   try {
-    await env.DB.prepare("DELETE FROM admin_users WHERE id = ?").bind(target.id).run();
+    // 先移除科目負責人指派，才不會因資料關聯刪不掉
+    await env.DB.batch([
+      env.DB.prepare("DELETE FROM course_owners WHERE user_id = ?").bind(target.id),
+      env.DB.prepare("DELETE FROM admin_users WHERE id = ?").bind(target.id)
+    ]);
     await audit(env, auth.admin, "delete", "member", target.id, { email: target.email });
     return jsonResponse({ success: true });
   } catch (error) {
