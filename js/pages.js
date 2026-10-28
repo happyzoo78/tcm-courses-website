@@ -126,7 +126,7 @@ function zoneCourseHtml(c) {
       <div class="exam-tabs" role="tablist">
         ${groups.map(([name, list]) => `<button type="button" role="tab" class="exam-tab" data-exam-tab="${esc(name)}" data-course="${c.id}" aria-selected="${name === current}">${esc(name)}<span class="count">${list.length}</span></button>`).join('')}
       </div>
-      ${groups.map(([name, list]) => `<div class="pagelist exam-panel" data-exam-panel="${esc(name)}" data-course="${c.id}" ${name === current ? '' : 'hidden'}>${list.map(examRowHtml).join('')}</div>`).join('')}`
+      ${groups.map(([name, list]) => `<div class="pagelist exam-panel" data-exam-panel="${esc(name)}" data-course="${c.id}" ${name === current ? '' : 'hidden'}>${examListHtml(list, c, name)}</div>`).join('')}`
       : '<p class="empty zone-empty">這個科目還沒有模擬考卷。</p>'}
   </div>`;
 }

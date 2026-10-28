@@ -609,3 +609,13 @@ fieldset.owners .check small { color: var(--muted); }
 .exgroup-count { color: var(--muted); font-size: 14px; margin-left: auto; }
 .exgroup .adminlist { padding: 0 12px 12px; margin-top: 0; }
 .exgroup-add { display: inline-block; margin: 6px 4px 0; font-size: 15px; }
+
+/* 子項選單：同一章的考卷收成一組 */
+.exchap { border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 10px; background: var(--surface); }
+.exchap > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 12px 16px; font-weight: 700; }
+.exchap > summary::-webkit-details-marker { display: none; }
+.exchap > summary::before { content: "▸"; color: var(--accent); width: 1em; flex: none; }
+.exchap[open] > summary::before { content: "▾"; }
+.exchap-count { margin-left: auto; color: var(--muted); font-size: 14px; font-weight: 400; white-space: nowrap; }
+.exchap-list { padding: 0 12px 12px 26px; margin-top: 0; }
+.exchap-list .pagerow { border-left-width: 1px; }

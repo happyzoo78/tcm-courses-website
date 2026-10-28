@@ -81,13 +81,38 @@ function examGroups(courseId) {
   return [...groups.entries()];
 }
 
-function examRowHtml(e) {
+function examRowHtml(e, label) {
   return `
-      <a class="pagerow exam-row" href="#exam/${e.id}">
-        <span class="pr-title">${esc(e.title)}${e.published ? '' : ' <span class="role off">草稿</span>'}</span>
+      <a class="pagerow exam-row" href="#exam/${e.id}" title="${esc(e.title)}">
+        <span class="pr-title">${esc(label || e.title)}${e.published ? '' : ' <span class="role off">草稿</span>'}</span>
         ${e.description ? `<span class="pr-desc">${esc(cut(e.description, 120))}</span>` : ''}
         <span class="pr-meta">${e.questionCount} 題 · 滿分 ${e.totalPoints} 分${e.myAttempts ? ` · 我作答 ${e.myAttempts} 次，最佳 ${e.myBest}%` : ' · 尚未作答'}</span>
       </a>`;
+}
+
+// 子項選單：把同一分類的考卷依「NN 章名 - NN 子項」分章。
+// 名稱只有一段（例如「03 藏象」）就單獨一列；有子項的章收成可展開的選單。
+function examChapters(list, c) {
+  const map = new Map();
+  for (const e of list) {
+    const parts = shortExamTitle(e, c).split(/\s+-\s+/);
+    const ch = parts[0];
+    const sub = parts.length > 1 ? parts.slice(1).join(' - ') : '';
+    if (!map.has(ch)) map.set(ch, []);
+    map.get(ch).push({ e, sub });
+  }
+  return [...map.entries()].map(([chapter, items]) => ({ chapter, items, menu: items.length > 1 || items.some(i => i.sub) }));
+}
+const examChapOpen = new Set();   // 這次瀏覽時展開過的章（重新整理後收合）
+const chapKey = (cid, cat, ch) => `${cid}|${cat}|${ch}`;
+
+function examListHtml(list, c, cat) {
+  return examChapters(list, c).map(g => g.menu ? `
+      <details class="exchap" data-chap="${esc(chapKey(c.id, cat, g.chapter))}" ${examChapOpen.has(chapKey(c.id, cat, g.chapter)) ? 'open' : ''}>
+        <summary><span class="exchap-name">${esc(g.chapter)}</span><span class="exchap-count">${g.items.length} 份</span></summary>
+        <div class="pagelist exchap-list">${g.items.map(i => examRowHtml(i.e, i.sub || g.chapter)).join('')}</div>
+      </details>`
+    : examRowHtml(g.items[0].e, g.chapter)).join('');
 }
 
 function courseExamsHtml(c) {
@@ -102,7 +127,7 @@ function courseExamsHtml(c) {
   <div class="exam-tabs" role="tablist">
     ${groups.map(([name, list]) => `<button type="button" role="tab" class="exam-tab" data-exam-tab="${esc(name)}" data-course="${c.id}" aria-selected="${name === current}">${esc(name)}<span class="count">${list.length}</span></button>`).join('')}
   </div>
-  ${groups.map(([name, list]) => `<div class="pagelist exam-panel" data-exam-panel="${esc(name)}" data-course="${c.id}" ${name === current ? '' : 'hidden'}>${list.map(examRowHtml).join('')}</div>`).join('')}`
+  ${groups.map(([name, list]) => `<div class="pagelist exam-panel" data-exam-panel="${esc(name)}" data-course="${c.id}" ${name === current ? '' : 'hidden'}>${examListHtml(list, c, name)}</div>`).join('')}`
   : '<p class="empty">這個科目還沒有模擬考卷（同學看不到這一區）。</p>'}`;
 }
 
@@ -114,6 +139,7 @@ function bindExamTabs() {
     document.querySelectorAll(`[data-exam-tab][data-course="${cid}"]`).forEach(x => x.setAttribute('aria-selected', String(x === b)));
     document.querySelectorAll(`[data-exam-panel][data-course="${cid}"]`).forEach(p => { p.hidden = p.dataset.examPanel !== b.dataset.examTab; });
   });
+  document.querySelectorAll('details.exchap').forEach(d => d.addEventListener('toggle', () => examChapOpen[d.open ? 'add' : 'delete'](d.dataset.chap)));
   document.querySelectorAll('[data-zone-year]').forEach(b => b.onclick = () => {
     zoneYear = Number(b.dataset.zoneYear);
     render();
@@ -146,16 +172,24 @@ function examsAdminHtml() {
           <span class="exgroup-count">${rows.length} 份${drafts ? `（草稿 ${drafts}）` : ''}</span>
         </summary>
         <div class="adminlist">
-          ${rows.map(e => `
+          ${examChapters(rows, c).map(g => {
+            const rowsHtml = g.items.map(({ e, sub }) => `
             <div class="adminrow">
-              <div><b title="${esc(e.title)}">${esc(shortExamTitle(e, c))}</b>${e.published ? '<span class="role">公開</span>' : '<span class="role off">草稿</span>'}<br><small>排序 ${e.sortOrder} · ${e.questionCount} 題 · 滿分 ${e.totalPoints} 分 · 更新：${esc(fmtTime(e.updatedAt))}</small></div>
+              <div><b title="${esc(e.title)}">${esc(g.menu ? (sub || g.chapter) : g.chapter)}</b>${e.published ? '<span class="role">公開</span>' : '<span class="role off">草稿</span>'}<br><small>排序 ${e.sortOrder} · ${e.questionCount} 題 · 滿分 ${e.totalPoints} 分 · 更新：${esc(fmtTime(e.updatedAt))}</small></div>
               <div class="row-actions">
                 <a class="btn secondary" href="#exam/${e.id}">作答</a>
                 <a class="btn secondary" href="#examedit/${e.id}">編輯</a>
                 <a class="btn secondary" href="#examstats/${e.id}">統計</a>
                 <button type="button" class="btn secondary danger" data-exam-delete="${e.id}">刪除</button>
               </div>
-            </div>`).join('')}
+            </div>`).join('');
+            const key = 'admin|' + chapKey(c.id, name, g.chapter);
+            return g.menu ? `
+            <details class="exchap" data-chap="${esc(key)}" ${examChapOpen.has(key) ? 'open' : ''}>
+              <summary><span class="exchap-name">${esc(g.chapter)}</span><span class="exchap-count">${g.items.length} 份</span></summary>
+              <div class="adminlist exchap-list">${rowsHtml}</div>
+            </details>` : rowsHtml;
+          }).join('')}
           <a class="link exgroup-add" href="#examedit/new/${c.id}" data-new-cat="${esc(name === OTHER_CATEGORY ? '' : name)}">＋ 在「${esc(name)}」新增考卷</a>
         </div>
       </details>`;
