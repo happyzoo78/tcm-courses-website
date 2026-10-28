@@ -132,10 +132,10 @@ function homePage() {
     </div>
   </section>
 
-  <h2 class="section">各科圖卡 <small>依學期瀏覽，點學期按鈕切換</small></h2>
+  <h2 class="section">各科圖卡</h2>
   ${shelfCardsHtml()}
 
-  <h2 class="section">最新更新 <small>最近 5 筆</small></h2>
+  <h2 class="section">最新更新</h2>
   <div class="upd-list">
     ${updates.map(u => `
       <a class="upd-row" href="${esc(u.href)}" title="${esc(u.desc || u.title)}">
@@ -164,7 +164,7 @@ function examZonePage() {
   const courses = inYear.flatMap(sm => coursesIn(sm.code));
   const count = c => examsOf(c.id).length;
   const c = courses.find(x => x.id === zoneCourseSel[siteYear]) || courses.find(count) || courses[0];
-  const head = '<h2 class="section">線上題庫 <small>選年級、科目，再選分類與章節</small></h2>';
+  const head = '<h2 class="section">線上題庫</h2>';
   if (!c) return head + tabs + '<p class="empty-note">目前沒有開放的學期。</p>';
   return `${head}${tabs}
   <div class="subj-rows">${subjChipsHtml(inYear, c.id, count, 'data-zone-course')}</div>
@@ -179,7 +179,7 @@ function examZonePage() {
 
 function coursesPage() {
   return `
-  <h2 class="section">各科書架 <small>選年級，打開科目書架</small></h2>
+  <h2 class="section">各科書架</h2>
   ${yearCoursesHtml()}`;
 }
 
@@ -234,7 +234,7 @@ function itemsPage() {
 
 function projectsPage() {
   return `
-  <h2 class="section">活動專案 <small>課程活動、讀書計畫與學習專案</small></h2>
+  <h2 class="section">活動專案</h2>
   <div class="itemgrid">${[...data.projects].sort(byDateDesc).map(i => itemCard(i, 'project')).join('') || '<p class="empty">尚無活動專案。</p>'}</div>`;
 }
 
