@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="robots" content="noindex, nofollow">
-<title>染色体核型分析图 · 作答页｜2026福建中醫台灣班網站</title>
+<title>染色体核型分析图 · 作答页｜作業專區｜2026福建中醫台灣班網站</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
@@ -272,12 +272,14 @@ html[lang="zh-Hant"] .page-tabs a[aria-current="page"]::after { content: "目前
 html[lang="zh-Hant"] .a-note::before { content: "補充說明"; }
 .doc .a-note p { margin: 2px 0; }
 .doc .a-text .a-note strong { color: var(--ink); font-weight: 600; }
+.logo-sub { flex: none; margin-left: 12px; padding: 3px 10px; border-radius: 6px; border: 1.5px solid var(--accent); color: var(--accent); font-family: "PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif; font-size: 15px; font-weight: 700; letter-spacing: .08em; white-space: nowrap; }
+@media (max-width: 720px) { .logo-sub { margin-left: 8px; padding: 2px 7px; font-size: 13px; } }
 </style>
 </head>
 <body>
 <header>
   <div class="bar">
-    <div class="logo"><span class="seal">醫</span><span class="logo-text"><span>2026福建中醫</span><span>台灣班網站</span></span></div>
+    <div class="logo"><span class="seal">醫</span><span class="logo-text"><span>2026福建中醫</span><span>台灣班網站</span></span><span class="logo-sub">作業專區</span></div>
     <div class="actions">
       <button class="tool-btn" id="zhBtn" type="button"><span class="zh-g">繁</span><span class="label">切換繁體</span></button>
       <button class="tool-btn" id="theme" type="button"></button>
@@ -574,8 +576,8 @@ toTop.onclick = () => scrollTo({ top: 0 });
     });
     return loading;
   }
-  function walk(fn) {
-    roots().forEach(r => {
+  function walk(fn, only) {
+    (only ? [only] : roots()).forEach(r => {
       const w = document.createTreeWalker(r, NodeFilter.SHOW_TEXT, { acceptNode: n => n.nodeValue.trim() && !n.parentElement.closest('script,style') ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT });
       let n; while ((n = w.nextNode())) fn(n);
     });
@@ -593,6 +595,11 @@ toTop.onclick = () => scrollTo({ top: 0 });
     isTrad = false; paint();
   }
   window.__zhTitle = document.title;
+  /* 科目選單切換學期後會重畫，若目前是繁體就把新內容也轉成繁體 */
+  window.__hwAfterRender = root => {
+    if (!isTrad || !conv) return;
+    walk(n => { if (!orig.has(n)) orig.set(n, n.nodeValue); n.nodeValue = conv(orig.get(n)); }, root);
+  };
   btn.onclick = () => {
     const next = isTrad ? 's' : 't';
     try { localStorage.setItem('tcm-zh', next); } catch (e) {}
