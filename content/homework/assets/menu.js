@@ -87,13 +87,17 @@ const HW_DATA = [
   .hw-home { display: inline-block; margin-top: 12px; font-weight: 700; color: var(--accent); text-decoration: none; }
   html { scroll-padding-top: 128px !important; }
   .toc { top: 128px !important; max-height: calc(100vh - 148px) !important; }
+  /* 浮動標題列：手機／平板往下捲時自動收起，往上捲就出現 */
+  header { transition: transform .25s ease; will-change: transform; }
+  header.hw-hidden { transform: translateY(-100%); box-shadow: none; }
   @media (max-width: 720px) {
     .hw-row { padding: 6px 14px; gap: 6px; }
     .hw-all .t { display: none; }
     .hw-sep { display: none; }
     html { scroll-padding-top: 120px !important; }
   }
-  @media print { .hw-menu { display: none !important; } }`;
+  @media (prefers-reduced-motion: reduce) { header { transition: none; } }
+  @media print { .hw-menu { display: none !important; } header.hw-hidden { transform: none; } }`;
   const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
   /* ---------- 共用片段 ---------- */
@@ -142,6 +146,27 @@ const HW_DATA = [
     render();
     document.addEventListener('click', e => { if (!nav.contains(e.target) && nav.__close) nav.__close(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && nav.__close) nav.__close(); });
+  }
+
+  /* ---------- 浮動標題列（手機／平板，寬度 ≤ 960px） ----------
+     往下捲：標題列＋科目選單收起，讓出畫面；往上捲：立刻出現。
+     靠近頁面頂端、或選單面板打開時，一律顯示。 */
+  const header = document.querySelector('header');
+  if (header) {
+    const small = matchMedia('(max-width: 960px)');
+    let lastY = window.scrollY, ticking = false;
+    const panelOpen = () => nav && [...nav.querySelectorAll('.hw-panel')].some(p => !p.hidden);
+    const update = () => {
+      ticking = false;
+      const y = window.scrollY, dy = y - lastY;
+      if (!small.matches || y < 80 || panelOpen()) header.classList.remove('hw-hidden');
+      else if (dy > 6) header.classList.add('hw-hidden');
+      else if (dy < -6) header.classList.remove('hw-hidden');
+      if (Math.abs(dy) > 6 || y < 80) lastY = y;
+    };
+    addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+    small.addEventListener?.('change', update);
+    header.addEventListener('focusin', () => header.classList.remove('hw-hidden'));
   }
 
   /* ---------- 作業首頁（/content/homework/）的清單 ---------- */
