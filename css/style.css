@@ -400,3 +400,17 @@ fieldset.owners .check small { color: var(--muted); }
 
 /* 中醫執業醫師考科標籤 */
 .exam-tag { display: inline-block; margin-left: 6px; padding: 0 8px; border: 1px solid var(--red); border-radius: 999px; color: var(--red); font-size: 13px; font-family: inherit; font-weight: 600; vertical-align: 3px; white-space: nowrap; }
+
+/* 我的帳號 */
+.account { max-width: 560px; }
+.account-info { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 22px 0 8px; padding-top: 16px; border-top: 1px solid var(--line); }
+.account-info dt { color: var(--muted); font-size: 15px; }
+.account-info dd { margin: 0; overflow-wrap: anywhere; }
+/* 很窄的手機（約 380px 以下）：頁首 4 個按鈕擠得下 */
+@media (max-width: 380px) {
+  .bar { padding: 10px 12px; }
+  .logo { font-size: 15px; gap: 6px; }
+  .actions { gap: 4px; }
+  .tool-btn { padding: 6px 8px; }
+}
+@media (max-width: 340px) { .logo { font-size: 14px; } }

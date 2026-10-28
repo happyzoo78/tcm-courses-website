@@ -81,7 +81,8 @@ function membersHtml() {
           <br><small>${esc(m.email)} · 最後登入：${esc(fmtTime(m.lastLoginAt))}</small>
         </div>
         <div class="row-actions">
-          ${locked ? '<small>（你）</small>' : `
+          ${m.isSelf ? '<a class="btn secondary" href="#account">改暱稱</a>' : locked ? '' : `
+            <button type="button" class="btn secondary" data-member-rename="${m.id}">改名</button>
             <select data-member-role="${m.id}" aria-label="變更權限">${roleOptions(m.role)}</select>
             <button type="button" class="btn secondary ${off ? '' : 'danger'}" data-member-status="${m.id}" data-to="${off ? 'active' : 'suspended'}">${off ? '恢復' : '停用'}</button>
             ${m.lastLoginAt ? '' : `<button type="button" class="btn secondary danger" data-member-delete="${m.id}">移除</button>`}`}

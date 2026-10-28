@@ -4,12 +4,13 @@
 /* =========================================================
    六、畫面更新與按鈕綁定
    ========================================================= */
-const VIEWS = { home: homePage, courses: coursesPage, course: coursePage, items: itemsPage, projects: projectsPage, detail: detailPage, about: aboutPage, admin: adminPage };
+const VIEWS = { home: homePage, courses: coursesPage, course: coursePage, items: itemsPage, projects: projectsPage, detail: detailPage, about: aboutPage, admin: adminPage, account: accountPage };
 
 function render() {
   document.body.classList.toggle('signed-out', !admin);
   document.getElementById('admin-link').hidden = !hasAdminAccess();
   document.getElementById('logout-top').hidden = !admin;
+  document.getElementById('account-link').hidden = !admin;
 
   if (loadState === 'login') {
     app.innerHTML = loginGateHtml();
@@ -137,6 +138,41 @@ function bind() {
     try {
       await api(`/api/admin/semesters/${encodeURIComponent(sem.code)}`, { method: 'PUT', body: { visible: b.dataset.to === '1' } });
       await reloadAfterChange(`已${b.dataset.to === '1' ? '開放' : '關閉'}「${sem.label}」`);
+    } catch (err) {
+      b.disabled = false;
+      handleError(err, null);
+    }
+  });
+
+  // 我的帳號：改暱稱
+  const af = document.getElementById('accountform');
+  if (af) af.onsubmit = async e => {
+    e.preventDefault();
+    const btn = af.querySelector('[type=submit]');
+    const msg = document.getElementById('accountmsg');
+    msg.innerHTML = '';
+    btn.disabled = true;
+    btn.textContent = '儲存中…';
+    try {
+      const res = await api('/api/account', { method: 'PUT', body: { displayName: af.elements.displayName.value } });
+      admin.displayName = res.displayName;
+      await reloadAfterChange(`暱稱已改為「${res.displayName}」`);
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = '儲存暱稱';
+      handleError(err, msg);
+    }
+  };
+
+  // 擁有者幫成員改名稱
+  document.querySelectorAll('[data-member-rename]').forEach(b => b.onclick = async () => {
+    const m = members.find(x => x.id == b.dataset.memberRename);
+    const name = prompt(`請輸入「${m.email}」的新名稱（最多 30 字）：`, m.displayName);
+    if (name === null || name.trim() === m.displayName) return;
+    b.disabled = true;
+    try {
+      await api(`/api/admin/members/${m.id}`, { method: 'PUT', body: { displayName: name.trim().slice(0, 30) } });
+      await reloadMembers(`已將名稱改為「${name.trim().slice(0, 30)}」`);
     } catch (err) {
       b.disabled = false;
       handleError(err, null);

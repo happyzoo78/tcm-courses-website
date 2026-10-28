@@ -176,3 +176,29 @@ function aboutPage() {
     <p>本站內容僅供班級成員學習使用。如需加入，請將你的 Gmail 提供給網站管理者。</p>
   </section>`;
 }
+
+// 我的帳號：每位成員都可以改自己的暱稱
+const MAX_NAME = 30;
+function accountPage() {
+  const owned = data.courses.filter(c => (admin.ownedCourseIds || []).includes(c.id));
+  const flash = adminFlash ? `<div class="msg ok">${esc(adminFlash)}</div>` : '';
+  adminFlash = '';
+  return `
+  <h2 class="section">我的帳號</h2>
+  ${flash}
+  <div class="panel prose account">
+    <form id="accountform">
+      <div class="field"><label for="a-name">暱稱（最多 ${MAX_NAME} 字）</label>
+        <input id="a-name" name="displayName" required maxlength="${MAX_NAME}" value="${esc(admin.displayName)}" autocomplete="nickname"></div>
+      <p class="meta-label" style="margin-top:0">暱稱會顯示在科目負責人、網頁的「更新者」等地方，其他成員看得到。</p>
+      <div id="accountmsg"></div>
+      <button class="btn" type="submit">儲存暱稱</button>
+    </form>
+    <dl class="account-info">
+      <dt>登入信箱</dt><dd>${esc(admin.email)}</dd>
+      <dt>權限</dt><dd>${esc(ROLE_NAME[admin.role] || admin.role)}</dd>
+      <dt>負責科目</dt><dd>${owned.length ? owned.map(c => esc(c.title)).join('、') : '無'}</dd>
+    </dl>
+    <p class="meta-label">登入信箱與權限由網站管理者設定，如需變更請聯絡管理者。</p>
+  </div>`;
+}
