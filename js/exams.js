@@ -636,17 +636,19 @@ async function mountExamEdit() {
       <h2 class="section" style="margin:0;border:0;padding:0">${isNew ? '新增試題' : '編輯試題'} <small>${esc(semesterLabel(course.semesterCode))}｜${esc(course.title)}</small></h2>
     </div>
     <div class="panel prose editor-panel">
+      <div class="panel-head"><h3>基本設定</h3><p>名稱、分類與排序決定這份試題在「學習試題」裡出現的位置。</p></div>
       <div class="field"><label for="xe-title">試題名稱</label><input id="xe-title" maxlength="200" value="${esc(exam.title)}" placeholder="例如：第一章 陰陽五行 模擬考"></div>
       <div class="field"><label for="xe-desc">說明（選填）</label><input id="xe-desc" maxlength="1000" value="${esc(exam.description)}"></div>
       <div class="field"><label for="xe-cat">分類標籤（科目頁會依標籤分頁顯示；可以從清單選，也可以自己打新的）</label>
         <input id="xe-cat" maxlength="30" list="xe-cat-list" value="${esc(exam.category || '')}" placeholder="例如：學習通測試題">
         <datalist id="xe-cat-list">${[...new Set([...examsOf(course.id).map(x => x.category).filter(Boolean), ...EXAM_CATEGORY_SUGGEST])].map(c => `<option value="${esc(c)}">`).join('')}</datalist>
         <small class="meta-label">留空會歸在「${OTHER_CATEGORY}」。</small></div>
-      <div class="field" style="max-width:260px"><label for="xe-sort">排序（數字小的排前面）</label>
-        <input id="xe-sort" type="number" min="0" max="100000" step="1" value="${exam.sortOrder ?? (Math.max(0, ...examsOf(course.id).map(x => x.sortOrder)) + 10)}">
+      <div class="field"><label for="xe-sort">排序（數字小的排前面）</label>
+        <input id="xe-sort" style="max-width:220px" type="number" min="0" max="100000" step="1" value="${exam.sortOrder ?? (Math.max(0, ...examsOf(course.id).map(x => x.sortOrder)) + 10)}">
         <small class="meta-label">建議用 10、20、30…，中間留空，之後要插入新試題比較方便。標籤的順序跟著該標籤裡排序最前的考卷。</small></div>
       <label class="check"><input type="checkbox" id="xe-pub" ${exam.published ? 'checked' : ''}> 公開給同學作答（不勾選就是草稿，只有科目負責人看得到）</label>
       ${isNew ? '' : '<div class="notice">修改題目內容後會變成<b>新版本</b>：同學舊的作答紀錄和分數會保留，但「題目統計」只計算新版本的作答。只改名稱、說明、公開設定不會變成新版本。</div>'}
+      <div class="panel-head panel-head-sub"><h3>題目內容</h3><p>把整份題目貼上，按「檢查格式」確認網站拆題正確後再儲存。</p></div>
       <details class="fmt-help">
         <summary>出題格式說明（第一次使用請先看）</summary>
         <ul>

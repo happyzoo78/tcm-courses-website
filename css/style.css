@@ -330,6 +330,7 @@ details.pw-login[open] summary { margin-bottom: 10px; }
 .panel-head { margin: 0 0 18px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
 .panel-head h3 { margin: 0 0 6px; }
 .panel-head p { margin: 0; font-size: 14px; line-height: 1.7; color: var(--muted); }
+.panel-head-sub { margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--line); }
 .member-form { display: grid; grid-template-columns: 1.4fr 1fr 1fr; grid-template-areas: "email name role" "pw mail mail" "submit submit submit"; gap: 14px 14px; align-items: start; }
 .mf-email { grid-area: email; } .mf-name { grid-area: name; } .mf-role { grid-area: role; } .mf-pw { grid-area: pw; }
 .mf-mail { grid-area: mail; align-self: start; margin-top: 38px; }
@@ -695,6 +696,8 @@ fieldset.owners .check small { color: var(--muted); }
 .back-link:hover { color: var(--accent); }
 /* 區塊標題：學習網頁／模擬考題／圖卡，右側放「管理 →」連結 */
 .sec-title { display: flex; align-items: baseline; gap: 12px; margin: 28px 0 12px; font-size: 19px; color: var(--accent); }
+.sec-title small { font-size: 14px; font-weight: 400; color: var(--muted); }
+.field > small.meta-label { display: block; margin-top: 5px; }
 .sec-link { margin-left: auto; align-self: center; }   /* 樣式沿用 .more-btn */
 /* 空狀態：統一一種寫法 */
 .empty-note { margin: 0; padding: 16px 18px; border: 1px dashed var(--line); border-radius: var(--r-m); color: var(--muted); font-size: 15px; background: transparent; }

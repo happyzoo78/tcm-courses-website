@@ -145,10 +145,10 @@ function homePage() {
       </a>`).join('') || '<p class="empty-note">目前沒有更新紀錄。</p>'}
   </div>
 
-  <h2 class="section">使用說明</h2>
+  <h2 class="section">使用說明 <small class="motto">按圖索驥，循序漸進</small></h2>
   <div class="panel prose">
     <p><b>瀏覽方式：</b>本站依科目整理，每個科目收著該科的圖卡與試題。上方「學習科目」依年級找科目；「學習試題」集中所有可線上作答的試題；「作業專區」不用登入也能看。</p>
-    ${hasAdminAccess() ? `<p><b>資料管理：</b>點右上角「管理後台」，可以上傳講義、出題${admin.canWrite ? '，或新增修改科目與圖卡' : '（限你負責的科目）'}。</p>` : ''}
+    ${hasAdminAccess() ? `<p><b>資料管理：</b>點右上角「管理後台」，可以出題${admin.canWrite ? '，或新增修改科目與圖卡' : '（限你負責的科目）'}。</p>` : ''}
     <p><b>使用範圍：</b>本站內容僅供班級成員學習使用，請勿轉貼或外流，並尊重教材著作權。</p>
   </div>`;
 }
@@ -296,10 +296,10 @@ function accountPage() {
   <h2 class="section">我的帳號</h2>
   ${flash}
   <div class="panel prose account">
+    <div class="panel-head"><h3>基本資料</h3><p>暱稱會顯示在科目負責人、網頁的「更新者」等地方，其他成員看得到。</p></div>
     <form id="accountform">
       <div class="field"><label for="a-name">暱稱（最多 ${MAX_NAME} 字）</label>
         <input id="a-name" name="displayName" required maxlength="${MAX_NAME}" value="${esc(admin.displayName)}" autocomplete="nickname"></div>
-      <p class="meta-label" style="margin-top:0">暱稱會顯示在科目負責人、網頁的「更新者」等地方，其他成員看得到。</p>
       <div id="accountmsg"></div>
       <button class="btn" type="submit">儲存暱稱</button>
     </form>
@@ -310,11 +310,10 @@ function accountPage() {
     </dl>
     <p class="meta-label">登入信箱與權限由網站管理者設定，如需變更請聯絡管理者。</p>
   </div>
-  <h3 class="sec-title">登入密碼</h3>
-  <div class="panel prose account">
-    <p class="meta-label" style="margin-top:0">${admin.hasPassword
+  <div class="panel prose account" style="margin-top:16px">
+    <div class="panel-head"><h3>登入密碼</h3><p>${admin.hasPassword
       ? '你可以用「Email＋密碼」登入。改密碼後，其他裝置上的登入會被登出。'
-      : '你目前只用 Google 登入。設定密碼後，也可以用「Email＋密碼」登入（例如人在大陸、不能用 Google 時）。'}</p>
+      : '你目前只用 Google 登入。設定密碼後，也可以用「Email＋密碼」登入（例如人在大陸、不能用 Google 時）。'}</p></div>
     <form id="pwform" autocomplete="on">
       <input type="email" name="username" value="${esc(admin.email)}" autocomplete="username" hidden>
       ${admin.hasPassword ? '<div class="field"><label for="p-cur">目前密碼</label><input id="p-cur" name="currentPassword" type="password" autocomplete="current-password" required></div>' : ''}

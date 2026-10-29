@@ -121,6 +121,7 @@ function membersHtml() {
     </form>
     <div id="memberformmsg"></div>
   </div>
+  <h3 class="sec-title">成員名單 <small>${members.length} 人</small></h3>
   <div class="adminlist">
     ${[...members].sort((a, b) => (seenInfo(b).online - seenInfo(a).online) || String(b.lastSeenAt || '').localeCompare(String(a.lastSeenAt || ''))).map(m => {
       const locked = m.role === 'owner' || m.isSelf;
@@ -316,7 +317,7 @@ async function readHtmlFile(file) {
 function semestersAdminHtml() {
   const sems = [...data.semesters].sort((a, b) => a.sortOrder - b.sortOrder);
   return `
-  <p class="meta-label">右側開關決定<b>同學看不看得到</b>這個學期的科目，以及科目裡的圖卡和試題。開關打開（綠色）＝同學看得到；關閉（灰色）＝只有管理者看得到。新學期開始時，把它打開即可。</p>
+  <div class="note-box"><span class="note-lab">開關說明</span>開關決定<strong>同學看不看得到</strong>該學期的科目、圖卡和試題：綠色＝同學看得到，灰色＝只有管理者看得到。<strong>新學期開始時把它打開</strong>即可。</div>
   <div class="sem-grid">
     ${YEAR_NAMES.map((n, i) => {
       const list = sems.filter(s => yearOf(s.code) === i + 1);
