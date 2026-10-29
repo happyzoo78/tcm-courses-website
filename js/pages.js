@@ -16,10 +16,7 @@ function courseCard(c) {
       <p class="meta-label">${[n ? `${n} 份講義` : '', `${k} 張圖卡`, `${x} 份試題`].filter(Boolean).join(' · ')}</p>
       <p class="meta-label">最新進度</p>
       <div class="latest">${esc(c.latest) || '—'}</div>
-      <div class="go course-links">
-        <a class="link" href="#course/${c.id}">進入科目 →</a>
-        ${deckOf(c.id) ? `<a class="link" href="#cards/${c.id}">圖卡總目錄 →</a>` : ''}
-      </div>
+      <a class="link go" href="#course/${c.id}">進入科目 →</a>
     </div>
   </article>`;
 }
@@ -204,7 +201,8 @@ function coursesPage() {
   ${yearCoursesHtml()}`;
 }
 
-// 單一科目頁：學習網頁 → 模擬考題 → 圖卡，三個區塊同一種標題樣式
+// 單一科目頁（學習科目 → 進入科目）：整頁介紹這科的圖卡（依章節圖卡＝總目錄、其他圖卡），講義放最前面；
+// 試題不在這裡展開，只在最下方提供「到學習試題作答」的連結（試題集中在「學習試題」）
 function coursePage() {
   const c = getCourse(courseTarget);
   if (!c) return `<p class="empty-note">找不到這個科目。</p><a class="btn secondary" href="#courses">回學習科目</a>`;
@@ -225,13 +223,28 @@ function coursePage() {
         <span class="pr-meta">更新：${esc(p.file ? String(p.updatedAt || '').slice(0, 10) : fmtTime(p.updatedAt).slice(0, 10))}${p.updatedBy ? ' · ' + esc(p.updatedBy) : ''}</span>
       </a>`).join('')}
   </div>` : ''}
-  ${courseExamsHtml(c)}
   ${deck ? `
-  <h3 class="sec-title">圖卡 <small>依章節</small><a class="more-btn sec-link" href="#cards/${c.id}">圖卡總目錄<span class="arr" aria-hidden="true">›</span></a></h3>
-  ${deckChaptersHtml(c, deck, true)}` : ''}
+  <h3 class="sec-title">圖卡總目錄 <small>${deck.chapters.length} 章 · ${deckCardCount(c.id)} 張</small></h3>
+  <p class="lead-note">選一章看圖卡；「考前衝刺」直接到學習試題的同一章作答。</p>
+  ${deckChaptersHtml(c, deck)}` : ''}
   ${items.length ? `
   <h3 class="sec-title">${deck ? '其他圖卡' : '圖卡'}<a class="more-btn sec-link" href="#items/${c.id}">搜尋圖卡<span class="arr" aria-hidden="true">›</span></a></h3>
-  <div class="itemgrid">${items.map(i => itemCard(i, 'item')).join('')}</div>` : ''}`;
+  <div class="itemgrid">${items.map(i => itemCard(i, 'item')).join('')}</div>` : ''}
+  ${!deck && !items.length ? '<p class="empty-note">這個科目還沒有圖卡。</p>' : ''}
+  ${courseExamJumpHtml(c)}`;
+}
+
+// 科目頁最下方：試題只放連結（點了到「學習試題」並選好這一科）
+function courseExamJumpHtml(c) {
+  const n = publishedExamsOf(c.id).length;
+  const manage = canEditCourseUI(c.id);
+  if (!n && !manage) return '';
+  return `
+  <div class="exam-jump">
+    <span>${n ? `這一科有 <b>${n}</b> 份試題` : '這一科還沒有公開的試題'}</span>
+    ${n ? `<a class="btn secondary" href="#examzone/${c.id}">到學習試題作答 →</a>` : ''}
+    ${manage ? `<a class="more-btn sec-link" href="#admin/exams/${c.id}">管理試題<span class="arr" aria-hidden="true">›</span></a>` : ''}
+  </div>`;
 }
 
 function filteredItems() {
@@ -417,19 +430,15 @@ function cardsPage() {
   const d = c && deckOf(c.id);
   if (!c || !d) return `<a class="btn secondary back" href="${c ? '#course/' + c.id : '#courses'}">← 返回</a><p class="empty-note">這個科目還沒有依章節整理的圖卡。</p>`;
   const no = routeParts[2];
-  const total = deckCardCount(c.id);
-  if (!no) return `
-  <a class="btn secondary back" href="#course/${c.id}">← ${esc(c.title)}</a>
-  <h2 class="section">${esc(c.title)} · 圖卡總目錄 <small>${d.chapters.length} 章 · ${total} 張</small></h2>
-  <p class="lead-note">選一章看圖卡；「考前衝刺」直接到學習試題的同一章作答。</p>
-  ${deckChaptersHtml(c, d)}`;
+  // 圖卡總目錄就是科目頁
+  if (!no) { courseTarget = c.id; history.replaceState(null, '', '#course/' + c.id); return coursePage(); }
 
   const i = d.chapters.findIndex(ch => ch.no === no);
-  if (i < 0) return `<a class="btn secondary back" href="#cards/${c.id}">← 圖卡總目錄</a><p class="empty-note">找不到這一章的圖卡。</p>`;
+  if (i < 0) return `<a class="btn secondary back" href="#course/${c.id}">← ${esc(c.title)}</a><p class="empty-note">找不到這一章的圖卡。</p>`;
   const ch = d.chapters[i], prev = d.chapters[i - 1], next = d.chapters[i + 1];
   let n = 0;
   return `
-  <a class="btn secondary back" href="#cards/${c.id}">← 圖卡總目錄</a>
+  <a class="btn secondary back" href="#course/${c.id}">← ${esc(c.title)}</a>
   <div class="chap-head">
     <div class="chap-title">
       <span class="eyebrow">${esc(c.title)} · ${chapLabel(ch)}</span>

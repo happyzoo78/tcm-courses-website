@@ -1092,5 +1092,6 @@ body.lb-open { overflow: hidden; }
   .lb-stage { padding: 6px; }
 }
 .dc-links .link { display: inline-block; margin: 0; font-size: 15px; }
-.course-links { display: flex; flex-wrap: wrap; gap: 4px 18px; }
-.course-links .link { margin: 0; }
+.exam-jump { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 30px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--r-l); background: var(--surface); color: var(--muted); }
+.exam-jump b { color: var(--ink); }
+.exam-jump .sec-link { margin-left: auto; }
