@@ -658,7 +658,7 @@ fieldset.owners .check small { color: var(--muted); }
 /* 第三層：章節放在內嵌小框裡，上方小字標明屬於哪個分類 */
 .exnav-chaps { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; padding: 10px 12px 12px; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-m); }
 .exnav-cap { flex: 1 1 100%; font-size: 12.5px; color: var(--muted); letter-spacing: .05em; margin-bottom: 2px; }
-.ex-ch { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-m); padding: 4px 12px; font: inherit; font-size: 14.5px; color: var(--muted); cursor: pointer; white-space: nowrap; }
+.ex-ch { background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); border-radius: var(--r-m); padding: 4px 12px; font: inherit; font-size: 14.5px; font-weight: 600; color: var(--accent-soft-ink); cursor: pointer; white-space: nowrap; }
 .ex-ch[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; }
 .ex-ch[aria-pressed="true"] small { color: var(--accent-ink); }
 .exnav-empty { margin: 10px 0 0; color: var(--muted); font-size: 14.5px; }
@@ -691,13 +691,14 @@ fieldset.owners .check small { color: var(--muted); }
 /* 第二層：科目膠囊 */
 .subj-rows { display: flex; flex-direction: column; gap: 8px; margin: 0 0 14px; }
 .subj-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
-.subj-sem { font-size: 13px; color: var(--muted); min-width: 4.5em; }
-.subj-chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface); color: var(--ink); font: inherit; font-size: 15px; cursor: pointer; white-space: nowrap; }
-.subj-chip small { font-size: 12px; color: var(--muted); }
-.subj-chip.none { opacity: .55; }
+.subj-sem { flex: none; align-self: stretch; display: inline-flex; align-items: center; padding: 0 12px 0 0; margin-right: 4px; border-right: 2px solid var(--accent); font-size: 15px; font-weight: 700; color: var(--ink); letter-spacing: .04em; }
+/* 科目按鈕：與全站次要按鈕同一套（淡綠底＋綠框），選到＝實心綠 */
+.subj-chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); border-radius: var(--r-m); background: var(--accent-soft); color: var(--accent-soft-ink); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.subj-chip small { font-size: 12px; color: inherit; opacity: .75; font-weight: 400; }
+.subj-chip.none { opacity: .6; }
 .subj-chip:hover { border-color: var(--accent); }
 .subj-chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); opacity: 1; }
-.subj-chip[aria-pressed="true"] small { color: var(--accent-ink); }
+.subj-chip[aria-pressed="true"] small { color: var(--accent-ink); opacity: .85; }
 .exam-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--red); display: inline-block; flex: none; }
 .subj-legend { display: inline-flex; align-items: center; gap: 4px; font-size: 12.5px; color: var(--muted); }
 .exnav-title { margin: 0 auto 0 0; font-size: 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
@@ -720,7 +721,6 @@ fieldset.owners .check small { color: var(--muted); }
   .subj-row { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-right: -16px; padding-right: 16px; }
   .subj-row::-webkit-scrollbar { display: none; }
   .subj-chip { flex: none; padding: 6px 12px; font-size: 14.5px; }
-  .subj-sem { flex: none; min-width: 0; }
   .exnav-title { font-size: 18px; }
   .sec-title { margin-top: 22px; }
 }

@@ -257,14 +257,14 @@ function subjChipsHtml(sems, curId, count, attr) {
   const rows = sems.map(sm => {
     const list = coursesIn(sm.code);
     if (!list.length) return '';
-    return `<div class="subj-row"><span class="subj-sem">${esc(shortSemLabel(sm.code))}</span>
+    return `<div class="subj-row"><span class="subj-sem">${/s2$/.test(sm.code) ? '下學期' : '上學期'}</span>
       ${list.map(x => `<button type="button" class="subj-chip${count(x) ? '' : ' none'}" ${attr}="${x.id}" aria-pressed="${x.id === curId}">${esc(x.title)}<small>${count(x)}</small></button>`).join('')}</div>`;
   }).join('');
   // 手機：改用下拉選單（系統原生，好點、不會被切掉）
   const select = `<label class="subj-select-wrap"><span class="sr-only">科目</span>
     <select class="subj-select" data-subj-select="${attr}">${sems.map(sm => {
       const list = coursesIn(sm.code);
-      return list.length ? `<optgroup label="${esc(shortSemLabel(sm.code))}">${list.map(x => `<option value="${x.id}" ${x.id === curId ? 'selected' : ''}>${esc(x.title)}（${count(x)}）</option>`).join('')}</optgroup>` : '';
+      return list.length ? `<optgroup label="${/s2$/.test(sm.code) ? '下學期' : '上學期'}">${list.map(x => `<option value="${x.id}" ${x.id === curId ? 'selected' : ''}>${esc(x.title)}（${count(x)}）</option>`).join('')}</optgroup>` : '';
     }).join('')}</select></label>`;
   return `<div class="subj-chips-wrap">${rows}</div>${select}`;
 }
