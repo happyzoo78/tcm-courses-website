@@ -224,7 +224,7 @@ function coursePage() {
   </div>` : ''}
   ${deck ? `
   <h3 class="sec-title sec-rule">各章節圖卡 <small>${deck.chapters.length} 章 · ${deckCardCount(c.id)} 張</small></h3>
-  <div class="note-box deck-note"><span class="note-lab">使用方式</span>選一章點<strong>「看圖卡」</strong>進入該章的圖卡，點圖可看大圖；看完可在章節頁上方點<strong>「學習試題」</strong>，直接做這一章的試題。</div>
+  <div class="note-box deck-note"><span class="note-lab">使用方式</span>選一章點<strong>「看圖卡」</strong>進入該章的圖卡，點圖可看大圖；看完可點章節標題下方的<strong>「做這章的試題 ›」</strong>，直接到學習試題作答。</div>
   ${deckChaptersHtml(c, deck)}` : ''}
   ${items.length ? `
   <h3 class="sec-title sec-rule">${deck ? '其他圖卡' : '圖卡'}<a class="more-btn sec-link" href="#items/${c.id}">搜尋圖卡<span class="arr" aria-hidden="true">›</span></a></h3>
@@ -435,9 +435,8 @@ function cardsPage() {
     <div class="chap-title">
       <span class="eyebrow">${esc(c.title)} · ${chapLabel(ch)}</span>
       <h2>${esc(ch.title)}${ch.subtitle ? ` <small>${esc(ch.subtitle)}</small>` : ''}</h2>
-      <p class="dc-meta">${ch.cards.length} 張圖卡${ch.date ? ' · 上課日期 ' + esc(ch.date) : ''}　點圖可看大圖</p>
+      <p class="dc-meta">${ch.cards.length} 張圖卡${ch.date ? ' · 上課日期 ' + esc(ch.date) : ''} · 點圖可看大圖${chapHasExams(c, ch.no) ? ` · <a class="meta-link" href="#examzone/${c.id}/${esc(ch.no)}" title="到學習試題，直接做這一章的題目">做這章的試題 ›</a>` : ''}</p>
     </div>
-    ${chapHasExams(c, ch.no) ? `<a class="btn" href="#examzone/${c.id}/${esc(ch.no)}" title="到學習試題作答這一章">學習試題 →</a>` : ''}
   </div>
   ${ch.groups.map(g => `
   <section class="cgrp">

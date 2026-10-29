@@ -1130,3 +1130,6 @@ header { transition: transform .2s ease; will-change: transform; }
 header.compact { transform: translateY(calc(-1 * var(--hdr-hide, 0px) + 6px)); }   /* 留 6px 讓導覽列不貼邊 */
 header.compact .logo, header.compact .actions { visibility: hidden; transition: visibility 0s .2s; }
 @media (prefers-reduced-motion: reduce) { header { transition: none; } }
+/* 資訊列裡的文字連結（例如章節頁「做這章的試題 ›」）：低調、不搶圖卡 */
+.meta-link { color: var(--accent); font-weight: 600; text-decoration: none; white-space: nowrap; }
+.meta-link:hover { text-decoration: underline; text-underline-offset: 3px; }
