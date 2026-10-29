@@ -715,7 +715,7 @@ fieldset.owners .check small { color: var(--muted); }
 /* 後台模擬考題導覽：科目（大字）→ 分類（文字分頁）→ 章節（文字連結），全部一眼看到、一點就切換 */
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .exnav { margin: 0 0 14px; padding: 14px 18px 12px; border: 1px solid var(--line); border-radius: var(--r-l); background: var(--surface); }
-.exnav-top { display: flex; align-items: center; gap: 12px; }
+.exnav-top { display: flex; align-items: center; gap: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }   /* 科目標題列與下方分類分頁分開 */
 .exnav-add { flex: none; padding: 8px 14px; font-size: 15px; }
 .exnav-cats { display: flex; flex-wrap: wrap; align-items: center; margin-top: 12px; }
 .ex-cat { background: none; border: 0; border-bottom: 2px solid transparent; padding: 6px 2px; font: inherit; font-size: 16px; color: var(--muted); cursor: pointer; white-space: nowrap; }
