@@ -258,10 +258,10 @@ function bulkPanelHtml(c, cat) {
 }
 function bulkTableHtml(c) {
   if (!bulkRows.length) return '';
-  const act = { create: '新增', update: '更新同名試題', promote: '原整章改為此子項', rename: '原整章保留，改名為「全題」' };
+  const act = { create: '新增', update: '更新內容（名稱、排序、公開狀態不變）', promote: '原整章改為此子項', rename: '原整章保留，改名為「全題」' };
   return `<table class="bulk-table"><thead><tr><th>試題名稱</th><th>排序</th><th>題數／總分</th><th>動作</th></tr></thead><tbody>${bulkRows.map((r, i) => `
-    <tr class="${r.ok ? '' : 'bad'}"><td>${esc(shortExamTitle({ title: r.title, category: r.cat }, c))}<br><small>${esc(r.file)}</small></td>
-    <td>${r.action === 'rename' ? r.sort : `<input type="number" class="bulk-sort" data-i="${i}" value="${r.sort}" aria-label="排序">`}</td>
+    <tr class="${r.ok ? '' : 'bad'}"><td>${esc(r.keepName || shortExamTitle({ title: r.title, category: r.cat }, c))}<br><small>${esc(r.file)}</small></td>
+    <td>${r.action === 'rename' || r.action === 'update' ? r.sort : `<input type="number" class="bulk-sort" data-i="${i}" value="${r.sort}" aria-label="排序">`}</td>
     <td>${r.ok ? `${r.count} 題／${r.total} 分` : `<span class="unassigned">${esc(r.err)}</span>`}</td>
     <td>${r.status ? esc(r.status) : act[r.action] || ''}</td></tr>`).join('')}</tbody></table>`;
 }
@@ -289,9 +289,10 @@ async function bulkPrepare(c, files) {
     row.sort = base + n.chNo * 10 + n.subNo;
     row.source = await f.text();
     // 名稱比對時去掉「科目 - 分類 -」前綴，所以「03 藏象」和「中醫基礎理論 - 分類 - 03 藏象」視為同一份
-    const same = existing.find(e => short(e) === shortTitle);
+    // 整章檔也對得到已改名的「NN 章名 - 全題 (…)」
+    const same = existing.find(e => short(e) === shortTitle) || (!n.sub && existing.find(e => short(e).startsWith(`${n.chapter} - 全題`)));
     const whole = n.sub ? existing.find(e => short(e) === n.chapter) : null;
-    if (same) { row.action = 'update'; row.targetId = same.id; }
+    if (same) { row.action = 'update'; row.targetId = same.id; row.sort = same.sortOrder; row.keepName = shortExamTitle(same, c); }
     else if (whole && !keepWhole && n.subNo === 1) { row.action = 'promote'; row.targetId = whole.id; }
     else { row.action = 'create'; row.targetId = null; }
     if (whole && keepWhole && !renames.has(whole.id)) renames.set(whole.id, { file: '（網站上原有的整章試題）', cat, ok: true, action: 'rename', targetId: whole.id,
@@ -326,17 +327,20 @@ function bindExamsAdmin() {
   const go = document.getElementById('bulk-go');
   if (go) go.onclick = async () => {
     const c = getCourse(pagesCourse), pub = document.getElementById('bulk-pub').checked;
-    if (!confirm(`要上傳 ${bulkRows.length} 份試題嗎？\n更新的試題會變成新版本（舊作答紀錄保留）。`)) return;
+    if (!confirm(`要上傳 ${bulkRows.length} 份試題嗎？\n更新的試題：只改解析或對照圖卡時不會改版；題目、選項、答案、配分有改才會變成新版本（舊作答紀錄保留）。`)) return;
     go.disabled = true;
-    let okN = 0;
+    let okN = 0, upd = 0, newV = 0;
     for (const r of bulkRows) {
       r.status = '上傳中…'; document.getElementById('bulk-preview').innerHTML = bulkTableHtml(c);
       const body = { title: r.title, category: r.cat, sortOrder: Number(r.sort), published: pub, source: r.source };
       try {
+        let note = '';
         if (r.action === 'rename') await api(`/api/admin/exams/${r.targetId}`, { method: 'PUT', body: { title: r.title } });
+        // 更新同名試題：只換題目內容，名稱、排序、公開狀態保持網站上原本的設定
+        else if (r.action === 'update') { const x = await api(`/api/admin/exams/${r.targetId}`, { method: 'PUT', body: { source: r.source } }); upd++; if (x.newVersion) newV++; note = x.newVersion ? '（題目有改，已成新版本）' : '（作答紀錄不受影響）'; }
         else if (r.targetId) await api(`/api/admin/exams/${r.targetId}`, { method: 'PUT', body: { ...body, description: examsOf(c.id).find(e => e.id === r.targetId)?.description || '' } });
         else await api('/api/admin/exams', { method: 'POST', body: { ...body, description: '', courseId: c.id } });
-        r.status = '✓ 完成'; okN++;
+        r.status = '✓ 完成' + note; okN++;
       } catch (err) { r.status = '✗ ' + (err.message || '失敗'); }
       document.getElementById('bulk-preview').innerHTML = bulkTableHtml(c);
     }
@@ -344,7 +348,8 @@ function bindExamsAdmin() {
     const failed = bulkRows.length - okN;
     bulkOpen = failed > 0; if (!failed) bulkRows = [];
     examAdminFilter[c.id] = { cat: cat || OTHER_CATEGORY, ch: '' };
-    await reloadAfterChange(failed ? `完成 ${okN} 份，${failed} 份失敗（見下方表格）` : `已上傳 ${okN} 份試題`);
+    const verNote = upd ? `；更新 ${upd} 份，其中 ${newV ? `${newV} 份題目有改、已成新版本` : '沒有一份改版（同學的作答紀錄都不受影響）'}` : '';
+    await reloadAfterChange((failed ? `完成 ${okN} 份，${failed} 份失敗（見下方表格）` : `已上傳 ${okN} 份試題`) + verNote);
   };
   document.querySelectorAll('[data-ex-cat]').forEach(b => b.onclick = () => { examAdminFilter[pagesCourse] = { cat: b.dataset.exCat, ch: '' }; render(); });
   document.querySelectorAll('[data-ex-ch]').forEach(b => b.onclick = () => { examAdminFilter[pagesCourse].ch = b.dataset.exCh; render(); });
