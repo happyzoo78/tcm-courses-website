@@ -13,7 +13,7 @@ function courseCard(c) {
     <div class="cover" aria-hidden="true">${TAIJI}<span>${esc(c.icon || c.title.slice(0, 2))}</span></div>
     <div class="course-body">
       <h3>${esc(c.title)}${isExamSubject(c) ? ' <span class="exam-tag">執醫考科</span>' : ''}</h3>
-      <p class="meta-label">${n} 份講義 · ${x} 份試題 · ${k} 張圖卡</p>
+      <p class="meta-label">${[n ? `${n} 份講義` : '', `${k} 張圖卡`, `${x} 份試題`].filter(Boolean).join(' · ')}</p>
       <p class="meta-label">最新進度</p>
       <div class="latest">${esc(c.latest) || '—'}</div>
       <a class="link go" href="#course/${c.id}">打開書架 →</a>
@@ -125,9 +125,9 @@ function homePage() {
     <p>從台灣到福建，深耕中醫學問 · 經典為本，辨證為綱，系統整理，臨床致用。</p>
     <div class="stats">
       <div class="stat"><strong>${shown.length}</strong><span>書架</span></div>
-      <div class="stat"><strong>${totalPages}</strong><span>講義</span></div>
-      <div class="stat"><strong>${totalExams}</strong><span>試題</span></div>
+      ${totalPages ? `<div class="stat"><strong>${totalPages}</strong><span>講義</span></div>` : ''}
       <div class="stat"><strong>${totalCards}</strong><span>圖卡</span></div>
+      <div class="stat"><strong>${totalExams}</strong><span>試題</span></div>
     </div>
   </section>
 
