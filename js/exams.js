@@ -103,6 +103,14 @@ function examChapters(list, c) {
   }
   return [...map.entries()].map(([chapter, items]) => ({ chapter, items, menu: items.length > 1 || items.some(i => i.sub) }));
 }
+// 試題清單依章分組：有子項的章顯示章名標題，子項縮排在下面；只有一份的章照常一列
+function examGroupedHtml(chapters, rowFn) {
+  return chapters.map(g => g.menu ? `
+    <section class="exgrp">
+      <div class="exgrp-head"><span class="exgrp-name">${esc(g.chapter)}</span><span class="exgrp-count">${g.items.length} 份</span></div>
+      <div class="exgrp-list">${g.items.map(i => rowFn(i.e, i.sub || g.chapter)).join('')}</div>
+    </section>` : rowFn(g.items[0].e, g.chapter)).join('');
+}
 const examChapOpen = new Set();   // 這次瀏覽時展開過的章（重新整理後收合）
 const chapKey = (cid, cat, ch) => `${cid}|${cat}|${ch}`;
 
@@ -131,8 +139,7 @@ function examBrowserHtml(c) {
   const rows = groups.find(g => g[0] === f.cat)[1];
   const chapters = examChapters(rows, c);
   if (f.ch && !chapters.some(g => g.chapter === f.ch)) f.ch = '';
-  const shown = f.ch ? chapters.find(g => g.chapter === f.ch).items.map(i => ({ ...i, label: i.sub || f.ch }))
-    : chapters.flatMap(g => g.items.map(i => ({ ...i, label: i.sub ? `${g.chapter} - ${i.sub}` : g.chapter })));
+  const shownChaps = f.ch ? chapters.filter(g => g.chapter === f.ch) : chapters;
   const showChaps = chapters.length > 1 || chapters.some(g => g.menu);
   return `
     <div class="exnav-cats" role="tablist" aria-label="分類">${groups.map(([name, r]) => `<button type="button" role="tab" class="ex-cat" data-xb-cat="${esc(name)}" data-course="${c.id}" aria-selected="${name === f.cat}">${esc(name)}<small>${r.length}</small></button>`).join('<span class="ex-sep" aria-hidden="true">｜</span>')}</div>
@@ -143,7 +150,7 @@ function examBrowserHtml(c) {
       <button type="button" class="ex-ch" data-xb-ch="" data-course="${c.id}" aria-pressed="${!f.ch}">全部<small>${rows.length}</small></button>
       ${chapters.map(g => `<button type="button" class="ex-ch" data-xb-ch="${esc(g.chapter)}" data-course="${c.id}" aria-pressed="${g.chapter === f.ch}">${esc(g.chapter)}${g.items.length > 1 ? `<small>${g.items.length}</small>` : ''}</button>`).join('')}
     </div>` : ''}
-    <div class="pagelist xb-list">${shown.map(i => examRowHtml(i.e, i.label)).join('')}</div>`;
+    <div class="pagelist xb-list">${examGroupedHtml(shownChaps, examRowHtml)}</div>`;
 }
 
 function courseExamsHtml(c) {
@@ -179,8 +186,17 @@ function examsAdminHtml() {
   const rows = (groups.find(g => g[0] === f.cat) || [, []])[1];
   const chapters = examChapters(rows, c);
   if (f.ch && !chapters.some(g => g.chapter === f.ch)) f.ch = '';
-  const shown = f.ch ? chapters.find(g => g.chapter === f.ch).items : chapters.flatMap(g => g.items.map(i => ({ ...i, chapter: g.chapter, menu: g.menu })));
-  const label = i => f.ch ? (i.sub || f.ch) : (i.sub ? `${i.chapter} - ${i.sub}` : i.chapter);
+  const shownChaps = f.ch ? chapters.filter(g => g.chapter === f.ch) : chapters;
+  const adminRow = (e, label) => `
+      <div class="adminrow">
+        <div><b title="${esc(e.title)}">${esc(label)}</b>${e.published ? '<span class="role">公開</span>' : '<span class="role off">草稿</span>'}<br><small>排序 ${e.sortOrder} · ${e.questionCount} 題 · 滿分 ${e.totalPoints} 分<span class="hide-m"> · 更新：${esc(fmtTime(e.updatedAt))}</span></small></div>
+        <div class="row-actions">
+          <a class="btn secondary" href="#exam/${e.id}">作答</a>
+          <a class="btn secondary" href="#examedit/${e.id}">編輯</a>
+          <a class="btn secondary" href="#examstats/${e.id}">統計</a>
+          <button type="button" class="btn secondary danger" data-exam-delete="${e.id}">刪除</button>
+        </div>
+      </div>`;
   const total = groups.reduce((n, g) => n + g[1].length, 0);
   return `
   ${adminCoursePicker(list, c.id, x => examGroups(x.id).reduce((n, g) => n + g[1].length, 0))}
@@ -196,16 +212,7 @@ function examsAdminHtml() {
     </div>` : '<p class="exnav-empty">這個科目還沒有試題。按「＋ 新增試題」，把題目整份貼上，網站會自動拆題、批改、統計。</p>'}
   </div>
   <div class="adminlist exam-adminlist">
-    ${shown.map(({ e, ...i }) => `
-      <div class="adminrow">
-        <div><b title="${esc(e.title)}">${esc(label(i))}</b>${e.published ? '<span class="role">公開</span>' : '<span class="role off">草稿</span>'}<br><small>排序 ${e.sortOrder} · ${e.questionCount} 題 · 滿分 ${e.totalPoints} 分<span class="hide-m"> · 更新：${esc(fmtTime(e.updatedAt))}</span></small></div>
-        <div class="row-actions">
-          <a class="btn secondary" href="#exam/${e.id}">作答</a>
-          <a class="btn secondary" href="#examedit/${e.id}">編輯</a>
-          <a class="btn secondary" href="#examstats/${e.id}">統計</a>
-          <button type="button" class="btn secondary danger" data-exam-delete="${e.id}">刪除</button>
-        </div>
-      </div>`).join('') || '<p class="empty-note">這個分類還沒有試題。按「＋ 新增試題」，把題目整份貼上。</p>'}
+    ${examGroupedHtml(shownChaps, adminRow) || '<p class="empty-note">這個分類還沒有試題。按「＋ 新增試題」，把題目整份貼上。</p>'}
   </div>`;
 }
 const examAdminFilter = {};   // 每個科目目前選的分類、章節
