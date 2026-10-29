@@ -335,6 +335,9 @@ details.pw-login[open] summary { margin-bottom: 10px; }
 .panel-head { margin: 0 0 18px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
 .panel-head h3 { margin: 0 0 6px; }
 .panel-head p { margin: 0; font-size: 14px; line-height: 1.7; color: var(--muted); }
+.list-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 0 14px; }
+.list-head h3 { margin: 0; font-size: 19px; color: var(--accent); display: flex; align-items: baseline; gap: 10px; }
+.list-head h3 small { font-size: 14px; font-weight: 400; color: var(--muted); }
 .mgroup { margin: 0 0 14px; padding: 12px 14px 14px; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-l); }
 .mgroup-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; margin: 0 0 10px; }
 .mgroup-name { font-size: 15px; font-weight: 700; color: var(--gold); letter-spacing: .04em; }

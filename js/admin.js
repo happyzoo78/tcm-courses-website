@@ -438,23 +438,46 @@ function adminPage() {
     tabs = yearTabsHtml(withData, y => rows.filter(i => yearOf(semOf(i)) === y).length + unit);
     list = rows.filter(i => yearOf(semOf(i)) === siteYear);
   }
-  body = `
-  ${tabs}
-  ${canAdd ? `<button type="button" class="btn" id="add">＋ 新增${TYPE_NAME[adminType]}</button>` : isCourses ? '<p class="meta-label">新增或修改科目由擁有者、管理員負責。</p>' : ''}
-  <div class="adminlist">
-    ${list.map(i => `
+  // 列表依層級分框：科目依學期分組、圖卡依科目分組（與成員名單同一種框）
+  const rowHtml = i => `
       <div class="adminrow">
         <div><b>${esc(i.title)}</b><br><small>${isCourses
-          ? `${esc(semesterLabel(i.semesterCode))}${pagesOf(i.id).length ? ` · ${pagesOf(i.id).length} 份講義` : ''} · 負責人：${i.owners?.length ? i.owners.map(o => esc(o.name)).join('、') : '<span class="unassigned">未指派</span>'}`
-          : esc(i.date || '')}${adminType === 'items' ? ' · ' + esc(courseName(i.courseId)) : ''}</small></div>
+          ? `${pagesOf(i.id).length ? `${pagesOf(i.id).length} 份講義 · ` : ''}負責人：${i.owners?.length ? i.owners.map(o => esc(o.name)).join('、') : '<span class="unassigned">未指派</span>'}`
+          : esc(i.date || '')}</small></div>
         <div class="row-actions">
           ${isCourses && admin.canManageMembers ? `<button type="button" class="btn ${ownerOpen === i.id ? '' : 'secondary'}" data-owner-open="${i.id}" aria-expanded="${ownerOpen === i.id}">負責人</button>` : ''}
           ${canEditRow ? `<button type="button" class="btn secondary" data-edit="${i.id}">編輯</button>` : ''}
           ${admin.canDelete ? `<button type="button" class="btn secondary danger" data-delete="${i.id}">刪除</button>` : ''}
         </div>
         ${isCourses && ownerOpen === i.id ? ownerPanelHtml(i) : ''}
-      </div>`).join('') || '<p class="empty-note">這個年級還沒有資料。</p>'}
+      </div>`;
+  const half = code => /s2$/.test(code || '') ? '下學期' : '上學期';
+  const groups = [];
+  if (isCourses) {
+    for (const code of [...new Set(list.map(i => i.semesterCode))].sort()) {
+      const g = list.filter(i => i.semesterCode === code);
+      groups.push([half(code), `${g.length} 科`, semesterLabel(code), g]);
+    }
+  } else {
+    for (const cid of [...new Set(list.map(i => i.courseId))]) {
+      const c = getCourse(cid), g = list.filter(i => i.courseId === cid);
+      groups.push([c ? c.title : courseName(cid), `${g.length} 張`, c ? half(c.semesterCode) : '', g]);
+    }
+    groups.sort((x, y) => (getCourse(x[3][0].courseId)?.semesterCode || '').localeCompare(getCourse(y[3][0].courseId)?.semesterCode || ''));
+  }
+  const yearName = YEAR_NAMES[siteYear - 1] || '';
+  body = `
+  ${tabs}
+  <div class="list-head">
+    <h3>${esc(yearName)}${isCourses ? '科目' : '圖卡'} <small>${list.length}${isCourses ? ' 科' : ' 張'}</small></h3>
+    ${canAdd ? `<button type="button" class="btn" id="add">＋ 新增${TYPE_NAME[adminType]}</button>` : ''}
   </div>
+  ${canAdd || !isCourses ? '' : '<p class="meta-label">新增或修改科目由擁有者、管理員負責。</p>'}
+  ${groups.map(([name, count, note, g]) => `
+  <section class="mgroup">
+    <div class="mgroup-head"><span class="mgroup-name">${esc(name)}</span><span class="mgroup-count">${count}</span>${note ? `<span class="mgroup-note">${esc(note)}</span>` : ''}</div>
+    <div class="adminlist">${g.map(rowHtml).join('')}</div>
+  </section>`).join('') || '<p class="empty-note">這個年級還沒有資料。</p>'}
   <div id="editor"></div>`;
   }
 
