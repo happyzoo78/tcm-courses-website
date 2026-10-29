@@ -234,16 +234,14 @@ function coursePage() {
   ${courseExamJumpHtml(c)}`;
 }
 
-// 科目頁最下方：試題只放連結（點了到「學習試題」並選好這一科）
+// 科目頁最下方：試題只放連結（點了到「學習試題」並選好這一科；管理試題在學習試題頁與後台）
 function courseExamJumpHtml(c) {
   const n = publishedExamsOf(c.id).length;
-  const manage = canEditCourseUI(c.id);
-  if (!n && !manage) return '';
+  if (!n) return '';
   return `
   <div class="exam-jump">
-    <span>${n ? `這一科有 <b>${n}</b> 份試題` : '這一科還沒有公開的試題'}</span>
-    ${n ? `<a class="btn secondary" href="#examzone/${c.id}">到學習試題作答 →</a>` : ''}
-    ${manage ? `<a class="more-btn sec-link" href="#admin/exams/${c.id}">管理試題<span class="arr" aria-hidden="true">›</span></a>` : ''}
+    <span>這一科有 <b>${n}</b> 份試題</span>
+    <a class="btn secondary" href="#examzone/${c.id}">到學習試題作答 →</a>
   </div>`;
 }
 

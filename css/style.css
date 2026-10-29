@@ -1094,7 +1094,7 @@ body.lb-open { overflow: hidden; }
 .dc-links .link { display: inline-block; margin: 0; font-size: 15px; }
 .exam-jump { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 30px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--r-l); background: var(--surface); color: var(--muted); }
 .exam-jump b { color: var(--ink); }
-.exam-jump .sec-link { margin-left: auto; }
+.exam-jump .btn { margin-left: auto; }   /* 往下一層靠右 */
 .chap-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
 @media (max-width: 720px) { .chap-actions .btn { flex: 1; text-align: center; } }
 /* 科目頁（圖卡總目錄）區塊標題：標題下加分隔線，與頁面大標題、說明框分出層級 */
