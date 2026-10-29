@@ -324,7 +324,7 @@ details.pw-login[open] summary { margin-bottom: 10px; }
 /* 成員管理 */
 .role { display: inline-block; padding: 0 10px; border-radius: var(--r-s); font-size: 13px; margin-left: 6px; vertical-align: 2px; background: var(--accent-soft); color: var(--accent-soft-ink); }
 .role.off { background: transparent; color: var(--red); border: 1px solid var(--red); }
-.member-form { display: grid; grid-template-columns: 2fr 1.4fr 1fr auto; gap: 10px; align-items: end; }
+.member-form { display: grid; grid-template-columns: 1.6fr 1.2fr 1.4fr 1fr auto; gap: 10px; align-items: end; }
 .member-form .field { margin: 0; }
 .row-actions select { width: auto; padding: 8px 10px; }
 @media (max-width: 720px) { .member-form { grid-template-columns: 1fr; } }
@@ -908,3 +908,12 @@ h2.section .more-btn { margin-left: auto; align-self: center; }
 .online-dot { display: inline-block; width: 9px; height: 9px; margin-right: 8px; border-radius: 50%; background: var(--line); vertical-align: 1px; }
 .online-dot.on { background: #4caf7a; box-shadow: 0 0 0 3px color-mix(in srgb, #4caf7a 25%, transparent); }
 .seen-on { color: #3f9a6a; font-weight: 700; }
+
+/* 登入頁：Google 與 Email＋密碼兩種方式 */
+.login-or { display: flex; align-items: center; gap: 10px; margin: 18px 0 6px; color: var(--muted); font-size: 14px; }
+.login-or::before, .login-or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+/* 成員管理：臨時密碼欄＋產生按鈕 */
+.pw-gen { display: flex; gap: 6px; }
+.pw-gen input { flex: 1; min-width: 0; }
+.pw-gen .btn { flex: none; }
+@media (max-width: 1000px) and (min-width: 721px) { .member-form { grid-template-columns: 1fr 1fr; } }

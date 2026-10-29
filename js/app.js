@@ -155,8 +155,9 @@ function bind() {
     btn.disabled = true;
     const body = Object.fromEntries(new FormData(mf).entries());
     try {
+      if (!body.password) delete body.password;
       await api('/api/admin/members', { method: 'POST', body });
-      reloadMembers(`已將 ${body.email.trim().toLowerCase()} 加入名單`);
+      reloadMembers(`已將 ${body.email.trim().toLowerCase()} 加入名單${body.password ? `。臨時密碼：${body.password}（請轉告對方，登入後可到「我的帳號」修改）` : ''}`);
     } catch (err) {
       btn.disabled = false;
       handleError(err, msg);
@@ -246,6 +247,47 @@ function bind() {
     } catch (err) {
       btn.disabled = false;
       btn.textContent = '儲存暱稱';
+      handleError(err, msg);
+    }
+  };
+
+  const gen = document.getElementById('m-pw-gen');
+  if (gen) gen.onclick = () => { document.getElementById('m-pw').value = makeTempPassword(); };
+
+  // 擁有者幫成員設定／重設密碼（同學忘記密碼時）
+  document.querySelectorAll('[data-member-pw]').forEach(b => b.onclick = async () => {
+    const m = members.find(x => x.id == b.dataset.memberPw);
+    const pw = prompt(`為「${m.displayName}」（${m.email}）設定新的臨時密碼（至少 12 字）。\n已幫你產生一組，可以直接按確定：`, makeTempPassword());
+    if (pw === null) return;
+    if (pw.trim().length < 12) return alert("密碼至少要 12 個字。");
+    b.disabled = true;
+    try {
+      await api(`/api/admin/members/${m.id}`, { method: 'PUT', body: { password: pw.trim() } });
+      await reloadMembers(`已為「${m.displayName}」設定臨時密碼：${pw.trim()}（請轉告對方；對方原本的登入已登出）`);
+    } catch (err) {
+      b.disabled = false;
+      handleError(err, null);
+    }
+  });
+
+  // 自己修改／設定登入密碼
+  const pf = document.getElementById('pwform');
+  if (pf) pf.onsubmit = async e => {
+    e.preventDefault();
+    const msg = document.getElementById('pwmsg');
+    const btn = pf.querySelector('[type=submit]');
+    const f = pf.elements;
+    msg.innerHTML = '';
+    if (f.newPassword.value !== f.newPassword2.value) { msg.innerHTML = '<div class="msg error">兩次輸入的新密碼不一樣。</div>'; return; }
+    btn.disabled = true;
+    try {
+      await api('/api/account', { method: 'PUT', body: { currentPassword: f.currentPassword ? f.currentPassword.value : '', newPassword: f.newPassword.value } });
+      const wasSet = admin.hasPassword;
+      admin.hasPassword = true;
+      adminFlash = wasSet ? '密碼已修改，其他裝置上的登入已登出。' : '密碼已設定，之後也可以用 Email＋密碼登入。';
+      render();
+    } catch (err) {
+      btn.disabled = false;
       handleError(err, msg);
     }
   };

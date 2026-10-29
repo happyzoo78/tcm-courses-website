@@ -23,10 +23,10 @@ function inAppBrowser() {
 function loginGateHtml() {
   const inApp = inAppBrowser();
   const inAppMsg = inApp === 'line'
-    ? `<div class="msg error">你正在 <b>LINE</b> 裡開啟網頁，Google 不允許在這裡登入。<br>
+    ? `<div class="msg error">你正在 <b>LINE</b> 裡開啟網頁，Google 不允許在這裡登入（可改用下方 Email＋密碼登入）。<br>
         <a class="btn" style="margin-top:8px" href="${location.origin}/?openExternalBrowser=1">改用手機瀏覽器開啟</a></div>`
     : inApp === 'other'
-    ? `<div class="msg error">你正在 App 的內建瀏覽器裡開啟網頁，Google 不允許在這裡登入。請點右上角的「⋯」選單，選擇「在瀏覽器中開啟」。</div>`
+    ? `<div class="msg error">你正在 App 的內建瀏覽器裡開啟網頁，Google 不允許在這裡登入。請點右上角的「⋯」選單，選擇「在瀏覽器中開啟」，或改用下方 Email＋密碼登入。</div>`
     : '';
   return `
   <div class="gate">
@@ -37,19 +37,25 @@ function loginGateHtml() {
       ${inAppMsg}
       ${loginNotice ? `<div class="msg error">${esc(loginNotice)}</div>` : ''}
       <a class="google-btn" href="/api/auth/google/start" id="google-login"><span class="g">G</span> 使用 Google 帳號登入</a>
-      <p class="meta-label">還不能登入嗎？請把你的 Gmail 提供給網站管理者，加入名單後就可以使用。</p>
-      <details class="pw-login">
-        <summary>管理員密碼登入</summary>
-        <div class="notice" style="margin-top:0">⚠️ 為保護帳號安全，<b>密碼連續輸錯 5 次，將暫停登入 15 分鐘</b>。</div>
-        <form id="loginform">
-          <div class="field"><label for="l-email">Email</label><input id="l-email" name="email" type="email" autocomplete="username" required></div>
-          <div class="field"><label for="l-pw">密碼</label><input id="l-pw" name="password" type="password" autocomplete="current-password" required></div>
-          <div id="loginmsg"></div>
-          <button class="btn" type="submit">登入</button>
-        </form>
-      </details>
+      <div class="login-or"><span>或用 Email＋密碼登入</span></div>
+      <p class="meta-label" style="margin-top:0">沒有 Google 帳號、或人在大陸不能用 Google 時，請用管理者給你的密碼登入。</p>
+      <form id="loginform" class="pw-login">
+        <div class="field"><label for="l-email">Email</label><input id="l-email" name="email" type="email" autocomplete="username" required></div>
+        <div class="field"><label for="l-pw">密碼</label><input id="l-pw" name="password" type="password" autocomplete="current-password" required></div>
+        <div id="loginmsg"></div>
+        <button class="btn" type="submit">登入</button>
+        <p class="meta-label">為保護帳號安全，密碼連續輸錯 5 次會暫停登入 15 分鐘。忘記密碼請找網站管理者重設。</p>
+      </form>
+      <p class="meta-label">還不能登入嗎？請把你的 Email 提供給網站管理者，加入名單後就可以使用。</p>
     </div>
   </div>`;
+}
+
+// 產生好記又不易猜的臨時密碼：小寫字母＋數字 12 碼（去掉容易混淆的 0 o 1 l i）
+function makeTempPassword() {
+  const chars = 'abcdefghjkmnpqrstuvwxyz23456789';
+  const a = new Uint32Array(12); crypto.getRandomValues(a);
+  return Array.from(a, n => chars[n % chars.length]).join('');
 }
 
 /* 成員管理（只有擁有者看得到） */
@@ -70,10 +76,11 @@ function membersHtml() {
   </div>` : `<div class="notice">要顯示「上線狀態」，需要先在資料庫加一個欄位，請照 Claude 給的步驟操作一次。</div>`}
   <div class="panel prose" style="margin:6px 0 16px">
     <h3 style="margin-top:0">加入新成員</h3>
-    <p class="meta-label" style="margin-top:0">請同學提供他要用來登入的 Gmail。加入後，對方按「使用 Google 帳號登入」就能進入網站。</p>
+    <p class="meta-label" style="margin-top:0">請同學提供他要用來登入的 Email。Gmail 可以直接按「使用 Google 帳號登入」；沒有 Google 帳號、或人在大陸不能用 Google 的同學，請順便設一組臨時密碼。</p>
     <form id="memberform" class="member-form">
-      <div class="field"><label for="m-email">Gmail</label><input id="m-email" name="email" type="email" required placeholder="例如 student@gmail.com"></div>
+      <div class="field"><label for="m-email">Email</label><input id="m-email" name="email" type="email" required placeholder="例如 student@gmail.com"></div>
       <div class="field"><label for="m-name">名稱（選填）</label><input id="m-name" name="displayName" maxlength="100" placeholder="例如 王小明"></div>
+      <div class="field"><label for="m-pw">臨時密碼（選填）</label><div class="pw-gen"><input id="m-pw" name="password" minlength="12" maxlength="128" autocomplete="off" placeholder="至少 12 字"><button type="button" class="btn secondary" id="m-pw-gen">產生</button></div></div>
       <div class="field"><label for="m-role">權限</label><select id="m-role" name="role">${roleOptions('viewer')}</select></div>
       <button class="btn" type="submit">加入名單</button>
     </form>
@@ -88,12 +95,13 @@ function membersHtml() {
       return `
       <div class="adminrow">
         <div>
-          ${membersMeta.seenSupported ? `<span class="online-dot ${seen.online ? 'on' : ''}" title="${esc(seen.text)}"></span>` : ''}<b>${esc(m.displayName)}</b><span class="role">${ROLE_NAME[m.role] || esc(m.role)}</span>${off ? '<span class="role off">已停用</span>' : ''}
+          ${membersMeta.seenSupported ? `<span class="online-dot ${seen.online ? 'on' : ''}" title="${esc(seen.text)}"></span>` : ''}<b>${esc(m.displayName)}</b><span class="role">${ROLE_NAME[m.role] || esc(m.role)}</span>${m.hasPassword ? '<span class="role" title="可以用 Email＋密碼登入">密碼</span>' : ''}${off ? '<span class="role off">已停用</span>' : ''}
           <br><small>${membersMeta.seenSupported ? `<span class="${seen.online ? 'seen-on' : ''}">${esc(seen.text)}</span> · ` : ''}${esc(m.email)} · 最後登入：${esc(fmtTime(m.lastLoginAt))}</small>
         </div>
         <div class="row-actions">
           ${m.isSelf ? '<a class="btn secondary" href="#account">改暱稱</a>' : locked ? '' : `
             <button type="button" class="btn secondary" data-member-rename="${m.id}">改名</button>
+            <button type="button" class="btn secondary" data-member-pw="${m.id}">${m.hasPassword ? '重設密碼' : '設定密碼'}</button>
             <select data-member-role="${m.id}" aria-label="變更權限">${roleOptions(m.role)}</select>
             <button type="button" class="btn secondary ${off ? '' : 'danger'}" data-member-status="${m.id}" data-to="${off ? 'active' : 'suspended'}">${off ? '恢復' : '停用'}</button>
             ${m.lastLoginAt ? '' : `<button type="button" class="btn secondary danger" data-member-delete="${m.id}">移除</button>`}`}

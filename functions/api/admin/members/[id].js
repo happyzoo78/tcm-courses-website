@@ -2,7 +2,8 @@
 // DELETE /api/admin/members/5   從名單移除（只限從未登入過的成員）
 import { jsonResponse } from "../../../_lib/auth.js";
 import { requireAdmin, readJson, audit } from "../../../_lib/content.js";
-import { MEMBER_ROLES } from "../../../_lib/members.js";
+import { MEMBER_ROLES, NO_PASSWORD, checkPassword } from "../../../_lib/members.js";
+import { hashPassword } from "../../../_lib/password.js";
 
 async function loadTarget(env, params, auth) {
   const id = Number(params.id);
@@ -54,10 +55,23 @@ export async function onRequestPut({ request, env, params }) {
     if (!name || name.length > 100) return jsonResponse({ error: "名稱需為 1～100 字" }, 400);
     sets.push("display_name = ?"); values.push(name);
   }
+  // 設定／重設密碼（擁有者幫忘記密碼的同學重設）；password: null 代表取消密碼登入，只能用 Google
+  let passwordChanged = false;
+  if ("password" in body) {
+    if (body.password === null) {
+      sets.push("password_hash = ?"); values.push(NO_PASSWORD);
+    } else {
+      const bad = checkPassword(body.password);
+      if (bad) return jsonResponse({ error: bad }, 400);
+      sets.push("password_hash = ?"); values.push(await hashPassword(body.password));
+    }
+    passwordChanged = true;
+  }
   if (!sets.length) return jsonResponse({ error: "沒有要修改的內容" }, 400);
 
   // 權限降低或被停用時，讓對方重新登入，新權限才會立即生效
   const mustRelogin =
+    passwordChanged ||
     (body.status === "suspended") ||
     ("role" in body && body.role !== target.role);
 
@@ -69,7 +83,8 @@ export async function onRequestPut({ request, env, params }) {
     if (mustRelogin) stmts.push(revokeSessions(env, target.id));
     await env.DB.batch(stmts);
 
-    await audit(env, auth.admin, "update", "member", target.id, { email: target.email, ...body });
+    const { password, ...logged } = body;   // 密碼不寫進操作紀錄
+    await audit(env, auth.admin, "update", "member", target.id, { email: target.email, ...logged, ...(passwordChanged ? { password: password === null ? "removed" : "reset" } : {}) });
     return jsonResponse({ success: true });
   } catch (error) {
     console.error("Update member failed", error);

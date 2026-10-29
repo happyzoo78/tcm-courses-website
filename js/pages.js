@@ -291,5 +291,19 @@ function accountPage() {
       <dt>負責科目</dt><dd>${admin.canManageCourses ? '全部科目（擁有者、管理員可管理所有科目）' : owned.length ? owned.map(c => esc(c.title)).join('、') : '無'}</dd>
     </dl>
     <p class="meta-label">登入信箱與權限由網站管理者設定，如需變更請聯絡管理者。</p>
+  </div>
+  <h3 class="sec-title">登入密碼</h3>
+  <div class="panel prose account">
+    <p class="meta-label" style="margin-top:0">${admin.hasPassword
+      ? '你可以用「Email＋密碼」登入。改密碼後，其他裝置上的登入會被登出。'
+      : '你目前只用 Google 登入。設定密碼後，也可以用「Email＋密碼」登入（例如人在大陸、不能用 Google 時）。'}</p>
+    <form id="pwform" autocomplete="on">
+      <input type="email" name="username" value="${esc(admin.email)}" autocomplete="username" hidden>
+      ${admin.hasPassword ? '<div class="field"><label for="p-cur">目前密碼</label><input id="p-cur" name="currentPassword" type="password" autocomplete="current-password" required></div>' : ''}
+      <div class="field"><label for="p-new">新密碼（至少 12 字）</label><input id="p-new" name="newPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></div>
+      <div class="field"><label for="p-new2">再輸入一次新密碼</label><input id="p-new2" name="newPassword2" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></div>
+      <div id="pwmsg"></div>
+      <button class="btn" type="submit">${admin.hasPassword ? '修改密碼' : '設定密碼'}</button>
+    </form>
   </div>`;
 }
