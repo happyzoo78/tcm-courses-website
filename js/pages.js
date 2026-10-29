@@ -124,10 +124,10 @@ function homePage() {
     <h1 class="hero-title"><span><em>2026</em>福建中醫台灣班 -</span> <span>學習圖書館</span></h1>
     <p>從台灣到福建，深耕中醫學問 · 經典為本，辨證為綱，系統整理，臨床致用。</p>
     <div class="stats">
-      <div class="stat"><strong>${shown.length}</strong><span>科目</span></div>
-      ${totalPages ? `<div class="stat"><strong>${totalPages}</strong><span>講義</span></div>` : ''}
-      <div class="stat"><strong>${totalCards}</strong><span>圖卡</span></div>
-      <div class="stat"><strong>${totalExams}</strong><span>試題</span></div>
+      <div class="stat"><strong>${shown.length}</strong><span>學習科目</span></div>
+      ${totalPages ? `<div class="stat"><strong>${totalPages}</strong><span>學習講義</span></div>` : ''}
+      <div class="stat"><strong>${totalCards}</strong><span>學習圖卡</span></div>
+      <div class="stat"><strong>${totalExams}</strong><span>學習試題</span></div>
     </div>
   </section>
 
