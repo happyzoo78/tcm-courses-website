@@ -137,7 +137,7 @@ function homePage() {
     </div>
   </section>
 
-  <h2 class="section">學習圖卡 <small class="motto">博觀約取，厚積薄發</small><a class="more-btn" href="#courses" title="全部科目" aria-label="全部科目">More<span class="arr" aria-hidden="true">›</span></a></h2>
+  <h2 class="section">學習圖卡 <small class="motto">博觀約取，厚積薄發</small></h2>
   ${shelfCardsHtml()}
 
   <h2 class="section">最新更新 <small class="motto">日新又新，學無止境</small></h2>
