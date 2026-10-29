@@ -69,20 +69,26 @@ const HW_DATA = [
   /* ---------- 樣式 ---------- */
   const css = `
   .hw-menu { border-top: 1px solid var(--line); background: var(--surface); }
+  .hw-menu-home { display: none; }   /* 作業專區首頁：頁面本身就有年級／學期／科目選單，不再顯示這條 */
   .hw-row { max-width: 1240px; margin: 0 auto; padding: 6px 20px; display: flex; align-items: center; gap: 8px; min-height: 46px; }
-  .hw-back { flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font-size: 14.5px; font-weight: 700; text-decoration: none; white-space: nowrap; }
+  /* 按鈕與主站一致：次要＝淡綠底＋綠框，目前所在科目＝實心綠 */
+  .hw-back, .hw-all, .hw-sembtn, .hw-chip { --hw-soft: color-mix(in srgb, var(--accent) 16%, var(--surface)); --hw-edge: color-mix(in srgb, var(--accent) 45%, transparent); }
+  .hw-back { flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--hw-edge); background: var(--hw-soft); color: var(--ink); font-size: 14.5px; font-weight: 700; text-decoration: none; white-space: nowrap; }
   .hw-back:hover { border-color: var(--accent); color: var(--accent); }
-  .hw-all { flex: none; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer; }
-  .hw-sembtn { flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 6px 10px; border-radius: 6px; border: 1.5px solid var(--accent); background: var(--surface); color: var(--accent); font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .hw-all { flex: none; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--hw-edge); background: var(--hw-soft); color: var(--ink); font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer; }
+  .hw-all:hover, .hw-sembtn:hover, .hw-chip:hover { border-color: var(--accent); }
+  .hw-all[aria-expanded="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 26%, var(--surface)); }
+  .hw-sembtn { flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--hw-edge); background: var(--hw-soft); color: var(--ink); font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer; white-space: nowrap; }
   .hw-sembtn .car { font-size: 11px; }
-  .hw-sembtn[aria-expanded="true"] { background: var(--accent-soft); }
+  .hw-sembtn[aria-expanded="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 26%, var(--surface)); }
   .hw-sep { flex: none; width: 1px; height: 22px; background: var(--line); }
   .hw-chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; min-width: 0; }
   .hw-chips::-webkit-scrollbar { display: none; }
-  .hw-chip { flex: none; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: inherit; font-size: 14.5px; font-weight: 600; cursor: pointer; white-space: nowrap; }
-  .hw-chip:hover { background: var(--surface-2); }
-  .hw-chip.cur { border-color: var(--accent); color: var(--accent); }
-  .hw-chip[aria-expanded="true"] { background: var(--accent-soft); color: var(--accent-soft-ink); border-color: var(--accent); }
+  .hw-chip { flex: none; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--hw-edge); background: var(--hw-soft); color: var(--ink); font: inherit; font-size: 14.5px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .hw-chip.cur { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .hw-chip[aria-expanded="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 26%, var(--surface)); }
+  .hw-chip.cur[aria-expanded="true"] { background: var(--accent); color: var(--accent-ink); }
+  .hw-chip.cur .hw-exam { background: var(--surface); }
   .hw-panel { position: absolute; left: 0; right: 0; background: var(--surface); border-bottom: 1px solid var(--line); box-shadow: var(--shadow); max-height: 70vh; overflow: auto; }
   .hw-panel[hidden] { display: none; }
   .hw-panel-in { max-width: 1240px; margin: 0 auto; padding: 14px 20px 18px; }
@@ -127,7 +133,6 @@ const HW_DATA = [
     .hw-grid { grid-template-columns: 1fr; gap: 8px; }
     .hw-subj a { padding: 10px 10px; font-size: 16px; }
     .logo-sub { display: none !important; }
-    .hw-menu-home { display: none; }
     html { scroll-padding-top: 120px !important; }
   }
   footer { text-align: center; }   /* 頁尾文字置中（與主站一致） */
