@@ -122,15 +122,26 @@ function membersHtml() {
     <div id="memberformmsg"></div>
   </div>
   <h3 class="sec-title">成員名單 <small>${members.length} 人</small></h3>
-  <div class="adminlist">
-    ${[...members].sort((a, b) => (seenInfo(b).online - seenInfo(a).online) || String(b.lastSeenAt || '').localeCompare(String(a.lastSeenAt || ''))).map(m => {
+  ${memberGroupsHtml(roleOptions)}`;
+}
+
+// 成員名單依身分分組：管理者／編輯者／一般會員／已停用，每組一個框，組內依上線狀態排序
+const MEMBER_GROUPS = [
+  ['管理者', '擁有者與管理員，可管理全站', m => m.status === 'active' && (m.role === 'owner' || m.role === 'admin')],
+  ['編輯者', '可進後台新增、修改，不能刪除', m => m.status === 'active' && m.role === 'editor'],
+  ['一般會員', '只能看內容', m => m.status === 'active' && !['owner', 'admin', 'editor'].includes(m.role)],
+  ['已停用', '暫時不能登入，可隨時恢復', m => m.status !== 'active'],
+];
+function memberGroupsHtml(roleOptions) {
+  const bySeen = (a, b) => (seenInfo(b).online - seenInfo(a).online) || String(b.lastSeenAt || '').localeCompare(String(a.lastSeenAt || ''));
+  const row = (m, showRole) => {
       const locked = m.role === 'owner' || m.isSelf;
       const seen = seenInfo(m);
       const off = m.status !== 'active';
       return `
       <div class="adminrow">
         <div>
-          ${membersMeta.seenSupported ? `<span class="online-dot ${seen.online ? 'on' : ''}" title="${esc(seen.text)}"></span>` : ''}<b>${esc(m.displayName)}</b><span class="role">${ROLE_NAME[m.role] || esc(m.role)}</span>${m.hasPassword ? '<span class="role" title="可以用 Email＋密碼登入">密碼</span>' : ''}${off ? '<span class="role off">已停用</span>' : ''}
+          ${membersMeta.seenSupported ? `<span class="online-dot ${seen.online ? 'on' : ''}" title="${esc(seen.text)}"></span>` : ''}<b>${esc(m.displayName)}</b>${showRole ? `<span class="role">${ROLE_NAME[m.role] || esc(m.role)}</span>` : ''}${m.hasPassword ? '<span class="role" title="可以用 Email＋密碼登入">密碼</span>' : ''}${off ? '<span class="role off">已停用</span>' : ''}
           <br><small>${membersMeta.seenSupported ? `<span class="${seen.online ? 'seen-on' : ''}">${esc(seen.text)}</span> · ` : ''}${esc(m.email)} · 最後登入：${esc(fmtTime(m.lastLoginAt))}</small>
         </div>
         <div class="row-actions">
@@ -143,8 +154,16 @@ function membersHtml() {
             ${m.lastLoginAt ? '' : `<button type="button" class="btn secondary danger" data-member-delete="${m.id}">移除</button>`}`}
         </div>
       </div>`;
-    }).join('')}
-  </div>`;
+  };
+  return MEMBER_GROUPS.map(([name, note, test], gi) => {
+    const list = members.filter(test).sort(bySeen);
+    if (!list.length) return '';
+    return `
+  <section class="mgroup${gi === 3 ? ' mgroup-off' : ''}">
+    <div class="mgroup-head"><span class="mgroup-name">${name}</span><span class="mgroup-count">${list.length} 人</span><span class="mgroup-note">${note}</span></div>
+    <div class="adminlist">${list.map(m => row(m, gi === 3 || m.role === 'admin' || m.role === 'owner')).join('')}</div>
+  </section>`;
+  }).join('');
 }
 
 let membersMeta = { now: null, seenSupported: true, mailEnabled: false, at: 0 };
