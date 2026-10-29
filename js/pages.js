@@ -170,7 +170,7 @@ function examZonePage() {
   <div class="exnav">
     <div class="exnav-top">
       <h3 class="exnav-title"><a class="link" href="#course/${c.id}">${esc(c.title)}</a>${isExamSubject(c) ? ' <span class="exam-tag">執醫考科</span>' : ''}</h3>
-      ${canEditCourseUI(c.id) ? `<a class="link sec-link" href="#admin/exams/${c.id}">管理試題 →</a>` : ''}
+      ${canEditCourseUI(c.id) ? `<a class="more-btn sec-link" href="#admin/exams/${c.id}">管理試題<span class="arr" aria-hidden="true">›</span></a>` : ''}
     </div>
     ${examBrowserHtml(c)}
   </div>`;
@@ -204,7 +204,7 @@ function coursePage() {
   </div>` : ''}
   ${courseExamsHtml(c)}
   ${items.length ? `
-  <h3 class="sec-title">圖卡<a class="link sec-link" href="#items/${c.id}">搜尋圖卡 →</a></h3>
+  <h3 class="sec-title">圖卡<a class="more-btn sec-link" href="#items/${c.id}">搜尋圖卡<span class="arr" aria-hidden="true">›</span></a></h3>
   <div class="itemgrid">${items.map(i => itemCard(i, 'item')).join('')}</div>` : ''}`;
 }
 

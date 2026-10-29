@@ -143,7 +143,7 @@ function courseExamsHtml(c) {
   const manage = canEditCourseUI(c.id);
   if (!examGroups(c.id).length && !manage) return '';   // 沒有考卷就整區隱藏
   return `
-  <h3 class="sec-title">試題${manage ? `<a class="link sec-link" href="#admin/exams/${c.id}">管理試題 →</a>` : ''}</h3>
+  <h3 class="sec-title">試題${manage ? `<a class="more-btn sec-link" href="#admin/exams/${c.id}">管理試題<span class="arr" aria-hidden="true">›</span></a>` : ''}</h3>
   <div class="exnav">${examBrowserHtml(c)}</div>`;
 }
 
