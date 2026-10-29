@@ -794,7 +794,8 @@ fieldset.owners .check small { color: var(--muted); }
 @media (max-width: 720px) { .shelf { padding: 14px; } }
 
 /* 浮水印字壓在底圖上方，淡到不搶畫面 */
-.hero.has-art::after { display: block; z-index: 2; opacity: .16; font-size: 30px; right: 30px; bottom: 10px; text-shadow: 0 0 10px var(--surface); }
+/* 浮水印：朱紅→金的漸層（呼應標題的紅色年份），透明度壓低，不搶主標題 */
+.hero.has-art::after { display: block; z-index: 2; opacity: .3; font-size: 30px; right: 30px; bottom: 10px; font-weight: 700; background: linear-gradient(90deg, var(--red), var(--gold) 55%, var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
 @media (max-width: 1160px) { .hero.has-art::after { font-size: 22px; letter-spacing: 8px; } }
 @media (max-width: 720px) { .hero.has-art::after { display: none; } }
 
