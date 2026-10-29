@@ -122,6 +122,8 @@ function membersHtml() {
     <div id="memberformmsg"></div>
   </div>
   <h3 class="sec-title">成員名單 <small>${members.length} 人</small></h3>
+  ${(() => { const need = members.filter(m => mailAdvice(m) === 'need'), sug = members.filter(m => mailAdvice(m) === 'suggest');
+    return need.length || sug.length ? `<div class="note-box"><span class="note-lab">密碼信建議</span>${need.length ? `<strong>需寄 ${need.length} 人</strong>（${need.map(m => esc(m.displayName)).join('、')}）：沒有密碼、從未登入，信箱不是 Gmail，可能無法用 Google 登入。` : ''}${need.length && sug.length ? '<br>' : ''}${sug.length ? `建議寄 ${sug.length} 人（${sug.map(m => esc(m.displayName)).join('、')}）：從未登入的 Gmail，可用 Google 登入，寄信當作邀請提醒。` : ''}<br>已有密碼或已用 Google 登入過的同學不用寄；他們可在須知頁或「我的帳號」自己設定備用密碼。</div>` : ''; })()}
   ${memberGroupsHtml(roleOptions)}`;
 }
 
@@ -132,6 +134,15 @@ const MEMBER_GROUPS = [
   ['一般會員', '只能看內容', m => m.status === 'active' && !['owner', 'admin', 'editor'].includes(m.role)],
   ['已停用', '暫時不能登入，可隨時恢復', m => m.status !== 'active'],
 ];
+// 判斷要不要寄「設定密碼」信：
+//   need＝沒有密碼、從未登入、而且不是 Gmail（可能不能用 Google 登入，等於完全進不來）
+//   suggest＝沒有密碼、從未登入的 Gmail（可用 Google 登入，寄信當作邀請提醒）
+//   ok＝已有密碼，或已經用 Google 登入過（第一次登入的須知頁可自己設備用密碼）
+function mailAdvice(m) {
+  if (m.role === 'owner' || m.isSelf || m.status !== 'active' || m.hasPassword) return 'ok';
+  if (m.lastLoginAt) return 'ok';
+  return /@(gmail|googlemail)\.com$/i.test(m.email || '') ? 'suggest' : 'need';
+}
 function memberGroupsHtml(roleOptions) {
   const bySeen = (a, b) => (seenInfo(b).online - seenInfo(a).online) || String(b.lastSeenAt || '').localeCompare(String(a.lastSeenAt || ''));
   const row = (m, showRole) => {
@@ -141,14 +152,14 @@ function memberGroupsHtml(roleOptions) {
       return `
       <div class="adminrow">
         <div>
-          ${membersMeta.seenSupported ? `<span class="online-dot ${seen.online ? 'on' : ''}" title="${esc(seen.text)}"></span>` : ''}<b>${esc(m.displayName)}</b>${showRole ? `<span class="role">${ROLE_NAME[m.role] || esc(m.role)}</span>` : ''}${m.hasPassword ? '<span class="role" title="可以用 Email＋密碼登入">密碼</span>' : ''}${off ? '<span class="role off">已停用</span>' : ''}
+          ${membersMeta.seenSupported ? `<span class="online-dot ${seen.online ? 'on' : ''}" title="${esc(seen.text)}"></span>` : ''}<b>${esc(m.displayName)}</b>${showRole ? `<span class="role">${ROLE_NAME[m.role] || esc(m.role)}</span>` : ''}${m.hasPassword ? '<span class="role" title="可以用 Email＋密碼登入">密碼</span>' : ''}${off ? '<span class="role off">已停用</span>' : ''}${{ need: '<span class="role mail-need" title="沒有密碼、從未登入，信箱不是 Gmail，可能無法用 Google 登入">需寄密碼信</span>', suggest: '<span class="role mail-suggest" title="沒有密碼、從未登入；Gmail 可用 Google 登入，寄信可當作邀請提醒">建議寄密碼信</span>' }[mailAdvice(m)] || ''}
           <br><small>${membersMeta.seenSupported ? `<span class="${seen.online ? 'seen-on' : ''}">${esc(seen.text)}</span> · ` : ''}${esc(m.email)} · 最後登入：${esc(fmtTime(m.lastLoginAt))}</small>
         </div>
         <div class="row-actions">
           ${m.isSelf ? '<a class="btn secondary" href="#account">改暱稱</a>' : locked ? '' : `
             <button type="button" class="btn secondary" data-member-rename="${m.id}">改名</button>
             <button type="button" class="btn secondary" data-member-pw="${m.id}">${m.hasPassword ? '重設密碼' : '設定密碼'}</button>
-            ${membersMeta.mailEnabled ? `<button type="button" class="btn secondary" data-member-mail="${m.id}" title="寄一封設定密碼的信到 ${esc(m.email)}">寄密碼信</button>` : ''}
+            ${membersMeta.mailEnabled ? `<button type="button" class="btn ${mailAdvice(m) === 'need' ? '' : 'secondary'}" data-member-mail="${m.id}" title="寄一封設定密碼的信到 ${esc(m.email)}">寄密碼信</button>` : ''}
             <select data-member-role="${m.id}" aria-label="變更權限">${roleOptions(m.role)}</select>
             <button type="button" class="btn secondary ${off ? '' : 'danger'}" data-member-status="${m.id}" data-to="${off ? 'active' : 'suspended'}">${off ? '恢復' : '停用'}</button>
             ${m.lastLoginAt ? '' : `<button type="button" class="btn secondary danger" data-member-delete="${m.id}">移除</button>`}`}
