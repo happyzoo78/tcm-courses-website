@@ -16,7 +16,10 @@ function courseCard(c) {
       <p class="meta-label">${[n ? `${n} 份講義` : '', `${k} 張圖卡`, `${x} 份試題`].filter(Boolean).join(' · ')}</p>
       <p class="meta-label">最新進度</p>
       <div class="latest">${esc(c.latest) || '—'}</div>
-      <a class="link go" href="#course/${c.id}">進入科目 →</a>
+      <div class="go course-links">
+        <a class="link" href="#course/${c.id}">進入科目 →</a>
+        ${deckOf(c.id) ? `<a class="link" href="#cards/${c.id}">圖卡總目錄 →</a>` : ''}
+      </div>
     </div>
   </article>`;
 }
