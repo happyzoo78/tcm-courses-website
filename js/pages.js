@@ -479,7 +479,7 @@ function openCardViewer(list, start = 0, opts = {}) {
     </div>
     <div class="lb-stage"><img class="lb-img" alt=""></div>
     ${list.length > 1 ? '<button type="button" class="lb-nav prev" aria-label="上一張">‹</button><button type="button" class="lb-nav next" aria-label="下一張">›</button>' : ''}
-    <p class="lb-hint">點圖放大／縮小${list.length > 1 ? ' · 左右滑動或方向鍵換張' : ''} · Esc 關閉</p>`;
+    <p class="lb-loading">原圖載入中…</p><p class="lb-hint">點圖放大／縮小${list.length > 1 ? ' · 左右滑動或方向鍵換張' : ''} · Esc 關閉</p>`;
   document.body.appendChild(box);
   document.body.classList.add('lb-open');
   const img = box.querySelector('.lb-img'), stage = box.querySelector('.lb-stage');
@@ -488,7 +488,14 @@ function openCardViewer(list, start = 0, opts = {}) {
     i = (k + list.length) % list.length;
     const x = list[i];
     box.classList.remove('zoomed');
-    img.src = x.img; img.alt = x.title;
+    // 大圖是無損原圖（約 2MB），先顯示縮圖，原圖載好再換上，手機上不會一片空白
+    img.alt = x.title;
+    if (x.thumb) {
+      img.src = x.thumb; box.classList.add('loading');
+      const full = new Image();
+      full.onload = () => { if (list[i] === x) { img.src = x.img; box.classList.remove('loading'); } };
+      full.src = x.img;
+    } else img.src = x.img;
     box.querySelector('.lb-count').textContent = list.length > 1 ? `${i + 1} / ${list.length}` : '';
     box.querySelector('.lb-title').textContent = `${x.id}　${x.title}`;
     box.querySelector('.lb-orig').href = x.img;

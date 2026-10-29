@@ -1111,3 +1111,5 @@ body.lb-open { overflow: hidden; }
 .cref span { display: flex; flex-direction: column; font-size: 14px; line-height: 1.4; }
 .cref small { font-size: 12px; font-weight: 700; color: var(--gold); }
 .cref.missing { padding: 6px 10px; font-size: 13px; color: var(--red); border-style: dashed; cursor: default; }
+.lb-loading { display: none; position: absolute; left: 50%; bottom: 44px; transform: translateX(-50%); margin: 0; padding: 4px 12px; border-radius: var(--r-m); background: rgba(0,0,0,.6); font-size: 13px; }
+.lb.loading .lb-loading { display: block; }
