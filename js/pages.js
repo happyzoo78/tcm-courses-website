@@ -212,7 +212,7 @@ function coursePage() {
   const pages = [...list, ...filesOf(c.id).map(f => ({ url: f.path, title: f.title, description: f.description || '', updatedAt: f.updated, updatedBy: '', file: true }))];
   return `
   <a class="btn secondary back" href="#courses">← 學習科目</a>
-  <h2 class="section">${esc(c.title)}${isExamSubject(c) ? ' <span class="exam-tag">執醫考科</span>' : ''} <small>${esc(semesterLabel(c.semesterCode))}${c.owners?.length ? `　負責人：${c.owners.map(o => esc(o.name)).join('、')}` : ''}</small></h2>
+  <h2 class="section">${esc(c.title)} · 圖卡總目錄${isExamSubject(c) ? ' <span class="exam-tag">執醫考科</span>' : ''} <small>${esc(semesterLabel(c.semesterCode))}${c.owners?.length ? `　負責人：${c.owners.map(o => esc(o.name)).join('、')}` : ''}</small></h2>
   ${pages.length ? `
   <h3 class="sec-title">講義</h3>
   <div class="pagelist">
@@ -224,7 +224,7 @@ function coursePage() {
       </a>`).join('')}
   </div>` : ''}
   ${deck ? `
-  <h3 class="sec-title">圖卡總目錄 <small>${deck.chapters.length} 章 · ${deckCardCount(c.id)} 張</small></h3>
+  <h3 class="sec-title">各章節圖卡 <small>${deck.chapters.length} 章 · ${deckCardCount(c.id)} 張</small></h3>
   <p class="lead-note">選一章看圖卡；「考前衝刺」直接到學習試題的同一章作答。</p>
   ${deckChaptersHtml(c, deck)}` : ''}
   ${items.length ? `
@@ -434,11 +434,11 @@ function cardsPage() {
   if (!no) { courseTarget = c.id; history.replaceState(null, '', '#course/' + c.id); return coursePage(); }
 
   const i = d.chapters.findIndex(ch => ch.no === no);
-  if (i < 0) return `<a class="btn secondary back" href="#course/${c.id}">← ${esc(c.title)}</a><p class="empty-note">找不到這一章的圖卡。</p>`;
+  if (i < 0) return `<a class="btn secondary back" href="#course/${c.id}">← ${esc(c.title)}圖卡總目錄</a><p class="empty-note">找不到這一章的圖卡。</p>`;
   const ch = d.chapters[i], prev = d.chapters[i - 1], next = d.chapters[i + 1];
   let n = 0;
   return `
-  <a class="btn secondary back" href="#course/${c.id}">← ${esc(c.title)}</a>
+  <a class="btn secondary back" href="#course/${c.id}">← ${esc(c.title)}圖卡總目錄</a>
   <div class="chap-head">
     <div class="chap-title">
       <span class="eyebrow">${esc(c.title)} · ${chapLabel(ch)}</span>
