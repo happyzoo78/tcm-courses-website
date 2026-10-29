@@ -1031,7 +1031,7 @@ details.forgot > summary { cursor: pointer; color: var(--accent); font-size: 14.
 .dc-body h4 a:hover { color: var(--accent); }
 .dc-sub { margin: 0; font-size: 14px; color: var(--muted); }
 .dc-meta { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
-.dc-links { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: auto; padding-top: 8px; border-top: 1px solid var(--line); }
+.dc-links { display: flex; flex-wrap: wrap; gap: 4px 16px; justify-content: flex-end; margin-top: auto; padding-top: 8px; border-top: 1px solid var(--line); }
 .deck-chaps.compact { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
 .deck-chaps.compact .dc-thumb { aspect-ratio: 16 / 9; }
 
