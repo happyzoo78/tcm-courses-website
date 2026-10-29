@@ -1115,7 +1115,7 @@ body.lb-open { overflow: hidden; }
 .lb.loading .lb-loading { display: block; }
 
 /* 階層路線（麵包屑）：首頁 › 學習科目 › … 讓同學知道自己在哪一層 */
-.crumbs { margin: 0 0 14px; font-size: 14px; color: var(--muted); }
+.crumbs { margin: 0 0 18px; padding-bottom: 10px; border-bottom: 1px dashed color-mix(in srgb, var(--line) 85%, transparent); font-size: 14px; color: var(--muted); }   /* 底部長虛線：路線和頁面內容分開 */
 .crumbs ol { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 0; margin: 0; padding: 0; list-style: none; }
 .crumbs li { display: inline-flex; align-items: center; min-width: 0; }
 .crumbs li + li::before { content: "›"; margin: 0 8px; color: var(--line); font-weight: 700; color: color-mix(in srgb, var(--muted) 70%, transparent); }
