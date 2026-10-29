@@ -163,7 +163,7 @@ const zoneCourseSel = {};   // 每個年級目前選的科目
 
 // 模擬考專區：年級 → 科目 → 分類 → 章節，一次只顯示一個科目
 function examZonePage() {
-  // #examzone/科目編號/章號（圖卡的「考前衝刺」）：選好年級、科目，並跳到有這一章的第一個分類
+  // #examzone/科目編號/章號（圖卡的「學習試題」）：選好年級、科目，並跳到有這一章的第一個分類
   if (routeParts[1]) {
     const dc = getCourse(routeParts[1]);
     if (dc) {
@@ -225,7 +225,7 @@ function coursePage() {
   </div>` : ''}
   ${deck ? `
   <h3 class="sec-title">各章節圖卡 <small>${deck.chapters.length} 章 · ${deckCardCount(c.id)} 張</small></h3>
-  <p class="lead-note">選一章看圖卡；「考前衝刺」直接到學習試題的同一章作答。</p>
+  <p class="lead-note">選一章看圖卡；「學習試題」直接到這一章的試題作答。</p>
   ${deckChaptersHtml(c, deck)}` : ''}
   ${items.length ? `
   <h3 class="sec-title">${deck ? '其他圖卡' : '圖卡'}<a class="more-btn sec-link" href="#items/${c.id}">搜尋圖卡<span class="arr" aria-hidden="true">›</span></a></h3>
@@ -419,7 +419,7 @@ function deckChaptersHtml(c, d, compact) {
         <p class="dc-meta">${ch.cards.length} 張圖卡${ch.date ? ' · ' + esc(ch.date) : ''}</p>
         <div class="dc-links">
           <a class="link" href="#cards/${c.id}/${esc(ch.no)}">看圖卡 →</a>
-          ${chapHasExams(c, ch.no) ? `<a class="link" href="#examzone/${c.id}/${esc(ch.no)}">考前衝刺 →</a>` : ''}
+          ${chapHasExams(c, ch.no) ? `<a class="link" href="#examzone/${c.id}/${esc(ch.no)}">學習試題 →</a>` : ''}
         </div>
       </div>
     </article>`).join('')}</div>`;
@@ -445,7 +445,7 @@ function cardsPage() {
       <h2>${esc(ch.title)}${ch.subtitle ? ` <small>${esc(ch.subtitle)}</small>` : ''}</h2>
       <p class="dc-meta">${ch.cards.length} 張圖卡${ch.date ? ' · 上課日期 ' + esc(ch.date) : ''}　點圖可看大圖</p>
     </div>
-    ${chapHasExams(c, ch.no) ? `<a class="btn" href="#examzone/${c.id}/${esc(ch.no)}">考前衝刺：做這章的試題 →</a>` : ''}
+    ${chapHasExams(c, ch.no) ? `<a class="btn" href="#examzone/${c.id}/${esc(ch.no)}">學習試題：做這章的試題 →</a>` : ''}
   </div>
   ${ch.groups.map(g => `
   <section class="cgrp">

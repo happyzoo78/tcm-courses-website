@@ -140,7 +140,7 @@ function examBrowserHtml(c) {
   if (!groups.some(g => g[0] === f.cat)) { f.cat = groups[0][0]; f.ch = ''; }
   const rows = groups.find(g => g[0] === f.cat)[1];
   const chapters = examChapters(rows, c);
-  // 換分類時（或從圖卡「考前衝刺」進來）停在同一個章號
+  // 換分類時（或從圖卡「學習試題」進來）停在同一個章號
   if (f.want) { f.ch = (chapters.find(g => examChapNo(g.chapter) === f.want) || {}).chapter || ''; delete f.want; }
   if (f.ch && !chapters.some(g => g.chapter === f.ch)) f.ch = '';
   const shownChaps = f.ch ? chapters.filter(g => g.chapter === f.ch) : chapters;
@@ -189,7 +189,7 @@ function examsAdminHtml() {
   if (!groups.some(g => g[0] === f.cat)) { f.cat = groups[0]?.[0] || ''; f.ch = ''; }
   const rows = (groups.find(g => g[0] === f.cat) || [, []])[1];
   const chapters = examChapters(rows, c);
-  // 換分類時（或從圖卡「考前衝刺」進來）停在同一個章號
+  // 換分類時（或從圖卡「學習試題」進來）停在同一個章號
   if (f.want) { f.ch = (chapters.find(g => examChapNo(g.chapter) === f.want) || {}).chapter || ''; delete f.want; }
   if (f.ch && !chapters.some(g => g.chapter === f.ch)) f.ch = '';
   const shownChaps = f.ch ? chapters.filter(g => g.chapter === f.ch) : chapters;
