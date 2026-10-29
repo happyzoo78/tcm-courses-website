@@ -130,6 +130,7 @@ const HW_DATA = [
     .hw-menu-home { display: none; }
     html { scroll-padding-top: 120px !important; }
   }
+  footer { text-align: center; }   /* 頁尾文字置中（與主站一致） */
   /* 作業專區首頁 */
   .hwz-years { display: flex; gap: 8px; margin: 18px 0 14px; overflow-x: auto; scrollbar-width: none; }
   .hwz-years::-webkit-scrollbar { display: none; }
