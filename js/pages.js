@@ -287,7 +287,7 @@ function accountPage() {
     </form>
     <dl class="account-info">
       <dt>登入信箱</dt><dd>${esc(admin.email)}</dd>
-      <dt>權限</dt><dd>${esc(ROLE_NAME[admin.role] || admin.role)}</dd>
+      <dt>權限</dt><dd>${esc(roleLabel(admin.role, owned.length > 0))}</dd>
       <dt>負責科目</dt><dd>${admin.canManageCourses ? '全部科目（擁有者、管理員可管理所有科目）' : owned.length ? owned.map(c => esc(c.title)).join('、') : '無'}</dd>
     </dl>
     <p class="meta-label">登入信箱與權限由網站管理者設定，如需變更請聯絡管理者。</p>

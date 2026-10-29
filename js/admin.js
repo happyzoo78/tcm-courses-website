@@ -6,6 +6,11 @@
    ========================================================= */
 const TYPE_NAME = { courses: '科目', items: '圖卡', projects: '活動專案' };
 const ROLE_NAME = { owner: '擁有者', admin: '管理員', editor: '編輯者', viewer: '一般會員' };
+// 身分顯示：一般會員被指派為科目負責人時，只顯示較高的「科目負責人」（已包含一般會員的權限）
+function roleLabel(role, ownsCourses) {
+  if (role === 'viewer' && ownsCourses) return '科目負責人';
+  return (ROLE_NAME[role] || role) + (ownsCourses && role === 'editor' ? '・科目負責人' : '');
+}
 
 // 偵測是否在 LINE、Facebook 等 App 的內建瀏覽器裡（Google 不允許在這些地方登入）
 function inAppBrowser() {
@@ -367,7 +372,7 @@ function adminPage() {
   return `
   <div class="admin-bar">
     <h2 class="section" style="margin:0;border:0;padding:0">管理後台</h2>
-    <div><span class="who">${esc(admin.displayName)}（${ROLE_NAME[admin.role] || admin.role}${(admin.ownedCourseIds || []).length ? '・科目負責人' : ''}）</span></div>
+    <div><span class="who">${esc(admin.displayName)}（${esc(roleLabel(admin.role, (admin.ownedCourseIds || []).length > 0))}）</span></div>
   </div>
   <div class="notice">在這裡新增、修改或刪除的內容，會<b>立即儲存到雲端資料庫</b>，所有成員都會看到。</div>
   ${flash}
