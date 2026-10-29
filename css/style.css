@@ -588,8 +588,8 @@ fieldset.owners .check small { color: var(--muted); }
 /* 模擬考專區：年級分頁 */
 .year-tabs { display: flex; gap: 8px; margin: 0 0 18px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
 .year-tabs::-webkit-scrollbar { display: none; }
-.year-tab { flex: 1 0 auto; min-width: 88px; min-height: 58px; justify-content: center; padding: 8px 14px; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface); color: var(--ink); font: inherit; font-size: 16px; cursor: pointer; display: flex; flex-direction: column; align-items: center; line-height: 1.3; }
-.year-tab small { font-size: 12px; color: var(--muted); }
+.year-tab { flex: 1 0 auto; min-width: 88px; min-height: 58px; justify-content: center; padding: 8px 14px; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface); color: var(--ink); font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; line-height: 1.3; }
+.year-tab small { font-size: 12px; color: var(--muted); font-weight: 400; }
 .year-tab[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
 .year-tab[aria-selected="true"] small { color: var(--accent-ink); opacity: .85; }
 .year-tab:disabled { opacity: .55; cursor: not-allowed; }
@@ -817,7 +817,7 @@ fieldset.owners .check small { color: var(--muted); }
 .car-top { margin: 0 0 6px; }
 .car-tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
 .car-tabs::-webkit-scrollbar { display: none; }
-.car-tab { flex: none; padding: 6px 12px; border-radius: var(--r-m); border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: 14.5px; cursor: pointer; white-space: nowrap; }
+.car-tab { flex: none; padding: 6px 12px; border-radius: var(--r-m); border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: 14.5px; font-weight: 600; cursor: pointer; white-space: nowrap; }
 .car-tab[aria-current="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .sem-carousel .shelves { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .shelf-head h4 a { color: inherit; text-decoration: none; }
