@@ -3,6 +3,7 @@
 import { jsonResponse } from "../_lib/auth.js";
 import { getCurrentAdmin, hasPermission } from "../_lib/session.js";
 import { ownedCourseIds } from "../_lib/pages.js";
+import { mailConfigured } from "../_lib/mail.js";
 
 export async function onRequestGet({ request, env }) {
   if (!env.DB) {
@@ -46,7 +47,8 @@ export async function onRequestGet({ request, env }) {
       canManageMembers: hasPermission(admin, "manage_users"),
       canManageCourses: hasPermission(admin, "publish"),   // 建立科目、指派負責人、開放學期
       hasPassword,
-      termsAccepted,                                        // 是否已同意使用須知                                          // 有沒有設定登入密碼（我的帳號頁用）
+      termsAccepted,                                        // 是否已同意使用須知
+      mailEnabled: mailConfigured(env),                     // 網站能不能寄信（決定要不要顯示「聯絡管理員」表單）
       ownedCourseIds: owned                                 // 自己負責的科目
 
     }

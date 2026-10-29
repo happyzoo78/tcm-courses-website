@@ -6,14 +6,16 @@
 
 export const mailConfigured = env => Boolean(env.BREVO_API_KEY && env.MAIL_FROM);
 
-export async function sendMail(env, { to, subject, text, html }) {
+// to 可以是一個 Email 或 Email 陣列；replyTo（選填）＝收件人按「回覆」時寄到哪裡
+export async function sendMail(env, { to, subject, text, html, replyTo }) {
   if (!mailConfigured(env)) throw new Error("mail not configured");
   const res = await fetch("https://api.brevo.com/v3/smtp/email", {
     method: "POST",
     headers: { "api-key": env.BREVO_API_KEY, "Content-Type": "application/json", accept: "application/json" },
     body: JSON.stringify({
       sender: { email: env.MAIL_FROM, name: "2026福建中醫台灣班網站" },
-      to: [{ email: to }],
+      to: (Array.isArray(to) ? to : [to]).map(email => ({ email })),
+      ...(replyTo ? { replyTo } : {}),
       subject, textContent: text, htmlContent: html
     })
   });

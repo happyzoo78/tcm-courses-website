@@ -303,6 +303,23 @@ function bind() {
     }
   });
 
+  // 聯絡管理員
+  const cf = document.getElementById('contactform');
+  if (cf) cf.onsubmit = async e => {
+    e.preventDefault();
+    const btn = cf.querySelector('[type=submit]'), msg = document.getElementById('contactmsg');
+    const message = cf.message.value.trim();
+    if (message.length < 5) { msg.innerHTML = '<div class="msg error">請寫下你想說的內容（至少 5 個字）。</div>'; return; }
+    btn.disabled = true; msg.innerHTML = '';
+    try {
+      await api('/api/contact', { method: 'POST', body: { subject: cf.subject.value, message } });
+      cf.reset();
+      msg.innerHTML = '<div class="msg ok">已寄出，管理者會回信到你的信箱。</div>';
+    } catch (err) {
+      msg.innerHTML = `<div class="msg error">${esc(err.message || '寄送失敗，請稍後再試')}</div>`;
+    } finally { btn.disabled = false; }
+  };
+
   // 擁有者寄「設定密碼」的信
   document.querySelectorAll('[data-member-mail]').forEach(b => b.onclick = async () => {
     const m = members.find(x => x.id == b.dataset.memberMail);

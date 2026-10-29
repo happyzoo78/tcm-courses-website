@@ -265,7 +265,24 @@ function aboutPage() {
     <p>這是 2026 福建中醫藥大學台灣班同學共同耕耘的學習園地。我們從台灣負笈福建，在經典與臨床、中醫與西醫之間往返求索：把課堂重點整理成講義，把章節考點編成試題，把難記的概念繪成圖卡，也把每一份作業、每一道錯題，都留作彼此的參照。</p>
     <p>醫道浩瀚，一人獨行易迷，眾人同行致遠。願這座小小的圖書館，陪伴每位同學溫故知新、互補長短，在執醫之路上步步踏實，終能以精誠之心，成為病人可以安心託付的好醫者。</p>
     <p class="about-note">本站內容僅供班級成員學習使用。如需加入，請將你的 Gmail 提供給網站管理者。</p>
-  </section>`;
+  </section>
+  ${contactHtml()}`;
+}
+
+// 聯絡管理員：登入的成員寫信給網站管理者（信寄到管理者信箱，管理者按回覆會回到你的 Email）
+function contactHtml() {
+  if (!admin || !admin.mailEnabled) return '';
+  return `
+  <h2 class="section" id="contact">聯絡管理員 <small class="motto">有問必答 · 有求必應</small></h2>
+  <div class="panel prose contact">
+    <form id="contactform">
+      <div class="field"><label for="c-subject">主旨（選填）</label><input id="c-subject" name="subject" maxlength="60" placeholder="例如：試題有錯字、想協助出題"></div>
+      <div class="field"><label for="c-msg">內容</label><textarea id="c-msg" name="message" maxlength="2000" required></textarea></div>
+      <p class="meta-label" style="margin-top:0">管理者會回信到你的登入信箱 ${esc(admin.email)}。</p>
+      <div id="contactmsg"></div>
+      <button class="btn" type="submit">寄出</button>
+    </form>
+  </div>`;
 }
 
 // 我的帳號：每位成員都可以改自己的暱稱
