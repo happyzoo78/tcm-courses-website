@@ -9,7 +9,8 @@ let loadState = 'loading';   // loading 載入中 | ready 完成 | error 失敗 
 let loadError = '';
 let admin = null;            // 目前登入的使用者（含權限）；null＝未登入
 let adminFlash = '';         // 管理後台的提示訊息（例如「已儲存」）
-let loginNotice = '';        // 登入畫面上要顯示的提示
+let loginNotice = '';
+let resetToken = '';         // 信裡「設定新密碼」連結帶的代碼（#reset/代碼）        // 登入畫面上要顯示的提示
 let members = null;          // 成員名單（只有擁有者會載入）
 let membersLoading = false;
 
@@ -103,6 +104,9 @@ function readLoginResult() {
 
 // 開啟網站時：先確認登入狀態，有登入才載入內容
 async function boot() {
+  // 從信裡的連結進來：直接顯示「設定新密碼」，不用先登入
+  const rt = /^#reset\/([A-Za-z0-9_-]{30,60})$/.exec(location.hash);
+  if (rt) { resetToken = rt[1]; admin = null; loadState = 'login'; return render(); }
   loadState = 'loading';
   render();
   try {

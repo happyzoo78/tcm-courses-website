@@ -20,7 +20,27 @@ function inAppBrowser() {
   return null;
 }
 
+// 用信裡的連結設定新密碼
+function resetGateHtml() {
+  return `
+  <div class="gate">
+    <div class="panel prose login-box">
+      <div class="eyebrow">2026福建中醫台灣班網站</div>
+      <h2>設定新密碼</h2>
+      <p class="meta-label" style="margin-top:0">請設定至少 12 個字的密碼。設定後，用你的 Email＋新密碼登入。</p>
+      <form id="resetform">
+        <div class="field"><label for="r-pw">新密碼（至少 12 字）</label><input id="r-pw" name="pw" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></div>
+        <div class="field"><label for="r-pw2">再輸入一次</label><input id="r-pw2" name="pw2" type="password" minlength="12" maxlength="128" autocomplete="new-password" required></div>
+        <div id="resetmsg"></div>
+        <button class="btn" type="submit">設定密碼</button>
+      </form>
+      <p class="meta-label"><a class="link" href="#home" id="reset-cancel">回到登入畫面</a></p>
+    </div>
+  </div>`;
+}
+
 function loginGateHtml() {
+  if (resetToken) return resetGateHtml();
   const inApp = inAppBrowser();
   const inAppMsg = inApp === 'line'
     ? `<div class="msg error">你正在 <b>LINE</b> 裡開啟網頁，Google 不允許在這裡登入（可改用下方 Email＋密碼登入）。<br>
@@ -44,8 +64,17 @@ function loginGateHtml() {
         <div class="field"><label for="l-pw">密碼</label><input id="l-pw" name="password" type="password" autocomplete="current-password" required></div>
         <div id="loginmsg"></div>
         <button class="btn" type="submit">登入</button>
-        <p class="meta-label">為保護帳號安全，密碼連續輸錯 5 次會暫停登入 15 分鐘。忘記密碼請找網站管理者重設。</p>
+        <p class="meta-label">為保護帳號安全，密碼連續輸錯 5 次會暫停登入 15 分鐘。</p>
       </form>
+      <details class="forgot">
+        <summary>忘記密碼？</summary>
+        <form id="forgotform">
+          <p class="meta-label" style="margin-top:6px">輸入你登入用的 Email，我們會寄一封「設定新密碼」的信給你。</p>
+          <div class="field"><label for="f-email">Email</label><input id="f-email" name="email" type="email" autocomplete="username" required></div>
+          <div id="forgotmsg"></div>
+          <button class="btn secondary" type="submit">寄送設定密碼的信</button>
+        </form>
+      </details>
       <p class="meta-label">還不能登入嗎？請把你的 Email 提供給網站管理者，加入名單後就可以使用。</p>
     </div>
   </div>`;
@@ -81,6 +110,7 @@ function membersHtml() {
       <div class="field"><label for="m-email">Email</label><input id="m-email" name="email" type="email" required placeholder="例如 student@gmail.com"></div>
       <div class="field"><label for="m-name">名稱（選填）</label><input id="m-name" name="displayName" maxlength="100" placeholder="例如 王小明"></div>
       <div class="field"><label for="m-pw">臨時密碼（選填）</label><div class="pw-gen"><input id="m-pw" name="password" minlength="12" maxlength="128" autocomplete="off" placeholder="至少 12 字"><button type="button" class="btn secondary" id="m-pw-gen">產生</button></div></div>
+      ${membersMeta.mailEnabled ? '<label class="m-mail"><input type="checkbox" name="sendMail" checked> 加入後寄「設定密碼」的信給對方</label>' : ''}
       <div class="field"><label for="m-role">權限</label><select id="m-role" name="role">${roleOptions('viewer')}</select></div>
       <button class="btn" type="submit">加入名單</button>
     </form>
@@ -102,6 +132,7 @@ function membersHtml() {
           ${m.isSelf ? '<a class="btn secondary" href="#account">改暱稱</a>' : locked ? '' : `
             <button type="button" class="btn secondary" data-member-rename="${m.id}">改名</button>
             <button type="button" class="btn secondary" data-member-pw="${m.id}">${m.hasPassword ? '重設密碼' : '設定密碼'}</button>
+            ${membersMeta.mailEnabled ? `<button type="button" class="btn secondary" data-member-mail="${m.id}" title="寄一封設定密碼的信到 ${esc(m.email)}">寄密碼信</button>` : ''}
             <select data-member-role="${m.id}" aria-label="變更權限">${roleOptions(m.role)}</select>
             <button type="button" class="btn secondary ${off ? '' : 'danger'}" data-member-status="${m.id}" data-to="${off ? 'active' : 'suspended'}">${off ? '恢復' : '停用'}</button>
             ${m.lastLoginAt ? '' : `<button type="button" class="btn secondary danger" data-member-delete="${m.id}">移除</button>`}`}
@@ -111,7 +142,7 @@ function membersHtml() {
   </div>`;
 }
 
-let membersMeta = { now: null, seenSupported: true, at: 0 };
+let membersMeta = { now: null, seenSupported: true, mailEnabled: false, at: 0 };
 const ONLINE_MIN = 5;   // 5 分鐘內有動作就算「線上」
 
 // 上線狀態：線上／幾分鐘前／今天幾點／日期
@@ -131,7 +162,7 @@ async function loadMembers() {
   membersLoading = true;
   try {
     const r = await api('/api/admin/members');
-    members = r.members; membersMeta = { now: r.now, seenSupported: r.seenSupported !== false, at: Date.now() };
+    members = r.members; membersMeta = { now: r.now, seenSupported: r.seenSupported !== false, mailEnabled: Boolean(r.mailEnabled), at: Date.now() };
   } catch (err) {
     membersLoading = false;
     members = [];

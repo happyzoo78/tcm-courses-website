@@ -89,7 +89,7 @@ function startHeartbeat() {
     if (!admin || document.visibilityState !== 'visible') return;
     try { await api('/api/me'); } catch {}
     if (page === 'admin' && adminType === 'members' && !membersLoading && !document.querySelector('#memberform input:focus, #memberform select:focus')) {
-      try { const r = await api('/api/admin/members'); members = r.members; membersMeta = { now: r.now, seenSupported: r.seenSupported !== false, at: Date.now() }; render(); } catch {}
+      try { const r = await api('/api/admin/members'); members = r.members; membersMeta = { now: r.now, seenSupported: r.seenSupported !== false, mailEnabled: Boolean(r.mailEnabled), at: Date.now() }; render(); } catch {}
     }
   }, 60000);
 }
@@ -156,8 +156,14 @@ function bind() {
     const body = Object.fromEntries(new FormData(mf).entries());
     try {
       if (!body.password) delete body.password;
-      await api('/api/admin/members', { method: 'POST', body });
-      reloadMembers(`已將 ${body.email.trim().toLowerCase()} 加入名單${body.password ? `。臨時密碼：${body.password}（請轉告對方，登入後可到「我的帳號」修改）` : ''}`);
+      const wantMail = body.sendMail === 'on'; delete body.sendMail;
+      const r = await api('/api/admin/members', { method: 'POST', body });
+      let mailNote = '';
+      if (wantMail && r.id) {
+        try { await api(`/api/admin/members/${r.id}/mail`, { method: 'POST', body: {} }); mailNote = '，已寄出設定密碼的信'; }
+        catch (err) { mailNote = `，但寄信失敗：${friendly(err)}`; }
+      }
+      reloadMembers(`已將 ${body.email.trim().toLowerCase()} 加入名單${body.password ? `。臨時密碼：${body.password}（請轉告對方，登入後可到「我的帳號」修改）` : ''}${mailNote}`);
     } catch (err) {
       btn.disabled = false;
       handleError(err, msg);
@@ -269,6 +275,55 @@ function bind() {
       handleError(err, null);
     }
   });
+
+  // 擁有者寄「設定密碼」的信
+  document.querySelectorAll('[data-member-mail]').forEach(b => b.onclick = async () => {
+    const m = members.find(x => x.id == b.dataset.memberMail);
+    if (!confirm(`寄一封「設定密碼」的信到 ${m.email}？\n對方按信裡的連結（3 天內有效）就能自己設定密碼。`)) return;
+    b.disabled = true;
+    try {
+      await api(`/api/admin/members/${m.id}/mail`, { method: 'POST', body: {} });
+      await reloadMembers(`已寄出設定密碼的信到 ${m.email}（請對方也檢查垃圾郵件）`);
+    } catch (err) { b.disabled = false; handleError(err, null); }
+  });
+
+  // 忘記密碼：寄信
+  const ff = document.getElementById('forgotform');
+  if (ff) ff.onsubmit = async e => {
+    e.preventDefault();
+    const msg = document.getElementById('forgotmsg'), btn = ff.querySelector('[type=submit]');
+    btn.disabled = true; msg.innerHTML = '';
+    try {
+      const r = await api('/api/password/forgot', { method: 'POST', body: { email: ff.elements.email.value } });
+      msg.innerHTML = `<div class="msg ok">${esc(r.message)}</div>`;
+    } catch (err) {
+      btn.disabled = false;
+      msg.innerHTML = `<div class="msg error">${esc(err.message)}</div>`;
+    }
+  };
+
+  // 用信裡的連結設定新密碼
+  const rf = document.getElementById('resetform');
+  if (rf) rf.onsubmit = async e => {
+    e.preventDefault();
+    const msg = document.getElementById('resetmsg'), btn = rf.querySelector('[type=submit]');
+    msg.innerHTML = '';
+    if (rf.elements.pw.value !== rf.elements.pw2.value) { msg.innerHTML = '<div class="msg error">兩次輸入的密碼不一樣。</div>'; return; }
+    btn.disabled = true;
+    try {
+      const r = await api('/api/password/reset', { method: 'POST', body: { token: resetToken, newPassword: rf.elements.pw.value } });
+      resetToken = '';
+      history.replaceState(null, '', '#home');
+      showLogin('');
+      const em = document.getElementById('l-email'); if (em) em.value = r.email || '';
+      const lm = document.getElementById('loginmsg'); if (lm) lm.innerHTML = '<div class="msg ok">密碼已設定，請用新密碼登入。</div>';
+    } catch (err) {
+      btn.disabled = false;
+      msg.innerHTML = `<div class="msg error">${esc(err.message)}</div>`;
+    }
+  };
+  const rc = document.getElementById('reset-cancel');
+  if (rc) rc.onclick = e => { e.preventDefault(); resetToken = ''; history.replaceState(null, '', '#home'); boot(); };
 
   // 自己修改／設定登入密碼
   const pf = document.getElementById('pwform');

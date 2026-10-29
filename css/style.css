@@ -917,3 +917,10 @@ h2.section .more-btn { margin-left: auto; align-self: center; }
 .pw-gen input { flex: 1; min-width: 0; }
 .pw-gen .btn { flex: none; }
 @media (max-width: 1000px) and (min-width: 721px) { .member-form { grid-template-columns: 1fr 1fr; } }
+
+/* 登入頁：忘記密碼 */
+details.forgot { margin-top: 10px; }
+details.forgot > summary { cursor: pointer; color: var(--accent); font-size: 14.5px; }
+.m-mail { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); align-self: center; }
+.m-mail input { width: auto; }
+.m-mail { grid-column: 1 / -1; }

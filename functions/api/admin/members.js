@@ -4,6 +4,7 @@ import { jsonResponse } from "../../_lib/auth.js";
 import { requireAdmin, readJson, audit } from "../../_lib/content.js";
 import { MEMBER_ROLES, NO_PASSWORD, checkPassword } from "../../_lib/members.js";
 import { hashPassword } from "../../_lib/password.js";
+import { mailConfigured } from "../../_lib/mail.js";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -29,6 +30,7 @@ export async function onRequestGet({ request, env }) {
 
   return jsonResponse({
     now: now?.t || null,
+    mailEnabled: mailConfigured(env),
     seenSupported: results.length ? "last_seen_at" in results[0] : true,
     members: results.map(m => ({
       id: m.id,
