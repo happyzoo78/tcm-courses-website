@@ -292,7 +292,10 @@ function adminPage() {
   let tabs = '';
   if (adminType === 'courses' || adminType === 'items') {
     const semOf = i => adminType === 'courses' ? i.semesterCode : getCourse(i.courseId)?.semesterCode;
-    tabs = yearTabsHtml(new Set(adminType === 'courses' ? [1, 2, 3, 4, 5] : rows.map(i => yearOf(semOf(i))).filter(Boolean)));
+    // 後台：每個年級都能點，小字顯示實際數量（不用「尚未開課」，避免誤會成學校課表）
+    const withData = new Set(rows.map(i => yearOf(semOf(i))).filter(Boolean));
+    const unit = adminType === 'courses' ? ' 科' : ' 張圖卡';
+    tabs = yearTabsHtml(withData, y => rows.filter(i => yearOf(semOf(i)) === y).length + unit);
     list = rows.filter(i => yearOf(semOf(i)) === siteYear);
   }
   body = `

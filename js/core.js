@@ -228,14 +228,21 @@ function shortSemLabel(code) {
   const m = /^(\d{4})_y(\d)s(\d)$/.exec(code || '');
   return m ? `${m[1]} ${'一二三四五'[m[2] - 1] || m[2]}${m[3] === '1' ? '上' : '下'}` : semesterLabel(code);
 }
-// 年級分頁；openYears＝可以點的年級
-function yearTabsHtml(openYears) {
+// 年級分頁；openYears＝可以點的年級（前台：同學看得到的年級）
+// sub(y)：有給時每個年級都可以點，小字改顯示 sub(y) 的內容（後台用，例如「0 張圖卡」）
+function yearTabsHtml(openYears, sub) {
+  if (sub) {
+    // 還沒選過年級時，停在有資料的最新年級（都沒有就一年級）
+    if (!siteYear) siteYear = openYears.size ? Math.max(...openYears) : 1;
+    openYears = new Set([1, 2, 3, 4, 5]);
+  }
   if (!openYears.has(siteYear)) siteYear = Math.max(0, ...openYears);
   return `
   <div class="year-tabs" role="tablist" aria-label="年級">
     ${YEAR_NAMES.map((n, i) => {
       const y = i + 1, open = openYears.has(y);
-      return `<button type="button" role="tab" class="year-tab" data-site-year="${y}" aria-selected="${y === siteYear}" ${open ? '' : 'disabled title="尚未開課"'}>${n}${open ? '' : '<small>尚未開課</small>'}</button>`;
+      const note = sub ? sub(y) : (open ? '' : '尚未開放');
+      return `<button type="button" role="tab" class="year-tab" data-site-year="${y}" aria-selected="${y === siteYear}" ${open ? '' : 'disabled title="同學目前看不到這個年級（可到後台「學期管理」打開）"'}>${n}${note ? `<small>${esc(note)}</small>` : ''}</button>`;
     }).join('')}
   </div>`;
 }
