@@ -242,7 +242,7 @@ async function readHtmlFile(file) {
 function semestersAdminHtml() {
   const sems = [...data.semesters].sort((a, b) => a.sortOrder - b.sortOrder);
   return `
-  <p class="meta-label">只有「開放中」的學期會顯示在首頁、學習書架和試題。新學期開始時，在這裡打開即可。</p>
+  <p class="meta-label">右側開關決定<b>同學看不看得到</b>這個學期的書架、講義、試題和圖卡。開關打開（綠色）＝同學看得到；關閉（灰色）＝只有管理者看得到。新學期開始時，把它打開即可。</p>
   <div class="sem-grid">
     ${YEAR_NAMES.map((n, i) => {
       const list = sems.filter(s => yearOf(s.code) === i + 1);
@@ -253,7 +253,9 @@ function semestersAdminHtml() {
         ${list.map(s => `
         <div class="sem-line">
           <span>${/s1$/.test(s.code) ? '上學期' : '下學期'}<small>${coursesIn(s.code).length} 科</small></span>
-          <button type="button" class="sem-toggle" data-sem="${esc(s.code)}" data-to="${s.visible ? '0' : '1'}" aria-pressed="${s.visible}">${s.visible ? '開放中' : '未開放'}</button>
+          <button type="button" class="sem-switch" role="switch" aria-checked="${!!s.visible}" data-sem="${esc(s.code)}" data-to="${s.visible ? '0' : '1'}" aria-label="${esc(s.label)}：同學${s.visible ? '看得到' : '看不到'}" title="${s.visible ? '按一下：對同學隱藏' : '按一下：讓同學看得到'}">
+            <span class="sem-state">${s.visible ? '同學看得到' : '同學看不到'}</span><span class="sw" aria-hidden="true"><span class="sw-knob"></span></span>
+          </button>
         </div>`).join('')}
       </div>`;
     }).join('')}
