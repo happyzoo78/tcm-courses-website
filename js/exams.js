@@ -119,7 +119,7 @@ function examListHtml(list, c, cat) {
 const examFilter = {};   // 每個科目目前選的分類、章節
 function examBrowserHtml(c) {
   const groups = examGroups(c.id);
-  if (!groups.length) return '<p class="empty-note">這個書架還沒有題庫。</p>';
+  if (!groups.length) return '<p class="empty-note">這個書架還沒有試題。</p>';
   const f = examFilter[c.id] || (examFilter[c.id] = { cat: '', ch: '' });
   if (!groups.some(g => g[0] === f.cat)) { f.cat = groups[0][0]; f.ch = ''; }
   const rows = groups.find(g => g[0] === f.cat)[1];
@@ -143,7 +143,7 @@ function courseExamsHtml(c) {
   const manage = canEditCourseUI(c.id);
   if (!examGroups(c.id).length && !manage) return '';   // 沒有考卷就整區隱藏
   return `
-  <h3 class="sec-title">題庫${manage ? `<a class="link sec-link" href="#admin/exams/${c.id}">管理題庫 →</a>` : ''}</h3>
+  <h3 class="sec-title">試題${manage ? `<a class="link sec-link" href="#admin/exams/${c.id}">管理試題 →</a>` : ''}</h3>
   <div class="exnav">${examBrowserHtml(c)}</div>`;
 }
 
@@ -177,14 +177,14 @@ function examsAdminHtml() {
   const total = groups.reduce((n, g) => n + g[1].length, 0);
   return `
   <div class="exnav">
-    ${adminCoursePicker(list, c.id, 'ex-course', `<a class="btn exnav-add" href="#examedit/new/${c.id}" data-new-cat="${esc(f.cat === OTHER_CATEGORY ? '' : f.cat)}" title="把題目整份貼上，網站會自動拆題、批改、統計">＋ 新增題庫</a>`)}
+    ${adminCoursePicker(list, c.id, 'ex-course', `<a class="btn exnav-add" href="#examedit/new/${c.id}" data-new-cat="${esc(f.cat === OTHER_CATEGORY ? '' : f.cat)}" title="把題目整份貼上，網站會自動拆題、批改、統計">＋ 新增試題</a>`)}
     ${groups.length ? `
     <div class="exnav-cats" role="tablist" aria-label="分類">${groups.map(([name, r]) => `<button type="button" role="tab" class="ex-cat" data-ex-cat="${esc(name)}" aria-selected="${name === f.cat}">${esc(name)}<small>${r.length}</small></button>`).join('<span class="ex-sep" aria-hidden="true">｜</span>')}</div>
     <div class="exnav-chaps" aria-label="章節">
       <span class="exnav-cap">${esc(f.cat)} › 章節</span>
       <button type="button" class="ex-ch" data-ex-ch="" aria-pressed="${!f.ch}">全部<small>${rows.length}</small></button>
       ${chapters.map(g => `<button type="button" class="ex-ch" data-ex-ch="${esc(g.chapter)}" aria-pressed="${g.chapter === f.ch}">${esc(g.chapter)}${g.items.length > 1 ? `<small>${g.items.length}</small>` : ''}</button>`).join('')}
-    </div>` : '<p class="exnav-empty">這個書架還沒有題庫。按「＋ 新增題庫」，把題目整份貼上，網站會自動拆題、批改、統計。</p>'}
+    </div>` : '<p class="exnav-empty">這個書架還沒有試題。按「＋ 新增試題」，把題目整份貼上，網站會自動拆題、批改、統計。</p>'}
   </div>
   <div class="adminlist exam-adminlist">
     ${shown.map(({ e, ...i }) => `
@@ -196,7 +196,7 @@ function examsAdminHtml() {
           <a class="btn secondary" href="#examstats/${e.id}">統計</a>
           <button type="button" class="btn secondary danger" data-exam-delete="${e.id}">刪除</button>
         </div>
-      </div>`).join('') || '<p class="empty-note">這個分類還沒有題庫。按「＋ 新增題庫」，把題目整份貼上。</p>'}
+      </div>`).join('') || '<p class="empty-note">這個分類還沒有試題。按「＋ 新增試題」，把題目整份貼上。</p>'}
   </div>`;
 }
 const examAdminFilter = {};   // 每個科目目前選的分類、章節
@@ -220,7 +220,7 @@ function bindExamsAdmin() {
   document.querySelectorAll('[data-new-cat]').forEach(a => a.addEventListener('click', () => { examNewCategory = a.dataset.newCat; }));
   document.querySelectorAll('[data-exam-delete]').forEach(b => b.onclick = async () => {
     const e = data.exams.find(x => x.id == b.dataset.examDelete);
-    if (!confirm(`確定刪除題庫「${e.title}」？\n所有同學的作答紀錄也會一起刪除，無法復原。`)) return;
+    if (!confirm(`確定刪除試題「${e.title}」？\n所有同學的作答紀錄也會一起刪除，無法復原。`)) return;
     b.disabled = true;
     try {
       await api(`/api/admin/exams/${e.id}`, { method: 'DELETE' });
@@ -401,7 +401,7 @@ let examCurrent = null;
 const examDraftKey = e => `tcm-exam-${e.id}-v${e.version}`;
 
 function examPage() {
-  return '<div id="exam-root"><p class="empty">題庫載入中…</p></div>';
+  return '<div id="exam-root"><p class="empty">試題載入中…</p></div>';
 }
 
 async function mountExam() {
@@ -422,7 +422,7 @@ async function mountExam() {
       <h2>${esc(e.title)}</h2>
       ${e.description ? `<p>${nl2br(e.description)}</p>` : ''}
       <p class="meta-label">共 ${e.questions.length} 題 · 滿分 ${e.totalPoints} 分 · 作答內容會自動暫存在這台電腦，交卷後才批改。</p>
-      ${e.published ? '' : '<div class="notice">這份題庫是<b>草稿</b>，只有科目負責人看得到。到「編輯」勾選「公開」後同學才看得到。</div>'}
+      ${e.published ? '' : '<div class="notice">這份試題是<b>草稿</b>，只有科目負責人看得到。到「編輯」勾選「公開」後同學才看得到。</div>'}
       ${e.myAttempts.length ? `<details class="my-attempts"><summary>我的作答紀錄（${e.myAttempts.length} 次）</summary>
         <ul>${e.myAttempts.map(a => `<li><a class="link" href="#attempt/${a.id}">${esc(fmtTime(a.createdAt))}</a>　${a.score} / ${a.maxScore} 分（${pctText(a.score, a.maxScore)}）${a.oldVersion ? '　<small>舊版考卷</small>' : ''}</li>`).join('')}</ul></details>` : ''}
     </div>
@@ -488,13 +488,13 @@ async function mountAttempt() {
   const pending = essays.filter(q => !a.results[q.id]?.selfScored).length;
   const wrong = a.questions.filter(q => q.type !== 'essay' && !a.results[q.id]?.correct).length;
   root.innerHTML = `
-    <a class="btn secondary back" href="${a.mine ? `#exam/${a.examId}` : `#examstats/${a.examId}`}">← ${a.mine ? '回到題庫' : '回到統計'}</a>
+    <a class="btn secondary back" href="${a.mine ? `#exam/${a.examId}` : `#examstats/${a.examId}`}">← ${a.mine ? '回到試題' : '回到統計'}</a>
     <div class="exam-head">
       <div class="eyebrow">${a.mine ? '我的成績' : `${esc(a.name || '')} 的作答`}</div>
       <h2>${esc(a.title)}</h2>
       <div class="score-big"><strong id="att-score">${a.score}</strong> / ${a.maxScore} 分 <span id="att-pct">（${pctText(a.score, a.maxScore)}）</span></div>
       <p class="meta-label">交卷時間：${esc(fmtTime(a.createdAt))}${wrong ? ` · 客觀題答錯 ${wrong} 題` : ''}</p>
-      ${a.oldVersion ? '<div class="notice">這是舊版題庫的作答，題目後來有修改，以下答案與解析以目前版本為準，僅供參考。</div>' : ''}
+      ${a.oldVersion ? '<div class="notice">這是舊版試題的作答，題目後來有修改，以下答案與解析以目前版本為準，僅供參考。</div>' : ''}
       ${canSelfScore && pending ? `<div class="notice">有 ${pending} 題申論題請對照參考答案<b>自評分數</b>，按最下方「儲存自評」後會計入總分。</div>` : ''}
       <div class="exam-actions">
         ${a.mine ? `<a class="btn" href="#exam/${a.examId}">再做一次</a>` : ''}
@@ -546,7 +546,7 @@ async function mountRetry() {
   try { a = await api(`/api/attempts/${encodeURIComponent(routeParts[1])}`); }
   catch (err) { if (err.status === 401) return showLogin('登入已過期，請重新登入。'); root.innerHTML = `<div class="msg error">${esc(friendly(err))}</div>`; return; }
   if (!document.getElementById('retry-root')) return;
-  if (!a.mine || a.oldVersion) { root.innerHTML = '<p class="empty">只能練習自己最新版本題庫的錯題。</p>'; return; }
+  if (!a.mine || a.oldVersion) { root.innerHTML = '<p class="empty">只能練習自己最新版本試題的錯題。</p>'; return; }
   const qs = a.questions.filter(q => q.type !== 'essay' && a.results[q.id] && !a.results[q.id].correct);
   const groups = a.groups.filter(g => qs.some(q => q.group === g.id));
   // 作答畫面不能帶出答案
@@ -625,11 +625,11 @@ async function mountExamEdit() {
   examEditDirty = false;
   root.innerHTML = `
     <div class="editor-head">
-      <a class="btn secondary back" href="#admin/exams/${course.id}">← 回題庫管理</a>
-      <h2 class="section" style="margin:0;border:0;padding:0">${isNew ? '新增題庫' : '編輯題庫'} <small>${esc(semesterLabel(course.semesterCode))}｜${esc(course.title)}</small></h2>
+      <a class="btn secondary back" href="#admin/exams/${course.id}">← 回試題管理</a>
+      <h2 class="section" style="margin:0;border:0;padding:0">${isNew ? '新增試題' : '編輯試題'} <small>${esc(semesterLabel(course.semesterCode))}｜${esc(course.title)}</small></h2>
     </div>
     <div class="panel prose editor-panel">
-      <div class="field"><label for="xe-title">題庫名稱</label><input id="xe-title" maxlength="200" value="${esc(exam.title)}" placeholder="例如：第一章 陰陽五行 模擬考"></div>
+      <div class="field"><label for="xe-title">試題名稱</label><input id="xe-title" maxlength="200" value="${esc(exam.title)}" placeholder="例如：第一章 陰陽五行 模擬考"></div>
       <div class="field"><label for="xe-desc">說明（選填）</label><input id="xe-desc" maxlength="1000" value="${esc(exam.description)}"></div>
       <div class="field"><label for="xe-cat">分類標籤（科目頁會依標籤分頁顯示；可以從清單選，也可以自己打新的）</label>
         <input id="xe-cat" maxlength="30" list="xe-cat-list" value="${esc(exam.category || '')}" placeholder="例如：學習通測試題">
@@ -637,7 +637,7 @@ async function mountExamEdit() {
         <small class="meta-label">留空會歸在「${OTHER_CATEGORY}」。</small></div>
       <div class="field" style="max-width:260px"><label for="xe-sort">排序（數字小的排前面）</label>
         <input id="xe-sort" type="number" min="0" max="100000" step="1" value="${exam.sortOrder ?? (Math.max(0, ...examsOf(course.id).map(x => x.sortOrder)) + 10)}">
-        <small class="meta-label">建議用 10、20、30…，中間留空，之後要插入新題庫比較方便。標籤的順序跟著該標籤裡排序最前的考卷。</small></div>
+        <small class="meta-label">建議用 10、20、30…，中間留空，之後要插入新試題比較方便。標籤的順序跟著該標籤裡排序最前的考卷。</small></div>
       <label class="check"><input type="checkbox" id="xe-pub" ${exam.published ? 'checked' : ''}> 公開給同學作答（不勾選就是草稿，只有科目負責人看得到）</label>
       ${isNew ? '' : '<div class="notice">修改題目內容後會變成<b>新版本</b>：同學舊的作答紀錄和分數會保留，但「題目統計」只計算新版本的作答。只改名稱、說明、公開設定不會變成新版本。</div>'}
       <details class="fmt-help">
@@ -661,7 +661,7 @@ async function mountExamEdit() {
       <div id="xe-msg"></div>
       <div class="ed-actions">
         <button class="btn secondary" type="button" id="xe-check">檢查格式</button>
-        <button class="btn" type="button" id="xe-save">儲存題庫</button>
+        <button class="btn" type="button" id="xe-save">儲存試題</button>
       </div>
       <div id="xe-preview"></div>
     </div>`;
@@ -703,7 +703,7 @@ async function mountExamEdit() {
                    category: document.getElementById('xe-cat').value,
                    ...(document.getElementById('xe-sort').value.trim() !== '' ? { sortOrder: Number(document.getElementById('xe-sort').value) } : {}),
                    published: document.getElementById('xe-pub').checked, source: src.value };
-    if (!body.title.trim()) { msg.innerHTML = '<div class="msg error">請填寫題庫名稱。</div>'; return; }
+    if (!body.title.trim()) { msg.innerHTML = '<div class="msg error">請填寫試題名稱。</div>'; return; }
     btn.disabled = true; btn.textContent = '儲存中…'; msg.innerHTML = '';
     try {
       const res = await fetch(isNew ? '/api/admin/exams' : `/api/admin/exams/${exam.id}`, {
@@ -714,7 +714,7 @@ async function mountExamEdit() {
       if (!res.ok) {
         if (res.status === 401) return showLogin('登入已過期，請重新登入。');
         msg.innerHTML = out.errors?.length ? showErrors(out.errors) : `<div class="msg error">${esc(out.error || '儲存失敗')}</div>`;
-        btn.disabled = false; btn.textContent = '儲存題庫';
+        btn.disabled = false; btn.textContent = '儲存試題';
         return;
       }
       examEditDirty = false;
@@ -724,7 +724,7 @@ async function mountExamEdit() {
       adminFlash = `已儲存「${body.title.trim()}」${body.published ? '' : '（草稿，同學還看不到）'}`;
       location.hash = `admin/exams/${course.id}`;
     } catch (err) {
-      btn.disabled = false; btn.textContent = '儲存題庫';
+      btn.disabled = false; btn.textContent = '儲存試題';
       handleError(err, msg);
     }
   };
@@ -743,7 +743,7 @@ async function mountExamStats() {
   if (!document.getElementById('examstats-root')) return;
   const num = v => v == null ? '—' : `${v}%`;
   root.innerHTML = `
-    <a class="btn secondary back" href="#admin/exams/${s.courseId}">← 回題庫管理</a>
+    <a class="btn secondary back" href="#admin/exams/${s.courseId}">← 回試題管理</a>
     <h2 class="section">${esc(s.title)} <small>全班統計 · 第 ${s.version} 版</small></h2>
     <p class="meta-label">本頁只有擁有者、管理員和這個科目的負責人看得到。題目統計只計算目前版本的作答${s.allAttempts > s.attempts ? `（另有 ${s.allAttempts - s.attempts} 次舊版作答）` : ''}。</p>
     <div class="stats stats-row">

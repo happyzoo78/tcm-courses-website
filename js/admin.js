@@ -194,7 +194,7 @@ async function readHtmlFile(file) {
 function semestersAdminHtml() {
   const sems = [...data.semesters].sort((a, b) => a.sortOrder - b.sortOrder);
   return `
-  <p class="meta-label">只有「開放中」的學期會顯示在首頁、各科書架和題庫。新學期開始時，在這裡打開即可。</p>
+  <p class="meta-label">只有「開放中」的學期會顯示在首頁、各科書架和試題。新學期開始時，在這裡打開即可。</p>
   <div class="sem-grid">
     ${YEAR_NAMES.map((n, i) => {
       const list = sems.filter(s => yearOf(s.code) === i + 1);
@@ -218,7 +218,7 @@ function adminPage() {
   }
   const tabs = {
     pages: '講義',
-    exams: '題庫',
+    exams: '試題',
     ...(admin.canWrite ? TYPE_NAME : {}),
     ...(admin.canManageCourses ? { semesters: '學期' } : {}),
     ...(admin.canManageMembers ? { members: '成員' } : {})
@@ -283,7 +283,7 @@ function editorHtml(i) {
     <div class="field"><label for="f-sem">學期</label>
       <select id="f-sem" name="semesterCode">${[...data.semesters].sort((a, b) => a.sortOrder - b.sortOrder).map(s => `<option value="${esc(s.code)}" ${(i.semesterCode || visibleSemesters()[0]?.code) === s.code ? 'selected' : ''}>${esc(s.label)}</option>`).join('')}</select></div>
     <div class="field"><label for="f-slug">英文代碼（小寫英文與連字號，例如 medical-biology）</label><input id="f-slug" name="slug" maxlength="60" pattern="[a-z0-9]+(-[a-z0-9]+)*" value="${esc(i.slug || '')}"></div>
-    ${admin.canManageMembers ? `<fieldset class="field owners"><legend>科目負責人（可上傳、修改、刪除這個科目的講義與題庫）</legend>
+    ${admin.canManageMembers ? `<fieldset class="field owners"><legend>科目負責人（可上傳、修改、刪除這個科目的講義與試題）</legend>
       ${members ? members.filter(m => m.status === 'active' && m.role !== 'owner').map(m => `<label class="check"><input type="checkbox" name="owner" value="${m.id}" ${(i.owners || []).some(o => o.id === m.id) ? 'checked' : ''}> ${esc(m.displayName)} <small>${esc(m.email)}</small></label>`).join('') || '<p class="meta-label">名單上還沒有其他成員。</p>' : '<p class="meta-label">成員名單載入中…</p>'}
     </fieldset>` : ''}
     <div class="field"><label for="f-icon">封面文字（最多 10 字）</label><input id="f-icon" name="icon" maxlength="10" value="${esc(i.icon || '')}"></div>

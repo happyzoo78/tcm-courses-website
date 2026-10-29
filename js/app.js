@@ -258,7 +258,7 @@ function bind() {
   document.querySelectorAll('[data-delete]').forEach(b => b.onclick = async () => {
     const id = Number(b.dataset.delete);
     if (adminType === 'courses' && (data.items.some(x => x.courseId === id) || pagesOf(id).length || examsOf(id).length)) {
-      alert('請先刪除或調整此科目裡的講義、題庫和圖卡。');
+      alert('請先刪除或調整此科目裡的講義、試題和圖卡。');
       return;
     }
     const row = data[adminType].find(x => x.id === id);
@@ -365,7 +365,7 @@ window.addEventListener('hashchange', () => {
     editorDirty = false;
   }
   if (page === 'examedit' && examEditDirty) {
-    if (!confirm('題庫還沒儲存，確定要離開嗎？')) {
+    if (!confirm('試題還沒儲存，確定要離開嗎？')) {
       history.replaceState(null, '', lastHash || '#home');
       return;
     }

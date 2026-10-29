@@ -13,7 +13,7 @@ function courseCard(c) {
     <div class="cover" aria-hidden="true">${TAIJI}<span>${esc(c.icon || c.title.slice(0, 2))}</span></div>
     <div class="course-body">
       <h3>${esc(c.title)}${isExamSubject(c) ? ' <span class="exam-tag">執醫考科</span>' : ''}</h3>
-      <p class="meta-label">${n} 份講義 · ${x} 份題庫 · ${k} 張圖卡</p>
+      <p class="meta-label">${n} 份講義 · ${x} 份試題 · ${k} 張圖卡</p>
       <p class="meta-label">最新進度</p>
       <div class="latest">${esc(c.latest) || '—'}</div>
       <a class="link go" href="#course/${c.id}">打開書架 →</a>
@@ -52,7 +52,7 @@ function recentUpdates(limit) {
   const day = t => String(t || '').slice(0, 10);
   const list = [
     ...(data.pages || []).filter(p => visible(p.courseId)).map(p => ({ t: p.updatedAt, date: day(fmtTime(p.updatedAt)).replace(/\//g, '-'), kind: '講義', courseId: p.courseId, title: p.title, desc: p.description, href: p.url })),
-    ...(data.exams || []).filter(e => e.published && visible(e.courseId)).map(e => ({ t: e.updatedAt, date: day(fmtTime(e.updatedAt)).replace(/\//g, '-'), kind: '題庫', group: `${e.courseId}|${e.category || ''}`, courseId: e.courseId, title: shortExamTitle(e, getCourse(e.courseId) || {}), desc: `${e.category || '其他試題'} · ${e.questionCount} 題`, href: `#exam/${e.id}` })),
+    ...(data.exams || []).filter(e => e.published && visible(e.courseId)).map(e => ({ t: e.updatedAt, date: day(fmtTime(e.updatedAt)).replace(/\//g, '-'), kind: '試題', group: `${e.courseId}|${e.category || ''}`, courseId: e.courseId, title: shortExamTitle(e, getCourse(e.courseId) || {}), desc: `${e.category || '其他試題'} · ${e.questionCount} 題`, href: `#exam/${e.id}` })),
     ...data.items.filter(i => visible(i.courseId)).map(i => ({ t: i.date, date: i.date, kind: '圖卡', courseId: i.courseId, title: i.title, desc: i.description, href: `#detail/item/${i.id}` })),
     ...data.courses.filter(c => open.has(c.semesterCode)).flatMap(c => filesOf(c.id).map(f => ({ t: f.updated, date: day(f.updated), kind: '講義', courseId: c.id, title: f.title, desc: f.description || '', href: f.path })))
   ];
@@ -126,7 +126,7 @@ function homePage() {
     <div class="stats">
       <div class="stat"><strong>${shown.length}</strong><span>書架</span></div>
       <div class="stat"><strong>${totalPages}</strong><span>講義</span></div>
-      <div class="stat"><strong>${totalExams}</strong><span>題庫</span></div>
+      <div class="stat"><strong>${totalExams}</strong><span>試題</span></div>
       <div class="stat"><strong>${totalCards}</strong><span>圖卡</span></div>
     </div>
   </section>
@@ -147,8 +147,8 @@ function homePage() {
 
   <h2 class="section">使用說明</h2>
   <div class="panel prose">
-    <p><b>瀏覽方式：</b>本館依科目分成「書架」，每個書架收著該科的講義、題庫與圖卡。上方「各科書架」依年級找科目；「學習試題」集中所有可線上作答的試題；「作業專區」不用登入也能看。</p>
-    ${hasAdminAccess() ? `<p><b>資料管理：</b>點右上角「管理後台」，可以上傳講義、出題庫${admin.canWrite ? '，或新增修改科目與圖卡' : '（限你負責的科目）'}。</p>` : ''}
+    <p><b>瀏覽方式：</b>本館依科目分成「書架」，每個書架收著該科的講義、試題與圖卡。上方「各科書架」依年級找科目；「學習試題」集中所有可線上作答的試題；「作業專區」不用登入也能看。</p>
+    ${hasAdminAccess() ? `<p><b>資料管理：</b>點右上角「管理後台」，可以上傳講義、出題${admin.canWrite ? '，或新增修改科目與圖卡' : '（限你負責的科目）'}。</p>` : ''}
     <p><b>使用範圍：</b>本站內容僅供班級成員學習使用，請勿轉貼或外流，並尊重教材著作權。</p>
   </div>`;
 }
@@ -170,7 +170,7 @@ function examZonePage() {
   <div class="exnav">
     <div class="exnav-top">
       <h3 class="exnav-title"><a class="link" href="#course/${c.id}">${esc(c.title)}</a>${isExamSubject(c) ? ' <span class="exam-tag">執醫考科</span>' : ''}</h3>
-      ${canEditCourseUI(c.id) ? `<a class="link sec-link" href="#admin/exams/${c.id}">管理題庫 →</a>` : ''}
+      ${canEditCourseUI(c.id) ? `<a class="link sec-link" href="#admin/exams/${c.id}">管理試題 →</a>` : ''}
     </div>
     ${examBrowserHtml(c)}
   </div>`;
@@ -261,7 +261,7 @@ function aboutPage() {
   <section class="hero about-hero has-art">${HERO_ART}
     <div class="eyebrow"><span class="nw">中醫學習</span> · <span class="nw">大醫精誠</span></div>
     <h1>關於本館</h1>
-    <p>這是 2026 福建中醫藥大學台灣班同學共同耕耘的學習園地。我們從台灣負笈福建，在經典與臨床、中醫與西醫之間往返求索：把課堂重點整理成講義，把章節考點編成題庫，把難記的概念繪成圖卡，也把每一份作業、每一道錯題，都留作彼此的參照。</p>
+    <p>這是 2026 福建中醫藥大學台灣班同學共同耕耘的學習園地。我們從台灣負笈福建，在經典與臨床、中醫與西醫之間往返求索：把課堂重點整理成講義，把章節考點編成試題，把難記的概念繪成圖卡，也把每一份作業、每一道錯題，都留作彼此的參照。</p>
     <p>醫道浩瀚，一人獨行易迷，眾人同行致遠。願這座小小的圖書館，陪伴每位同學溫故知新、互補長短，在執醫之路上步步踏實，終能以精誠之心，成為病人可以安心託付的好醫者。</p>
     <p class="about-note">本站內容僅供班級成員學習使用。如需加入，請將你的 Gmail 提供給網站管理者。</p>
   </section>`;
