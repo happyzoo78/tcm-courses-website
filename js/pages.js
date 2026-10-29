@@ -293,6 +293,7 @@ function accountPage() {
   const flash = adminFlash ? `<div class="msg ok">${esc(adminFlash)}</div>` : '';
   adminFlash = '';
   return `
+  <a class="btn secondary back" href="${esc(accountFrom || '#home')}">← 返回</a>
   <h2 class="section">我的帳號</h2>
   ${flash}
   <div class="panel prose account">

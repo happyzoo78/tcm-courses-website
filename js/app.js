@@ -555,6 +555,7 @@ window.addEventListener('hashchange', () => {
     examEditDirty = false;
   }
   if (page === 'editor') clearInterval(draftTimer);
+  if (/^#account/.test(location.hash) && !/^#account/.test(lastHash || '')) accountFrom = lastHash || '#home';
   lastHash = location.hash;
   const prev = page;
   readHash();

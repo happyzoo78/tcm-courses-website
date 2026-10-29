@@ -201,6 +201,7 @@ const fmtSize = n => n >= 1048576 ? (n / 1048576).toFixed(2) + ' MB' : Math.max(
 const PAGES = ['home', 'courses', 'course', 'items', 'projects', 'detail', 'about', 'admin', 'account', 'editor', 'exam', 'attempt', 'retry', 'examedit', 'examstats', 'examzone'];
 let page = 'home', filter = 'all', query = '', adminType = 'pages', detailTarget = ['item', 0], courseTarget = 0;
 let pagesCourse = 0;
+let accountFrom = '#home';      // 進入「我的帳號」前所在的頁面（返回按鈕用）
 let editorTarget = ['new', 0];
 let routeParts = [];             // 目前網址拆開後的各段（模擬考題頁面使用）   // 網站內編輯器：['new', 科目編號] 或 ['page', 網頁編號]   // 後台「網頁管理」目前選的科目
 const app = document.getElementById('app');
