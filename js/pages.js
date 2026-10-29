@@ -16,7 +16,7 @@ function courseCard(c) {
       <p class="meta-label">${[n ? `${n} 份講義` : '', `${k} 張圖卡`, `${x} 份試題`].filter(Boolean).join(' · ')}</p>
       <p class="meta-label">最新進度</p>
       <div class="latest">${esc(c.latest) || '—'}</div>
-      <a class="link go" href="#course/${c.id}">進入科目 →</a>
+      <a class="link go" href="#course/${c.id}">進入圖卡總目錄 →</a>
     </div>
   </article>`;
 }
@@ -201,7 +201,7 @@ function coursesPage() {
   ${yearCoursesHtml()}`;
 }
 
-// 單一科目頁（學習科目 → 進入科目）：整頁介紹這科的圖卡（依章節圖卡＝總目錄、其他圖卡），講義放最前面；
+// 單一科目頁（學習科目 → 進入圖卡總目錄）：整頁介紹這科的圖卡（依章節圖卡＝總目錄、其他圖卡），講義放最前面；
 // 試題不在這裡展開，只在最下方提供「到學習試題作答」的連結（試題集中在「學習試題」）
 function coursePage() {
   const c = getCourse(courseTarget);
