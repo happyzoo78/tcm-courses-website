@@ -137,12 +137,14 @@ const HW_DATA = [
   }
   footer { text-align: center; }   /* 頁尾文字置中（與主站一致） */
   /* 作業專區首頁 */
-  .hwz-years { display: flex; gap: 8px; margin: 18px 0 14px; overflow-x: auto; scrollbar-width: none; }
+  /* 年級分頁：文字＋底線（與主站一致） */
+  .hwz-years { display: flex; gap: 4px 30px; margin: 18px 0 14px; overflow-x: auto; scrollbar-width: none; box-shadow: inset 0 -1px 0 var(--line); }
   .hwz-years::-webkit-scrollbar { display: none; }
-  .hwz-year { flex: 1 0 auto; min-width: 80px; min-height: 58px; justify-content: center; padding: 8px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; line-height: 1.3; }
-  .hwz-year small { font-size: 12px; color: var(--muted); font-weight: 400; }
-  .hwz-year[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-  .hwz-year:disabled { opacity: .55; cursor: not-allowed; }
+  .hwz-year { flex: none; display: inline-flex; align-items: baseline; gap: 6px; background: none; border: 0; border-bottom: 3px solid transparent; padding: 8px 2px 10px; font: inherit; font-size: 17px; font-weight: 600; color: var(--muted); cursor: pointer; white-space: nowrap; }
+  .hwz-year:hover:not(:disabled) { color: var(--ink); }
+  .hwz-year small { font-size: 12px; font-weight: 400; color: var(--muted); }
+  .hwz-year[aria-selected="true"] { color: var(--ink); font-weight: 700; border-bottom-color: var(--accent); }
+  .hwz-year:disabled { opacity: .5; cursor: not-allowed; }
   .hwz-semrow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 0 0 8px; }
   .hwz-sem { flex: none; align-self: stretch; display: inline-flex; align-items: center; padding: 0 12px 0 0; margin-right: 4px; border-right: 2px solid var(--accent); font-size: 15px; font-weight: 700; color: var(--ink); letter-spacing: .04em; }
   /* 科目按鈕：與主站一致（淡綠底＋綠框），選到＝實心綠 */
@@ -174,8 +176,8 @@ const HW_DATA = [
   @media (max-width: 720px) {
     .hwz-semrow { display: none; }
     .hwz-select-wrap { display: block; }
-    .hwz-years { overflow: visible; gap: 6px; }
-    .hwz-year { flex: 1 1 0; min-width: 0; min-height: 52px; padding: 6px 2px; font-size: 14.5px; }
+    .hwz-years { overflow: visible; gap: 4px 0; }
+    .hwz-year { flex: 1 1 0; min-width: 0; flex-direction: column; align-items: center; gap: 0; padding: 6px 0 8px; font-size: 15px; line-height: 1.3; }
     .hwz-year small { font-size: 11px; }
   }
   @media (prefers-reduced-motion: reduce) { header { transition: none; } }
