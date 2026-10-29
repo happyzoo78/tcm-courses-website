@@ -117,6 +117,11 @@ function examListHtml(list, c, cat) {
 
 // 同學端考卷瀏覽：分類（｜）→ 章節（內嵌小框）→ 考卷清單。科目頁與模擬考專區共用
 const examFilter = {};   // 每個科目目前選的分類、章節
+// 分類說明：選到該分類時，在章節上方顯示提醒框（名稱含關鍵字即適用，各科通用）
+const EXAM_CAT_NOTES = [
+  [/期末/, '本分類題目依照<strong>老師上課提過的考題方向</strong>出題，供期末複習參考。'],
+];
+const examCatNote = cat => { const n = EXAM_CAT_NOTES.find(([re]) => re.test(cat)); return n ? `<div class="note-box ex-note"><span class="note-lab">出題說明</span>${n[1]}</div>` : ''; };
 function examBrowserHtml(c) {
   const groups = examGroups(c.id);
   if (!groups.length) return '<p class="empty-note">這個科目還沒有試題。</p>';
@@ -130,6 +135,7 @@ function examBrowserHtml(c) {
   const showChaps = chapters.length > 1 || chapters.some(g => g.menu);
   return `
     <div class="exnav-cats" role="tablist" aria-label="分類">${groups.map(([name, r]) => `<button type="button" role="tab" class="ex-cat" data-xb-cat="${esc(name)}" data-course="${c.id}" aria-selected="${name === f.cat}">${esc(name)}<small>${r.length}</small></button>`).join('<span class="ex-sep" aria-hidden="true">｜</span>')}</div>
+    ${examCatNote(f.cat)}
     ${showChaps ? `
     <div class="exnav-chaps" aria-label="章節">
       <span class="exnav-cap">${esc(f.cat)} › 章節</span>
