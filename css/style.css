@@ -1133,3 +1133,9 @@ header.compact .logo, header.compact .actions { visibility: hidden; transition: 
 /* 資訊列裡的文字連結（例如章節頁「做這章的試題 ›」）：低調、不搶圖卡 */
 .meta-link { color: var(--accent); font-weight: 600; text-decoration: none; white-space: nowrap; }
 .meta-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+/* 章節頁最下方：圖卡看完後的下一步（順著由上往下的閱讀方向） */
+.chap-next { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 30px; padding: 14px 16px; border-left: 3px solid var(--gold); border-radius: var(--r-s); background: var(--surface-2); }
+.chap-next > div { display: flex; flex-direction: column; gap: 2px; flex: 1 1 260px; }
+.chap-next b { font-size: 16px; color: var(--ink); }
+.chap-next span { font-size: 14px; color: var(--muted); }
+.chap-next .more-btn { margin-left: auto; }

@@ -224,7 +224,7 @@ function coursePage() {
   </div>` : ''}
   ${deck ? `
   <h3 class="sec-title sec-rule">各章節圖卡 <small>${deck.chapters.length} 章 · ${deckCardCount(c.id)} 張</small></h3>
-  <div class="note-box deck-note"><span class="note-lab">使用方式</span>選一章點<strong>「看圖卡」</strong>進入該章的圖卡，點圖可看大圖；看完可點章節標題下方的<strong>「做這章的試題 ›」</strong>，直接到學習試題作答。</div>
+  <div class="note-box deck-note"><span class="note-lab">使用方式</span>選一章點<strong>「看圖卡」</strong>進入該章的圖卡，點圖可看大圖；看完圖卡，頁面最下方有<strong>「做這章的試題 ›」</strong>，直接到學習試題作答。</div>
   ${deckChaptersHtml(c, deck)}` : ''}
   ${items.length ? `
   <h3 class="sec-title sec-rule">${deck ? '其他圖卡' : '圖卡'}<a class="more-btn sec-link" href="#items/${c.id}">搜尋圖卡<span class="arr" aria-hidden="true">›</span></a></h3>
@@ -447,10 +447,15 @@ function cardsPage() {
         <span class="cc-text"><span class="cc-id">${esc(x.id)}</span><b>${esc(x.title)}</b>${x.tags.length ? `<span class="cc-tags">${cardTagsHtml(x.tags)}</span>` : ''}</span>
       </button>`).join('')}</div>
   </section>`).join('')}
-  <nav class="chap-pager" aria-label="上一章／下一章">
+  ${chapHasExams(c, ch.no) ? `
+  <div class="chap-next">
+    <div><b>看完這一章了嗎？</b><span>到學習試題做「${esc(ch.no)} ${esc(ch.title)}」的題目，檢查記住了多少。</span></div>
+    <a class="more-btn" href="#examzone/${c.id}/${esc(ch.no)}">做這章的試題<span class="arr" aria-hidden="true">›</span></a>
+  </div>` : ''}
+  ${prev || next ? `<nav class="chap-pager" aria-label="上一章／下一章">
     ${prev ? `<a class="btn secondary" href="#cards/${c.id}/${esc(prev.no)}">‹ ${chapLabel(prev)} ${esc(prev.title)}</a>` : '<span></span>'}
     ${next ? `<a class="btn secondary" href="#cards/${c.id}/${esc(next.no)}">${chapLabel(next)} ${esc(next.title)} ›</a>` : '<span></span>'}
-  </nav>`;
+  </nav>` : ''}`;
 }
 
 // 看大圖（共用）：章節圖卡頁、試題解析的「對照圖卡」都用這個
