@@ -205,7 +205,7 @@ function bind() {
     const sem = getSemester(b.dataset.sem);
     const show = b.dataset.to === '1';
     const n = coursesIn(sem.code).length;
-    if (!show && n && !confirm(`確定要對同學隱藏「${sem.label}」？\n隱藏後，同學在首頁、學習書架、學習試題都看不到這學期的 ${n} 個科目（資料不會刪除，之後可以再打開）。`)) return;
+    if (!show && n && !confirm(`確定要對同學隱藏「${sem.label}」？\n隱藏後，同學在首頁、學習科目、學習試題都看不到這學期的 ${n} 個科目（資料不會刪除，之後可以再打開）。`)) return;
     b.disabled = true;
     try {
       await api(`/api/admin/semesters/${encodeURIComponent(sem.code)}`, { method: 'PUT', body: { visible: b.dataset.to === '1' } });

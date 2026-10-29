@@ -147,7 +147,7 @@ function homePage() {
 
   <h2 class="section">使用說明</h2>
   <div class="panel prose">
-    <p><b>瀏覽方式：</b>本站依科目分成「書架」，每個書架收著該科的講義、試題與圖卡。上方「學習書架」依年級找科目；「學習試題」集中所有可線上作答的試題；「作業專區」不用登入也能看。</p>
+    <p><b>瀏覽方式：</b>本站依科目分成「書架」，每個書架收著該科的講義、試題與圖卡。上方「學習科目」依年級找科目；「學習試題」集中所有可線上作答的試題；「作業專區」不用登入也能看。</p>
     ${hasAdminAccess() ? `<p><b>資料管理：</b>點右上角「管理後台」，可以上傳講義、出題${admin.canWrite ? '，或新增修改科目與圖卡' : '（限你負責的科目）'}。</p>` : ''}
     <p><b>使用範圍：</b>本站內容僅供班級成員學習使用，請勿轉貼或外流，並尊重教材著作權。</p>
   </div>`;
@@ -178,19 +178,19 @@ function examZonePage() {
 
 function coursesPage() {
   return `
-  <h2 class="section">學習書架 <small class="motto">博學審問，慎思明辨</small></h2>
+  <h2 class="section">學習科目 <small class="motto">博學審問，慎思明辨</small></h2>
   ${yearCoursesHtml()}`;
 }
 
 // 單一科目頁：學習網頁 → 模擬考題 → 圖卡，三個區塊同一種標題樣式
 function coursePage() {
   const c = getCourse(courseTarget);
-  if (!c) return `<p class="empty-note">找不到這個科目。</p><a class="btn secondary" href="#courses">回學習書架</a>`;
+  if (!c) return `<p class="empty-note">找不到這個科目。</p><a class="btn secondary" href="#courses">回學習科目</a>`;
   const list = pagesOf(c.id);
   const items = data.items.filter(i => i.courseId == c.id).sort(byDateDesc);
   const pages = [...list, ...filesOf(c.id).map(f => ({ url: f.path, title: f.title, description: f.description || '', updatedAt: f.updated, updatedBy: '', file: true }))];
   return `
-  <a class="back-link" href="#courses">← 學習書架</a>
+  <a class="back-link" href="#courses">← 學習科目</a>
   <h2 class="section">${esc(c.title)}${isExamSubject(c) ? ' <span class="exam-tag">執醫考科</span>' : ''} <small>${esc(semesterLabel(c.semesterCode))}${c.owners?.length ? `　負責人：${c.owners.map(o => esc(o.name)).join('、')}` : ''}</small></h2>
   ${pages.length ? `
   <h3 class="sec-title">講義</h3>
