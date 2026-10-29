@@ -72,7 +72,9 @@ const HW_DATA = [
   .hw-menu-home { display: none; }   /* 作業專區首頁：頁面本身就有年級／學期／科目選單，不再顯示這條 */
   .hw-row { max-width: 1240px; margin: 0 auto; padding: 6px 20px; display: flex; align-items: center; gap: 8px; min-height: 46px; }
   /* 按鈕與主站一致：次要＝淡綠底＋綠框，目前所在科目＝實心綠 */
-  .hw-back, .hw-all, .hw-sembtn, .hw-chip { --hw-soft: color-mix(in srgb, var(--accent) 16%, var(--surface)); --hw-edge: color-mix(in srgb, var(--accent) 45%, transparent); }
+  .hw-chip { --hw-soft: color-mix(in srgb, var(--accent) 16%, var(--surface)); --hw-edge: color-mix(in srgb, var(--accent) 45%, transparent); }
+  /* 返回、科目選單、學期切換＝動作按鈕：中性實底＋外框（綠色只用在科目＝選項） */
+  .hw-back, .hw-all, .hw-sembtn { --hw-soft: color-mix(in srgb, var(--ink) 7%, var(--surface)); --hw-edge: color-mix(in srgb, var(--ink) 28%, transparent); }
   .hw-back { flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--hw-edge); background: var(--hw-soft); color: var(--ink); font-size: 14.5px; font-weight: 700; text-decoration: none; white-space: nowrap; }
   .hw-back:hover { border-color: var(--accent); color: var(--accent); }
   .hw-all { flex: none; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--hw-edge); background: var(--hw-soft); color: var(--ink); font: inherit; font-size: 14.5px; font-weight: 700; cursor: pointer; }

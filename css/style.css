@@ -26,6 +26,11 @@
   --cover-chip:    #f8f2e6d9;
   --shadow:        0 4px 18px #3d30201a;
   --focus:         #c07a2c;
+  /* 按鈕用色（2026-10-29 統一）：綠＝目前選取／所在位置；金＝主要動作；中性＝次要動作；紅＝刪除停用 */
+  --action:        #7d5f36;  /* 主要動作按鈕（新增、儲存、登入、寄出） */
+  --action-ink:    #fbf7ef;
+  --btn2-bg:       #ebe2cf;  /* 次要動作按鈕 */
+  --btn2-line:     #c9b994;
 }
 
 /* 深色模式的顏色（暖灰綠，不用純黑，夜間較不刺眼） */
@@ -38,6 +43,7 @@
     --red:#e09a8c; --gold:#c8b08a;
     --cover-from:#2c3a33; --cover-to:#3a3328; --cover-ink:#d6e2d6; --cover-chip:#1b1f1dd9;
     --shadow:0 4px 18px #0006; --focus:#e0a860;
+    --action:#d4b07a; --action-ink:#1b1f1d; --btn2-bg:#313934; --btn2-line:#56615b;
   }
 }
 :root[data-theme="dark"] {
@@ -48,6 +54,7 @@
   --red:#e09a8c; --gold:#c8b08a;
   --cover-from:#2c3a33; --cover-to:#3a3328; --cover-ink:#d6e2d6; --cover-chip:#1b1f1dd9;
   --shadow:0 4px 18px #0006; --focus:#e0a860;
+  --action:#d4b07a; --action-ink:#1b1f1d; --btn2-bg:#313934; --btn2-line:#56615b;
 }
 
 /* =========================================================
@@ -245,12 +252,12 @@ input:focus, textarea:focus, select:focus { border-color: var(--accent); }
 /* 按鈕 */
 .btn {
   display: inline-block; padding: 9px 18px; border-radius: var(--r-m);
-  background: var(--accent); color: var(--accent-ink); border: 1px solid var(--accent);
+  background: var(--action); color: var(--action-ink); border: 1px solid var(--action); font-weight: 600;
 }
 .btn:hover { filter: brightness(1.08); }
-/* 次要按鈕：淡綠底＋綠框，一看就知道可以按（不再只有細框，避免和提醒框混淆） */
-.btn.secondary { background: var(--accent-soft); color: var(--accent-soft-ink); border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
-.btn.secondary:hover { border-color: var(--accent); filter: none; background: color-mix(in srgb, var(--accent) 22%, var(--surface)); }
+/* 次要按鈕：中性實底＋明顯外框（綠色留給「選取」、金色留給主要動作） */
+.btn.secondary { background: var(--btn2-bg); color: var(--ink); border-color: var(--btn2-line); font-weight: 500; }
+.btn.secondary:hover { border-color: var(--action); filter: none; }
 .btn.secondary.danger { background: color-mix(in srgb, var(--red) 9%, var(--surface)); color: var(--red); border-color: color-mix(in srgb, var(--red) 45%, transparent); }
 .btn.danger:hover { border-color: var(--red); color: var(--red); background: color-mix(in srgb, var(--red) 16%, var(--surface)); }
 .back { margin-bottom: 18px; }
