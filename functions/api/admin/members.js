@@ -10,13 +10,25 @@ export async function onRequestGet({ request, env }) {
   const auth = await requireAdmin(request, env, "manage_users");
   if (auth.error) return auth.error;
 
-  const { results } = await env.DB.prepare(`
-    SELECT id, email, display_name, role, status, created_at, last_login_at
-    FROM admin_users
-    ORDER BY CASE role WHEN 'owner' THEN 0 WHEN 'admin' THEN 1 WHEN 'editor' THEN 2 ELSE 3 END, id
-  `).all();
+  const order = "ORDER BY CASE role WHEN 'owner' THEN 0 WHEN 'admin' THEN 1 WHEN 'editor' THEN 2 ELSE 3 END, id";
+  let results;
+  try {
+    ({ results } = await env.DB.prepare(`
+      SELECT id, email, display_name, role, status, created_at, last_login_at, last_seen_at
+      FROM admin_users ${order}
+    `).all());
+  } catch {
+    // 還沒建立 last_seen_at 欄位
+    ({ results } = await env.DB.prepare(`
+      SELECT id, email, display_name, role, status, created_at, last_login_at
+      FROM admin_users ${order}
+    `).all());
+  }
+  const now = await env.DB.prepare("SELECT CURRENT_TIMESTAMP AS t").first();
 
   return jsonResponse({
+    now: now?.t || null,
+    seenSupported: results.length ? "last_seen_at" in results[0] : true,
     members: results.map(m => ({
       id: m.id,
       email: m.email,
@@ -25,6 +37,7 @@ export async function onRequestGet({ request, env }) {
       status: m.status,
       createdAt: m.created_at,
       lastLoginAt: m.last_login_at,
+      lastSeenAt: m.last_seen_at ?? null,
       isSelf: m.id === auth.admin.id
     }))
   });

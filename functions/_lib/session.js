@@ -78,6 +78,17 @@ export async function getCurrentAdmin(request, env) {
     LIMIT 1
   `).bind(tokenHash).first();
 
+  if (admin) {
+    // 記錄最後上線時間（後台「成員管理」顯示上線狀態用）；每人每分鐘最多寫一次。
+    // 資料庫還沒有 last_seen_at 欄位時會失敗，直接略過，不影響登入。
+    try {
+      await env.DB.prepare(`
+        UPDATE admin_users SET last_seen_at = CURRENT_TIMESTAMP
+        WHERE id = ? AND (last_seen_at IS NULL OR last_seen_at < datetime('now', '-1 minute'))
+      `).bind(admin.id).run();
+    } catch { /* 欄位尚未建立 */ }
+  }
+
   return admin || null;
 }
 

@@ -81,7 +81,21 @@ function revealSelected() {
   });
 }
 
+// 已登入時每分鐘回報一次「還在線上」（分頁在背景時不回報）；在成員管理頁時每分鐘更新名單
+let heartbeatTimer = null;
+function startHeartbeat() {
+  if (heartbeatTimer) return;
+  heartbeatTimer = setInterval(async () => {
+    if (!admin || document.visibilityState !== 'visible') return;
+    try { await api('/api/me'); } catch {}
+    if (page === 'admin' && adminType === 'members' && !membersLoading && !document.querySelector('#memberform input:focus, #memberform select:focus')) {
+      try { const r = await api('/api/admin/members'); members = r.members; membersMeta = { now: r.now, seenSupported: r.seenSupported !== false, at: Date.now() }; render(); } catch {}
+    }
+  }, 60000);
+}
+
 function bind() {
+  if (admin) startHeartbeat();
   revealSelected();
   bindCarousels();
   // 手機的科目下拉選單：選了就等於按下對應的科目按鈕
@@ -203,13 +217,10 @@ function bind() {
 
   document.querySelectorAll('[data-sem]').forEach(b => b.onclick = async () => {
     const sem = getSemester(b.dataset.sem);
-    const show = b.dataset.to === '1';
-    const n = coursesIn(sem.code).length;
-    if (!show && n && !confirm(`確定要對同學隱藏「${sem.label}」？\n隱藏後，同學在首頁、學習科目、學習試題都看不到這學期的 ${n} 個科目（資料不會刪除，之後可以再打開）。`)) return;
     b.disabled = true;
     try {
       await api(`/api/admin/semesters/${encodeURIComponent(sem.code)}`, { method: 'PUT', body: { visible: b.dataset.to === '1' } });
-      await reloadAfterChange(show ? `「${sem.label}」現在同學看得到了` : `「${sem.label}」已對同學隱藏`);
+      await reloadAfterChange(`已${b.dataset.to === '1' ? '開放' : '關閉'}「${sem.label}」`);
     } catch (err) {
       b.disabled = false;
       handleError(err, null);
@@ -251,7 +262,6 @@ function bind() {
     }
   });
 
-  bindOwnerPanels();
   const add = document.getElementById('add');
   if (add) add.onclick = () => showEditor(null);
 
@@ -262,7 +272,7 @@ function bind() {
   document.querySelectorAll('[data-delete]').forEach(b => b.onclick = async () => {
     const id = Number(b.dataset.delete);
     if (adminType === 'courses' && (data.items.some(x => x.courseId === id) || pagesOf(id).length || examsOf(id).length)) {
-      alert('請先刪除或調整此科目裡的講義、試題和圖卡。');
+      alert('請先刪除或調整此科目裡的講義、題庫和圖卡。');
       return;
     }
     const row = data[adminType].find(x => x.id === id);
@@ -280,7 +290,8 @@ function bind() {
 
 // 網頁管理的按鈕
 function bindPagesAdmin() {
-  bindAdminPicker();
+  const sel = document.getElementById('pg-course');
+  if (sel) sel.onchange = () => { pagesCourse = Number(sel.value); render(); };
 
   const pf = document.getElementById('pageform');
   if (pf) pf.onsubmit = async e => {
@@ -368,7 +379,7 @@ window.addEventListener('hashchange', () => {
     editorDirty = false;
   }
   if (page === 'examedit' && examEditDirty) {
-    if (!confirm('試題還沒儲存，確定要離開嗎？')) {
+    if (!confirm('題庫還沒儲存，確定要離開嗎？')) {
       history.replaceState(null, '', lastHash || '#home');
       return;
     }

@@ -591,7 +591,6 @@ fieldset.owners .check small { color: var(--muted); }
 .year-tab { flex: 1 0 auto; min-width: 88px; min-height: 58px; justify-content: center; padding: 8px 14px; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface); color: var(--ink); font: inherit; font-size: 16px; cursor: pointer; display: flex; flex-direction: column; align-items: center; line-height: 1.3; }
 .year-tab small { font-size: 12px; color: var(--muted); }
 .year-tab[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
-.year-tab[aria-selected="true"] small { color: var(--accent-ink); opacity: .85; }
 .year-tab:disabled { opacity: .55; cursor: not-allowed; }
 @media (max-width: 720px) { .year-tab { min-width: 72px; padding: 8px 10px; font-size: 15px; } }
 
@@ -642,7 +641,7 @@ fieldset.owners .check small { color: var(--muted); }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .exnav { margin: 0 0 14px; padding: 14px 18px 12px; border: 1px solid var(--line); border-radius: var(--r-l); background: var(--surface); }
 .exnav-top { display: flex; align-items: center; gap: 12px; }
-.exnav-course { position: relative; flex: 0 1 auto; min-width: 0; }
+.exnav-course { position: relative; flex: 0 1 auto; min-width: 0; margin-right: auto; }
 .exnav-course::after { content: "▾"; position: absolute; right: 2px; top: 50%; transform: translateY(-50%); color: var(--accent); pointer-events: none; }
 .exnav-course select { appearance: none; -webkit-appearance: none; width: auto; max-width: 100%; padding: 4px 24px 4px 0; border: 0; border-bottom: 1px dashed var(--line); border-radius: 0; background: transparent; font-family: "Noto Serif TC", serif; font-size: 20px; font-weight: 700; color: var(--ink); cursor: pointer; text-overflow: ellipsis; }
 .exnav-course select:focus { border-bottom-color: var(--accent); outline: none; }
@@ -712,6 +711,8 @@ fieldset.owners .check small { color: var(--muted); }
 .sem-card-title { display: flex; align-items: baseline; gap: 8px; font-family: "Noto Serif TC", serif; font-size: 18px; font-weight: 700; margin-bottom: 8px; }
 .sem-card-title small, .sem-line small { font-family: inherit; font-size: 13px; font-weight: 400; color: var(--muted); margin-left: 6px; }
 .sem-line { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 0; border-top: 1px solid var(--line); }
+.sem-toggle { padding: 5px 12px; border-radius: var(--r-m); border: 1px solid var(--line); background: var(--bg); color: var(--muted); font: inherit; font-size: 14px; cursor: pointer; }
+.sem-toggle[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .admin-panel-gap { margin-top: 14px; }
 .year-tabs + .btn, .year-tabs + .adminlist { margin-top: 0; }
 @media (max-width: 720px) {
@@ -771,7 +772,7 @@ fieldset.owners .check small { color: var(--muted); }
 @media (max-width: 960px) { .entry-grid { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { .entry { transition: none; } .entry:hover { transform: none; } }
 
-/* 首頁：學習圖卡（每個書架一塊，兩欄；每架最多 4 張小卡） */
+/* 首頁：各科圖卡（每個書架一塊，兩欄；每架最多 4 張小卡） */
 .shelves { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .shelf { padding: 16px 18px; border: 1px solid var(--line); border-radius: var(--r-l); background: var(--surface); display: flex; flex-direction: column; }
 .shelf-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 10px; }
@@ -786,6 +787,7 @@ fieldset.owners .check small { color: var(--muted); }
 .mini-text { display: grid; min-width: 0; }
 .mini-text b { font-size: 15.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mini-text small { font-size: 12.5px; color: var(--muted); }
+.shelf-more { display: inline-block; margin-top: 10px; font-size: 14px; }
 .shelf .empty-note { padding: 12px 14px; font-size: 14px; }
 @media (max-width: 860px) { .shelves { grid-template-columns: 1fr; } }
 @media (max-width: 720px) { .shelf { padding: 14px; } }
@@ -808,6 +810,7 @@ fieldset.owners .check small { color: var(--muted); }
 .car-dot[aria-current="true"] { background: var(--accent); }
 .car-more { margin-left: auto; font-size: 14.5px; }
 .car-static .car-btn, .car-static .car-dots { display: none; }
+.shelf-more { margin-top: auto; padding-top: 10px; font-size: 14px; }
 @media (max-width: 860px) { .car-track { grid-auto-columns: 86%; } }
 
 /* 首頁：以學期為一頁的輪播 */
@@ -825,7 +828,7 @@ fieldset.owners .check small { color: var(--muted); }
 @media (max-width: 1000px) { .sem-carousel .shelves { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 720px) { .sem-carousel .shelves { grid-template-columns: 1fr; } }
 @media (max-width: 860px) { .sem-carousel .car-track { grid-auto-columns: 100%; } }
-@media (max-width: 720px) { .sem-carousel .shelf .empty-note { display: none; } .sem-carousel .shelf-head { margin-bottom: 4px; } }
+@media (max-width: 720px) { .sem-carousel .shelf .empty-note { display: none; } .sem-carousel .shelf-head { margin-bottom: 4px; } .sem-carousel .shelf-more { padding-top: 6px; } }
 
 /* 書架排版：最後一排自動撐滿，不留空洞；剛好 4 個時排成一列 4 格 */
 .sem-carousel .shelves { display: flex; flex-wrap: wrap; gap: 14px; }
@@ -834,6 +837,7 @@ fieldset.owners .check small { color: var(--muted); }
 @media (max-width: 1000px) { .sem-carousel .shelf, .sem-carousel .shelves[data-n="4"] .shelf { flex-basis: calc((100% - 14px) / 2); } }
 @media (max-width: 720px) { .sem-carousel .shelf, .sem-carousel .shelves[data-n="4"] .shelf { flex-basis: 100%; } }
 h2.section small.motto { font-family: "Noto Serif TC", serif; letter-spacing: .12em; color: var(--gold); }
+h2.section .h2-more { margin-left: auto; align-self: baseline; font-family: "Noto Serif TC", serif; font-size: 14px; font-weight: normal; letter-spacing: .12em; }
 
 /* 科目選擇：電腦用按鈕列，手機用下拉選單 */
 .subj-chips-wrap { display: flex; flex-direction: column; gap: 8px; }
@@ -846,59 +850,8 @@ h2.section small.motto { font-family: "Noto Serif TC", serif; letter-spacing: .1
 }
 @media (max-width: 720px) { .year-tabs { overflow: visible; gap: 6px; } .year-tab { flex: 1 1 0; min-width: 0; min-height: 52px; padding: 6px 2px; font-size: 14.5px; } .year-tab small { font-size: 11px; } }
 
-/* 「More ›」小按鈕：首頁所有「看更多」連結共用 */
-.more-btn {
-  display: inline-flex; align-items: center; gap: 5px; flex: none;
-  padding: 3px 9px 3px 12px; border: 1px solid var(--line); border-radius: var(--r-m);
-  background: var(--surface); color: var(--accent);
-  font-family: "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", "Heiti TC", sans-serif; font-size: 13px; font-weight: normal; letter-spacing: .08em; line-height: 1.6;
-  text-decoration: none; white-space: nowrap; transition: background .15s, border-color .15s, color .15s;
-}
-.more-btn .arr { font-size: 16px; line-height: 1; letter-spacing: 0; transform: translateY(-1px); transition: transform .15s; }
-.more-btn:hover { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); text-decoration: none; }
-.more-btn:hover .arr { transform: translate(2px, -1px); }
-h2.section .more-btn { margin-left: auto; align-self: center; }
-.shelf > .more-btn { align-self: flex-end; margin-top: auto; }
-.shelf-list, .shelf .empty-note { margin-bottom: 12px; }
-@media (max-width: 720px) { .shelf-list, .shelf .empty-note { margin-bottom: 8px; } }
-
-/* 後台分層科目選單：年級 › 學期 › 科目（每層只列該層選項，科目再多也不會變長） */
-.apick-path { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; min-width: 0; margin-right: auto; }
-.apick { position: relative; flex: none; }
-.apick:not(.exnav-course)::after { content: "▾"; position: absolute; right: 2px; top: 50%; transform: translateY(-50%); color: var(--accent); font-size: 12px; pointer-events: none; }
-.apick:not(.exnav-course) select { appearance: none; -webkit-appearance: none; padding: 3px 18px 3px 0; border: 0; border-bottom: 1px dashed var(--line); border-radius: 0; background: transparent; font: inherit; font-size: 15px; line-height: 1.5; height: auto; color: var(--muted); cursor: pointer; }
-.apick:not(.exnav-course) select:disabled { cursor: default; opacity: 1; }
-.apick:has(select:disabled)::after { display: none; }
-.apick:has(select:disabled) select { padding-right: 0; border-bottom-color: transparent; }
-.apick select:focus { border-bottom-color: var(--accent); outline: none; }
-.apick-sep { color: var(--gold); font-size: 15px; }
-.apick-path .exnav-course { flex: 0 1 auto; min-width: 0; }
-@media (max-width: 720px) {
-  .exnav-top { flex-wrap: wrap; align-items: flex-end; }
-  .apick-path { flex: 1 1 100%; }
-  .apick:not(.exnav-course) select { font-size: 14px; }
-}
-
-/* 學期管理：開關（綠＝同學看得到，灰＝同學看不到），文字直接寫出結果 */
-.sem-switch { display: inline-flex; align-items: center; gap: 10px; padding: 4px 0; border: 0; background: none; font: inherit; cursor: pointer; color: var(--muted); }
-.sem-switch:disabled { opacity: .6; cursor: wait; }
-.sem-state { font-size: 14px; }
-.sem-switch[aria-checked="true"] .sem-state { color: var(--accent); font-weight: 700; }
-.sw { position: relative; flex: none; width: 46px; height: 26px; border-radius: 13px; background: var(--line); transition: background .2s; }
-.sw-knob { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px #0004; transition: transform .2s; }
-.sem-switch[aria-checked="true"] .sw { background: var(--accent); }
-.sem-switch[aria-checked="true"] .sw-knob { transform: translateX(20px); }
-.sem-switch:hover .sw { filter: brightness(1.06); }
-
-/* 後台分頁：「成員管理」（人員）和內容管理之間用「｜」隔開 */
-.admin-tab-sep { flex: none; align-self: center; color: var(--line); font-size: 20px; padding: 0 2px; user-select: none; }
-
-/* 科目管理：清單上直接指派負責人 */
-.unassigned { color: var(--red); }
-.adminrow .owner-panel { flex: 1 1 100%; margin-top: 10px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--bg); }
-.owner-cap { margin: 0 0 8px; font-size: 14px; color: var(--muted); }
-.owner-list { display: grid; gap: 6px; max-height: 260px; overflow-y: auto; }
-.owner-list .check small { color: var(--muted); }
-.owner-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
-.owner-msg:empty { display: none; }
-.adminrow:has(.owner-panel) { flex-wrap: wrap; }
+/* 成員管理：上線狀態 */
+.online-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 0 0 10px; padding: 10px 14px; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--surface); }
+.online-dot { display: inline-block; width: 9px; height: 9px; margin-right: 8px; border-radius: 50%; background: var(--line); vertical-align: 1px; }
+.online-dot.on { background: #4caf7a; box-shadow: 0 0 0 3px color-mix(in srgb, #4caf7a 25%, transparent); }
+.seen-on { color: #3f9a6a; font-weight: 700; }
