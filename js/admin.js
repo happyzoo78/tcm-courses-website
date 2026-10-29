@@ -116,22 +116,70 @@ async function reloadMembers(message) {
 /* 網頁管理：上傳整份 HTML 網頁到自己負責的科目 */
 const MAX_PAGE_BYTES = 1_900_000;
 
-// 後台共用：科目大字選單＋右側主要按鈕（網頁管理、模擬考題管理共用）
+// 後台共用：分層科目選單「年級 › 學期 › 科目」＋右側主要按鈕（講義管理、試題管理共用）
+// 科目再多，每個下拉選單也只列「目前這一層」的選項；選過的科目會記在這台電腦，下次打開直接回到那裡
+const ADMIN_COURSE_KEY = 'tcm-admin-course';
+const adminLastInSem = {};   // 每個學期上次選的科目
+function adminPickCourse(list) {
+  if (list.some(c => c.id === pagesCourse)) return pagesCourse;
+  let saved = 0;
+  try { saved = Number(localStorage.getItem(ADMIN_COURSE_KEY)) || 0; } catch {}
+  return list.some(c => c.id === saved) ? saved : list[0].id;
+}
+function setAdminCourse(id) {
+  pagesCourse = Number(id) || 0;
+  const c = getCourse(pagesCourse);
+  if (c) adminLastInSem[c.semesterCode] = c.id;
+  try { localStorage.setItem(ADMIN_COURSE_KEY, String(pagesCourse)); } catch {}
+}
 function adminCoursePicker(list, curId, selectId, actionHtml) {
+  const cur = list.find(x => x.id === curId) || list[0];
+  setAdminCourse(cur.id);
+  const order = code => getSemester(code)?.sortOrder ?? 0;
+  const semCodes = [...new Set(list.map(x => x.semesterCode))].sort((a, b) => order(a) - order(b) || a.localeCompare(b));
+  const years = [...new Set(semCodes.map(yearOf))].sort((a, b) => a - b);
+  const curYear = yearOf(cur.semesterCode);
+  const semsInYear = semCodes.filter(s => yearOf(s) === curYear);
+  const subjects = list.filter(x => x.semesterCode === cur.semesterCode);
+  const semName = code => { const m = /s(\d)$/.exec(code || ''); return m ? (m[1] === '1' ? '上學期' : '下學期') : semesterLabel(code); };
+  const lvl = (name, attr, opts, cls) => `
+      <label class="apick${cls ? ' ' + cls : ''}" title="切換${name}"><span class="sr-only">${name}</span>
+        <select ${attr}${opts.length < 2 && !cls ? ' disabled' : ''}>${opts.join('')}</select></label>`;
   return `
     <div class="exnav-top">
-      <label class="exnav-course" title="切換科目">
-        <span class="sr-only">科目</span>
-        <select id="${selectId}">${list.map(x => `<option value="${x.id}" ${x.id === curId ? 'selected' : ''}>${esc(shortSemLabel(x.semesterCode))}｜${esc(x.title)}</option>`).join('')}</select>
-      </label>
+      <div class="apick-path" role="group" aria-label="選擇科目">
+        ${lvl('年級', 'data-apick-year', years.map(y => `<option value="${y}" ${y === curYear ? 'selected' : ''}>${YEAR_NAMES[y - 1] || y + ' 年級'}</option>`))}
+        <span class="apick-sep" aria-hidden="true">›</span>
+        ${lvl('學期', 'data-apick-sem', semsInYear.map(s => `<option value="${esc(s)}" ${s === cur.semesterCode ? 'selected' : ''}>${esc(semName(s))}</option>`))}
+        <span class="apick-sep" aria-hidden="true">›</span>
+        ${lvl('科目', `id="${selectId}" data-apick-course`, subjects.map(x => `<option value="${x.id}" ${x.id === cur.id ? 'selected' : ''}>${esc(x.title)}</option>`), 'exnav-course')}
+      </div>
       ${actionHtml}
     </div>`;
+}
+// 分層選單的切換（講義管理、試題管理都會呼叫）
+function bindAdminPicker() {
+  const list = editableCourses();
+  const firstIn = codes => {
+    for (const code of codes) {
+      const keep = adminLastInSem[code];
+      if (list.some(c => c.id === keep)) return keep;
+      const c = list.find(x => x.semesterCode === code);
+      if (c) return c.id;
+    }
+    return 0;
+  };
+  const semsOf = y => [...new Set(list.map(x => x.semesterCode))].filter(s => yearOf(s) === y)
+    .sort((a, b) => (getSemester(a)?.sortOrder ?? 0) - (getSemester(b)?.sortOrder ?? 0) || a.localeCompare(b));
+  document.querySelectorAll('[data-apick-year]').forEach(sel => sel.onchange = () => { setAdminCourse(firstIn(semsOf(Number(sel.value)))); render(); });
+  document.querySelectorAll('[data-apick-sem]').forEach(sel => sel.onchange = () => { setAdminCourse(firstIn([sel.value])); render(); });
+  document.querySelectorAll('[data-apick-course]').forEach(sel => sel.onchange = () => { setAdminCourse(sel.value); render(); });
 }
 
 function pagesAdminHtml() {
   const list = editableCourses();
   if (!list.length) return '<p class="empty">你目前沒有負責的科目。如需上傳講義，請聯絡網站管理者把你設為科目負責人。</p>';
-  if (!list.some(c => c.id === pagesCourse)) pagesCourse = list[0].id;
+  pagesCourse = adminPickCourse(list);
   const c = getCourse(pagesCourse);
   const rows = pagesOf(pagesCourse);
   return `

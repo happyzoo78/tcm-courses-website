@@ -276,8 +276,7 @@ function bind() {
 
 // 網頁管理的按鈕
 function bindPagesAdmin() {
-  const sel = document.getElementById('pg-course');
-  if (sel) sel.onchange = () => { pagesCourse = Number(sel.value); render(); };
+  bindAdminPicker();
 
   const pf = document.getElementById('pageform');
   if (pf) pf.onsubmit = async e => {

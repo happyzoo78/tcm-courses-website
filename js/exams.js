@@ -164,7 +164,7 @@ function bindExamTabs() {
 function examsAdminHtml() {
   const list = editableCourses();
   if (!list.length) return '<p class="empty">你目前沒有負責的科目。如需出題，請聯絡網站管理者把你設為科目負責人。</p>';
-  if (!list.some(c => c.id === pagesCourse)) pagesCourse = list[0].id;
+  pagesCourse = adminPickCourse(list);
   const c = getCourse(pagesCourse);
   const groups = examGroups(pagesCourse);
   const f = examAdminFilter[c.id] || (examAdminFilter[c.id] = { cat: '', ch: '' });
@@ -213,8 +213,7 @@ function shortExamTitle(e, c) {
 let examNewCategory = '';   // 從某個分類按「新增」時，預先填好分類
 
 function bindExamsAdmin() {
-  const sel = document.getElementById('ex-course');
-  if (sel) sel.onchange = () => { pagesCourse = Number(sel.value); render(); };
+  bindAdminPicker();
   document.querySelectorAll('[data-ex-cat]').forEach(b => b.onclick = () => { examAdminFilter[pagesCourse] = { cat: b.dataset.exCat, ch: '' }; render(); });
   document.querySelectorAll('[data-ex-ch]').forEach(b => b.onclick = () => { examAdminFilter[pagesCourse].ch = b.dataset.exCh; render(); });
   document.querySelectorAll('[data-new-cat]').forEach(a => a.addEventListener('click', () => { examNewCategory = a.dataset.newCat; }));

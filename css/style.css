@@ -641,7 +641,7 @@ fieldset.owners .check small { color: var(--muted); }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .exnav { margin: 0 0 14px; padding: 14px 18px 12px; border: 1px solid var(--line); border-radius: var(--r-l); background: var(--surface); }
 .exnav-top { display: flex; align-items: center; gap: 12px; }
-.exnav-course { position: relative; flex: 0 1 auto; min-width: 0; margin-right: auto; }
+.exnav-course { position: relative; flex: 0 1 auto; min-width: 0; }
 .exnav-course::after { content: "▾"; position: absolute; right: 2px; top: 50%; transform: translateY(-50%); color: var(--accent); pointer-events: none; }
 .exnav-course select { appearance: none; -webkit-appearance: none; width: auto; max-width: 100%; padding: 4px 24px 4px 0; border: 0; border-bottom: 1px dashed var(--line); border-radius: 0; background: transparent; font-family: "Noto Serif TC", serif; font-size: 20px; font-weight: 700; color: var(--ink); cursor: pointer; text-overflow: ellipsis; }
 .exnav-course select:focus { border-bottom-color: var(--accent); outline: none; }
@@ -862,3 +862,20 @@ h2.section .more-btn { margin-left: auto; align-self: center; }
 .shelf > .more-btn { align-self: flex-end; margin-top: auto; }
 .shelf-list, .shelf .empty-note { margin-bottom: 12px; }
 @media (max-width: 720px) { .shelf-list, .shelf .empty-note { margin-bottom: 8px; } }
+
+/* 後台分層科目選單：年級 › 學期 › 科目（每層只列該層選項，科目再多也不會變長） */
+.apick-path { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; min-width: 0; margin-right: auto; }
+.apick { position: relative; flex: none; }
+.apick:not(.exnav-course)::after { content: "▾"; position: absolute; right: 2px; top: 50%; transform: translateY(-50%); color: var(--accent); font-size: 12px; pointer-events: none; }
+.apick:not(.exnav-course) select { appearance: none; -webkit-appearance: none; padding: 3px 18px 3px 0; border: 0; border-bottom: 1px dashed var(--line); border-radius: 0; background: transparent; font: inherit; font-size: 15px; line-height: 1.5; height: auto; color: var(--muted); cursor: pointer; }
+.apick:not(.exnav-course) select:disabled { cursor: default; opacity: 1; }
+.apick:has(select:disabled)::after { display: none; }
+.apick:has(select:disabled) select { padding-right: 0; border-bottom-color: transparent; }
+.apick select:focus { border-bottom-color: var(--accent); outline: none; }
+.apick-sep { color: var(--gold); font-size: 15px; }
+.apick-path .exnav-course { flex: 0 1 auto; min-width: 0; }
+@media (max-width: 720px) {
+  .exnav-top { flex-wrap: wrap; align-items: flex-end; }
+  .apick-path { flex: 1 1 100%; }
+  .apick:not(.exnav-course) select { font-size: 14px; }
+}
