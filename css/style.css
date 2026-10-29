@@ -351,6 +351,17 @@ details.pw-login[open] summary { margin-bottom: 10px; }
 .list-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 0 14px; }
 .list-head h3 { margin: 0; font-size: 19px; color: var(--accent); display: flex; align-items: baseline; gap: 10px; }
 .list-head h3 small { font-size: 14px; font-weight: 400; color: var(--muted); }
+.exnav-actions { display: inline-flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.bulk-panel { margin: 0 0 16px; }
+.bulk-fields { display: grid; grid-template-columns: 1.3fr .7fr 1.5fr; gap: 12px; align-items: start; }
+.bulk-fields .field { margin: 0; }
+.bulk-table { width: 100%; border-collapse: collapse; margin: 14px 0 6px; font-size: 14.5px; }
+.bulk-table th, .bulk-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.bulk-table th { color: var(--gold); font-weight: 700; }
+.bulk-table td small { color: var(--muted); font-size: 12.5px; }
+.bulk-table input { width: 90px; min-height: 36px; padding: 4px 8px; }
+.bulk-table tr.bad td { color: var(--red); }
+@media (max-width: 720px) { .bulk-fields { grid-template-columns: 1fr; } .bulk-table { font-size: 13.5px; } .bulk-table th:nth-child(4), .bulk-table td:nth-child(4) { display: none; } }
 .mail-note { margin: 0 0 16px; }
 .note-dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; margin: 4px 0 0; }
 .note-dl dt { font-weight: 700; color: var(--ink); white-space: nowrap; }

@@ -185,7 +185,8 @@ function examsAdminHtml() {
   return `
   ${adminCoursePicker(list, c.id, x => examGroups(x.id).reduce((n, g) => n + g[1].length, 0))}
   <div class="exnav">
-    ${adminCourseTop(c, `<a class="btn exnav-add" href="#examedit/new/${c.id}" data-new-cat="${esc(f.cat === OTHER_CATEGORY ? '' : f.cat)}" title="把題目整份貼上，網站會自動拆題、批改、統計">＋ 新增試題</a>`)}
+    ${adminCourseTop(c, `<span class="exnav-actions"><button type="button" class="btn secondary" id="bulk-toggle" aria-expanded="${bulkOpen}">批次上傳</button><a class="btn exnav-add" href="#examedit/new/${c.id}" data-new-cat="${esc(f.cat === OTHER_CATEGORY ? '' : f.cat)}" title="把題目整份貼上，網站會自動拆題、批改、統計">＋ 新增試題</a></span>`)}
+    ${bulkOpen ? bulkPanelHtml(c, f.cat === OTHER_CATEGORY ? '' : f.cat) : ''}
     ${groups.length ? `
     <div class="exnav-cats" role="tablist" aria-label="分類">${groups.map(([name, r]) => `<button type="button" role="tab" class="ex-cat" data-ex-cat="${esc(name)}" aria-selected="${name === f.cat}">${esc(name)}<small>${r.length}</small></button>`).join('<span class="ex-sep" aria-hidden="true">｜</span>')}</div>
     <div class="exnav-chaps" aria-label="章節">
@@ -220,8 +221,104 @@ function shortExamTitle(e, c) {
 
 let examNewCategory = '';   // 從某個分類按「新增」時，預先填好分類
 
+/* ---------- 批次上傳：一次選多個 txt，依檔名自動命名、排序，原本整章的試題自動改成第 1 個子項 ---------- */
+// 檔名格式：任意前綴-NN-章名[-NN-子項].txt，例如「中基模擬考-03-藏象-01-概論與心肺.txt」
+let bulkOpen = false;
+let bulkRows = [];
+function bulkPanelHtml(c, cat) {
+  return `
+  <div class="panel prose bulk-panel">
+    <div class="panel-head"><h3>批次上傳</h3><p>一次選多個 txt 檔，網站依檔名自動命名與排序；同名試題會更新內容，原本整章的試題會改成第 1 個子項。</p></div>
+    <div class="bulk-fields">
+      <div class="field"><label for="bulk-cat">分類標籤</label><input id="bulk-cat" maxlength="30" value="${esc(cat)}" placeholder="例如：中基全章模擬考"></div>
+      <div class="field"><label for="bulk-base">起始排序</label><input id="bulk-base" type="number" min="0" step="1" value="110"><small class="meta-label">排序＝起始＋章號×10＋子項號，例如 03 藏象 - 01 → 141</small></div>
+      <div class="field"><label for="bulk-files">選擇 txt 檔（可多選）</label><input id="bulk-files" type="file" accept=".txt,text/plain" multiple></div>
+    </div>
+    <label class="check"><input type="checkbox" id="bulk-pub" checked> 公開給同學作答</label>
+    <div id="bulk-preview">${bulkTableHtml(c)}</div>
+    <div id="bulk-msg"></div>
+    <div class="ed-actions"><button type="button" class="btn" id="bulk-go" ${bulkRows.length && bulkRows.every(r => r.ok) ? '' : 'disabled'}>開始上傳</button></div>
+  </div>`;
+}
+function bulkTableHtml(c) {
+  if (!bulkRows.length) return '';
+  const act = { create: '新增', update: '更新同名試題', promote: '原整章改為此子項' };
+  return `<table class="bulk-table"><thead><tr><th>試題名稱</th><th>排序</th><th>題數／總分</th><th>動作</th></tr></thead><tbody>${bulkRows.map((r, i) => `
+    <tr class="${r.ok ? '' : 'bad'}"><td>${esc(shortExamTitle({ title: r.title, category: r.cat }, c))}<br><small>${esc(r.file)}</small></td>
+    <td><input type="number" class="bulk-sort" data-i="${i}" value="${r.sort}" aria-label="排序"></td>
+    <td>${r.ok ? `${r.count} 題／${r.total} 分` : `<span class="unassigned">${esc(r.err)}</span>`}</td>
+    <td>${r.status ? esc(r.status) : act[r.action] || ''}</td></tr>`).join('')}</tbody></table>`;
+}
+function bulkParseName(file) {
+  const parts = file.replace(/\.txt$/i, '').split('-').map(x => x.trim()).filter(Boolean);
+  const i = parts.findIndex(x => /^\d{1,3}$/.test(x));
+  if (i < 0 || !parts[i + 1]) return null;
+  const ch = [parts[i], parts[i + 1]], sub = /^\d{1,3}$/.test(parts[i + 2] || '') && parts[i + 3] ? [parts[i + 2], parts[i + 3]] : null;
+  return { chapter: `${ch[0]} ${ch[1]}`, chNo: Number(ch[0]), sub: sub ? `${sub[0]} ${sub[1]}` : '', subNo: sub ? Number(sub[0]) : 0 };
+}
+async function bulkPrepare(c, files) {
+  const cat = document.getElementById('bulk-cat').value.trim();
+  const base = Number(document.getElementById('bulk-base').value) || 0;
+  const existing = examsOf(c.id).filter(e => (e.category || '') === cat);
+  bulkRows = [];
+  for (const f of [...files].sort((a, b) => a.name.localeCompare(b.name))) {
+    const n = bulkParseName(f.name);
+    const row = { file: f.name, cat, ok: false };
+    if (!n) { row.err = '檔名看不出章節（要有「-NN-章名」）'; row.title = f.name; row.sort = ''; bulkRows.push(row); continue; }
+    row.title = `${c.title} - ${cat} - ${n.chapter}${n.sub ? ' - ' + n.sub : ''}`;
+    row.sort = base + n.chNo * 10 + n.subNo;
+    row.source = await f.text();
+    const same = existing.find(e => e.title.trim() === row.title);
+    const whole = n.subNo === 1 ? existing.find(e => e.title.trim() === `${c.title} - ${cat} - ${n.chapter}`) : null;
+    row.action = same ? 'update' : whole ? 'promote' : 'create';
+    row.targetId = same ? same.id : whole ? whole.id : null;
+    try {
+      const p = await api('/api/admin/exams/preview', { method: 'POST', body: { source: row.source } });
+      if (p.errors.length) row.err = `格式有 ${p.errors.length} 個問題：${p.errors[0].message}`;
+      else { row.ok = true; row.count = p.summary.questionCount; row.total = p.summary.total; }
+    } catch (err) { row.err = err.message || '檢查失敗'; }
+    bulkRows.push(row);
+  }
+}
 function bindExamsAdmin() {
   bindAdminPicker();
+  const bt = document.getElementById('bulk-toggle');
+  if (bt) bt.onclick = () => { bulkOpen = !bulkOpen; if (!bulkOpen) bulkRows = []; render(); };
+  const bf = document.getElementById('bulk-files');
+  if (bf) bf.onchange = async () => {
+    const c = getCourse(pagesCourse), msg = document.getElementById('bulk-msg');
+    if (!document.getElementById('bulk-cat').value.trim()) { msg.innerHTML = '<div class="msg error">請先填分類標籤。</div>'; bf.value = ''; return; }
+    msg.innerHTML = '<div class="msg ok">檢查中…</div>';
+    const keep = { cat: document.getElementById('bulk-cat').value, base: document.getElementById('bulk-base').value, pub: document.getElementById('bulk-pub').checked };
+    await bulkPrepare(c, bf.files);
+    render();
+    document.getElementById('bulk-cat').value = keep.cat; document.getElementById('bulk-base').value = keep.base; document.getElementById('bulk-pub').checked = keep.pub;
+    const bad = bulkRows.filter(r => !r.ok).length;
+    document.getElementById('bulk-msg').innerHTML = bad ? `<div class="msg error">${bad} 個檔案有問題，請修正後重新選擇。</div>` : `<div class="msg ok">${bulkRows.length} 個檔案格式都正確，確認名稱與排序後按「開始上傳」。</div>`;
+  };
+  document.querySelectorAll('.bulk-sort').forEach(inp => inp.onchange = () => { bulkRows[inp.dataset.i].sort = Number(inp.value); });
+  const go = document.getElementById('bulk-go');
+  if (go) go.onclick = async () => {
+    const c = getCourse(pagesCourse), pub = document.getElementById('bulk-pub').checked;
+    if (!confirm(`要上傳 ${bulkRows.length} 份試題嗎？\n更新的試題會變成新版本（舊作答紀錄保留）。`)) return;
+    go.disabled = true;
+    let okN = 0;
+    for (const r of bulkRows) {
+      r.status = '上傳中…'; document.getElementById('bulk-preview').innerHTML = bulkTableHtml(c);
+      const body = { title: r.title, category: r.cat, sortOrder: Number(r.sort), published: pub, source: r.source };
+      try {
+        if (r.targetId) await api(`/api/admin/exams/${r.targetId}`, { method: 'PUT', body: { ...body, description: examsOf(c.id).find(e => e.id === r.targetId)?.description || '' } });
+        else await api('/api/admin/exams', { method: 'POST', body: { ...body, description: '', courseId: c.id } });
+        r.status = '✓ 完成'; okN++;
+      } catch (err) { r.status = '✗ ' + (err.message || '失敗'); }
+      document.getElementById('bulk-preview').innerHTML = bulkTableHtml(c);
+    }
+    const cat = bulkRows[0]?.cat || '';
+    const failed = bulkRows.length - okN;
+    bulkOpen = failed > 0; if (!failed) bulkRows = [];
+    examAdminFilter[c.id] = { cat: cat || OTHER_CATEGORY, ch: '' };
+    await reloadAfterChange(failed ? `完成 ${okN} 份，${failed} 份失敗（見下方表格）` : `已上傳 ${okN} 份試題`);
+  };
   document.querySelectorAll('[data-ex-cat]').forEach(b => b.onclick = () => { examAdminFilter[pagesCourse] = { cat: b.dataset.exCat, ch: '' }; render(); });
   document.querySelectorAll('[data-ex-ch]').forEach(b => b.onclick = () => { examAdminFilter[pagesCourse].ch = b.dataset.exCh; render(); });
   document.querySelectorAll('[data-new-cat]').forEach(a => a.addEventListener('click', () => { examNewCategory = a.dataset.newCat; }));
