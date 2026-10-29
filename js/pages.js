@@ -224,11 +224,11 @@ function coursePage() {
       </a>`).join('')}
   </div>` : ''}
   ${deck ? `
-  <h3 class="sec-title">各章節圖卡 <small>${deck.chapters.length} 章 · ${deckCardCount(c.id)} 張</small></h3>
-  <p class="lead-note">選一章看圖卡；「學習試題」直接到這一章的試題作答。</p>
+  <h3 class="sec-title sec-rule">各章節圖卡 <small>${deck.chapters.length} 章 · ${deckCardCount(c.id)} 張</small></h3>
+  <div class="note-box deck-note"><span class="note-lab">使用方式</span>點<strong>「看圖卡」</strong>進入該章的圖卡，點圖可看大圖；點<strong>「學習試題」</strong>直接到這一章的試題作答。</div>
   ${deckChaptersHtml(c, deck)}` : ''}
   ${items.length ? `
-  <h3 class="sec-title">${deck ? '其他圖卡' : '圖卡'}<a class="more-btn sec-link" href="#items/${c.id}">搜尋圖卡<span class="arr" aria-hidden="true">›</span></a></h3>
+  <h3 class="sec-title sec-rule">${deck ? '其他圖卡' : '圖卡'}<a class="more-btn sec-link" href="#items/${c.id}">搜尋圖卡<span class="arr" aria-hidden="true">›</span></a></h3>
   <div class="itemgrid">${items.map(i => itemCard(i, 'item')).join('')}</div>` : ''}
   ${!deck && !items.length ? '<p class="empty-note">這個科目還沒有圖卡。</p>' : ''}
   ${courseExamJumpHtml(c)}`;
