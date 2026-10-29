@@ -92,6 +92,8 @@ function examRowHtml(e, label) {
 
 // 子項選單：把同一分類的考卷依「NN 章名 - NN 子項」分章。
 // 名稱只有一段（例如「03 藏象」）就單獨一列；有子項的章收成可展開的選單。
+// 章名開頭的章號，例如「03 藏象」→「03」
+const examChapNo = name => (/^\s*(\d+)/.exec(name || '') || [])[1] || '';
 function examChapters(list, c) {
   const map = new Map();
   for (const e of list) {
@@ -138,6 +140,8 @@ function examBrowserHtml(c) {
   if (!groups.some(g => g[0] === f.cat)) { f.cat = groups[0][0]; f.ch = ''; }
   const rows = groups.find(g => g[0] === f.cat)[1];
   const chapters = examChapters(rows, c);
+  // 換分類時（或從圖卡「考前衝刺」進來）停在同一個章號
+  if (f.want) { f.ch = (chapters.find(g => examChapNo(g.chapter) === f.want) || {}).chapter || ''; delete f.want; }
   if (f.ch && !chapters.some(g => g.chapter === f.ch)) f.ch = '';
   const shownChaps = f.ch ? chapters.filter(g => g.chapter === f.ch) : chapters;
   const showChaps = chapters.length > 1 || chapters.some(g => g.menu);
@@ -171,7 +175,7 @@ function bindExamTabs() {
   });
   document.querySelectorAll('details.exchap').forEach(d => d.addEventListener('toggle', () => examChapOpen[d.open ? 'add' : 'delete'](d.dataset.chap)));
   document.querySelectorAll('[data-zone-course]').forEach(b => b.onclick = () => { zoneCourseSel[siteYear] = Number(b.dataset.zoneCourse); render(); });
-  document.querySelectorAll('[data-xb-cat]').forEach(b => b.onclick = () => { examFilter[b.dataset.course] = { cat: b.dataset.xbCat, ch: '' }; render(); });
+  document.querySelectorAll('[data-xb-cat]').forEach(b => b.onclick = () => { const was = examFilter[b.dataset.course]?.ch; examFilter[b.dataset.course] = { cat: b.dataset.xbCat, ch: '', want: examChapNo(was) }; render(); });
   document.querySelectorAll('[data-xb-ch]').forEach(b => b.onclick = () => { examFilter[b.dataset.course].ch = b.dataset.xbCh; render(); });
 }
 
@@ -185,6 +189,8 @@ function examsAdminHtml() {
   if (!groups.some(g => g[0] === f.cat)) { f.cat = groups[0]?.[0] || ''; f.ch = ''; }
   const rows = (groups.find(g => g[0] === f.cat) || [, []])[1];
   const chapters = examChapters(rows, c);
+  // 換分類時（或從圖卡「考前衝刺」進來）停在同一個章號
+  if (f.want) { f.ch = (chapters.find(g => examChapNo(g.chapter) === f.want) || {}).chapter || ''; delete f.want; }
   if (f.ch && !chapters.some(g => g.chapter === f.ch)) f.ch = '';
   const shownChaps = f.ch ? chapters.filter(g => g.chapter === f.ch) : chapters;
   const adminRow = (e, label) => `

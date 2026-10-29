@@ -7,7 +7,7 @@
 function courseCard(c) {
   const n = pagesOf(c.id).length + filesOf(c.id).length;
   const x = publishedExamsOf(c.id).length;
-  const k = itemsOf(c.id).length;
+  const k = itemsOf(c.id).length + deckCardCount(c.id);
   return `
   <article class="course">
     <div class="cover" aria-hidden="true">${TAIJI}<span>${esc(c.icon || c.title.slice(0, 2))}</span></div>
@@ -54,6 +54,7 @@ function recentUpdates(limit) {
     ...(data.pages || []).filter(p => visible(p.courseId)).map(p => ({ t: p.updatedAt, date: day(fmtTime(p.updatedAt)).replace(/\//g, '-'), kind: '講義', courseId: p.courseId, title: p.title, desc: p.description, href: p.url })),
     ...(data.exams || []).filter(e => e.published && visible(e.courseId)).map(e => ({ t: e.updatedAt, date: day(fmtTime(e.updatedAt)).replace(/\//g, '-'), kind: '試題', group: `${e.courseId}|${e.category || ''}`, courseId: e.courseId, title: shortExamTitle(e, getCourse(e.courseId) || {}), desc: `${e.category || '其他試題'} · ${e.questionCount} 題`, href: `#exam/${e.id}` })),
     ...data.items.filter(i => visible(i.courseId)).map(i => ({ t: i.date, date: i.date, kind: '圖卡', courseId: i.courseId, title: i.title, desc: i.description, href: `#detail/item/${i.id}` })),
+    ...data.courses.filter(c => open.has(c.semesterCode)).flatMap(c => (deckOf(c.id)?.chapters || []).map(ch => { const t = ch.updated || deckOf(c.id).version; return { t, date: day(t), kind: '圖卡', courseId: c.id, title: `第 ${ch.no} 章 ${ch.title}`, desc: `${ch.cards.length} 張圖卡`, href: `#cards/${c.id}/${ch.no}` }; })),
     ...data.courses.filter(c => open.has(c.semesterCode)).flatMap(c => filesOf(c.id).map(f => ({ t: f.updated, date: day(f.updated), kind: '講義', courseId: c.id, title: f.title, desc: f.description || '', href: f.path })))
   ];
   list.sort((a, b) => String(b.t || '').localeCompare(String(a.t || '')));
@@ -75,17 +76,21 @@ function shelfCardsHtml() {
   const sems = visibleSemesters().filter(s => coursesIn(s.code).length).sort((a, b) => a.sortOrder - b.sortOrder);
   if (!sems.length) return '<p class="empty-note">目前沒有開放的科目。</p>';
   const shelf = c => {
-    const items = itemsOf(c.id).slice().sort(byDateDesc);
+    // 依章節的圖卡集排前面（新的章在前），再接單張圖卡
+    const chaps = (deckOf(c.id)?.chapters || []).slice().reverse().map(ch => ({ href: `#cards/${c.id}/${ch.no}`, image: ch.cover.thumb, title: `第 ${ch.no} 章 ${ch.title}`, sub: `${ch.cards.length} 張圖卡` }));
+    const singles = itemsOf(c.id).slice().sort(byDateDesc).map(i => ({ href: `#detail/item/${i.id}`, image: i.image, title: i.title, sub: i.date || '' }));
+    const items = [...chaps, ...singles];
+    const total = itemsOf(c.id).length + deckCardCount(c.id);
     return `
       <div class="shelf">
         <div class="shelf-head">
           <h4><a href="#course/${c.id}">${esc(c.title)}</a>${isExamSubject(c) ? ' <span class="exam-tag">執醫考科</span>' : ''}</h4>
-          <span class="shelf-meta">${items.length} 張圖卡</span>
+          <span class="shelf-meta">${total} 張圖卡</span>
         </div>
         ${items.length ? `<div class="shelf-list">${items.slice(0, 3).map(i => `
-          <a class="mini-card" href="#detail/item/${i.id}">
+          <a class="mini-card" href="${i.href}">
             <span class="mini-thumb">${i.image ? `<img src="${esc(i.image)}" alt="" loading="lazy">` : TAIJI}</span>
-            <span class="mini-text"><b>${esc(i.title)}</b><small>${esc(i.date || '')}</small></span>
+            <span class="mini-text"><b>${esc(i.title)}</b><small>${esc(i.sub)}</small></span>
           </a>`).join('')}</div>`
           : '<p class="empty-note">這個科目還沒有圖卡。</p>'}
         <a class="more-btn" href="#course/${c.id}" title="進入「${esc(c.title)}」" aria-label="進入「${esc(c.title)}」">More<span class="arr" aria-hidden="true">›</span></a>
@@ -100,7 +105,8 @@ function shelfCardsHtml() {
       <button type="button" class="car-btn" data-car="next" aria-label="下一個學期">›</button>
     </div>
     <div class="car-track">${sems.map(sm => {
-      const list = coursesIn(sm.code).slice().sort((a, b) => (itemsOf(b.id).length > 0) - (itemsOf(a.id).length > 0));
+      const has = c => itemsOf(c.id).length + deckCardCount(c.id) > 0;
+      const list = coursesIn(sm.code).slice().sort((a, b) => has(b) - has(a));
       return `
       <section class="car-slide" aria-label="${esc(sm.label)}">
         <h3 class="sem-title">${esc(sm.label)} <small>${list.length} 個科目</small></h3>
@@ -116,7 +122,7 @@ function homePage() {
   const sum = f => shown.reduce((n, c) => n + f(c.id).length, 0);
   const totalPages = sum(pagesOf) + sum(filesOf);
   const totalExams = sum(publishedExamsOf);
-  const totalCards = sum(itemsOf);
+  const totalCards = sum(itemsOf) + shown.reduce((n, c) => n + deckCardCount(c.id), 0);
   const updates = recentUpdates(5);
   return `
   <section class="hero has-art">${HERO_ART}
@@ -157,6 +163,19 @@ const zoneCourseSel = {};   // 每個年級目前選的科目
 
 // 模擬考專區：年級 → 科目 → 分類 → 章節，一次只顯示一個科目
 function examZonePage() {
+  // #examzone/科目編號/章號（圖卡的「考前衝刺」）：選好年級、科目，並跳到有這一章的第一個分類
+  if (routeParts[1]) {
+    const dc = getCourse(routeParts[1]);
+    if (dc) {
+      siteYear = yearOf(dc.semesterCode) || siteYear;
+      zoneCourseSel[siteYear] = dc.id;
+      const no = routeParts[2] || '';
+      const g = no && examGroups(dc.id).find(([, list]) => list.some(e => examChapNo(shortExamTitle(e, dc)) === no));
+      if (g) examFilter[dc.id] = { cat: g[0], ch: '', want: no };
+    }
+    routeParts = ['examzone'];
+    history.replaceState(null, '', '#examzone');
+  }
   const sems = visibleSemesters();
   const tabs = yearTabsHtml(new Set(sems.map(s => yearOf(s.code))));
   const inYear = semestersOfYear(sems, siteYear);
@@ -188,6 +207,7 @@ function coursePage() {
   if (!c) return `<p class="empty-note">找不到這個科目。</p><a class="btn secondary" href="#courses">回學習科目</a>`;
   const list = pagesOf(c.id);
   const items = data.items.filter(i => i.courseId == c.id).sort(byDateDesc);
+  const deck = deckOf(c.id);
   const pages = [...list, ...filesOf(c.id).map(f => ({ url: f.path, title: f.title, description: f.description || '', updatedAt: f.updated, updatedBy: '', file: true }))];
   return `
   <a class="btn secondary back" href="#courses">← 學習科目</a>
@@ -203,8 +223,11 @@ function coursePage() {
       </a>`).join('')}
   </div>` : ''}
   ${courseExamsHtml(c)}
+  ${deck ? `
+  <h3 class="sec-title">圖卡 <small>依章節</small><a class="more-btn sec-link" href="#cards/${c.id}">圖卡總目錄<span class="arr" aria-hidden="true">›</span></a></h3>
+  ${deckChaptersHtml(c, deck, true)}` : ''}
   ${items.length ? `
-  <h3 class="sec-title">圖卡<a class="more-btn sec-link" href="#items/${c.id}">搜尋圖卡<span class="arr" aria-hidden="true">›</span></a></h3>
+  <h3 class="sec-title">${deck ? '其他圖卡' : '圖卡'}<a class="more-btn sec-link" href="#items/${c.id}">搜尋圖卡<span class="arr" aria-hidden="true">›</span></a></h3>
   <div class="itemgrid">${items.map(i => itemCard(i, 'item')).join('')}</div>` : ''}`;
 }
 
@@ -358,3 +381,128 @@ function welcomePage() {
     </div>
   </div>`;
 }
+
+/* =========================================================
+   圖卡集（依章節）：#cards/科目 → 總目錄；#cards/科目/章號 → 章節圖卡；點縮圖看大圖
+   圖檔與清單放在 content/courses/{學期}/{科目}/cards/（cards.json），由 manifest.json 的 decks 登記
+   ========================================================= */
+const CARD_TAG_KIND = { '總複習': 'sum', '老師強調': 'hot', '易混淆': 'mix', '自我檢測': 'quiz', '補充': 'ext' };
+const cardTagsHtml = tags => (tags || []).map(t => `<span class="ctag ${CARD_TAG_KIND[t] || ''}">${esc(t)}</span>`).join('');
+const chapLabel = ch => `第 ${esc(ch.no)} 章`;
+// 有這章的試題嗎（任一分類的章名開頭是同一個章號）
+const chapHasExams = (c, no) => publishedExamsOf(c.id).some(e => examChapNo(shortExamTitle(e, c)) === String(no));
+
+function deckChaptersHtml(c, d, compact) {
+  return `<div class="deck-chaps${compact ? ' compact' : ''}">${d.chapters.map(ch => `
+    <article class="deck-chap">
+      <a class="dc-thumb" href="#cards/${c.id}/${esc(ch.no)}" aria-label="${chapLabel(ch)} ${esc(ch.title)}"><img src="${esc(ch.cover.thumb)}" alt="" loading="lazy"></a>
+      <div class="dc-body">
+        <span class="dc-no">${chapLabel(ch)}</span>
+        <h4><a href="#cards/${c.id}/${esc(ch.no)}">${esc(ch.title)}</a></h4>
+        ${ch.subtitle ? `<p class="dc-sub">${esc(ch.subtitle)}</p>` : ''}
+        <p class="dc-meta">${ch.cards.length} 張圖卡${ch.date ? ' · ' + esc(ch.date) : ''}</p>
+        <div class="dc-links">
+          <a class="link" href="#cards/${c.id}/${esc(ch.no)}">看圖卡 →</a>
+          ${chapHasExams(c, ch.no) ? `<a class="link" href="#examzone/${c.id}/${esc(ch.no)}">考前衝刺 →</a>` : ''}
+        </div>
+      </div>
+    </article>`).join('')}</div>`;
+}
+
+function cardsPage() {
+  const c = getCourse(routeParts[1]);
+  const d = c && deckOf(c.id);
+  if (!c || !d) return `<a class="btn secondary back" href="${c ? '#course/' + c.id : '#courses'}">← 返回</a><p class="empty-note">這個科目還沒有依章節整理的圖卡。</p>`;
+  const no = routeParts[2];
+  const total = deckCardCount(c.id);
+  if (!no) return `
+  <a class="btn secondary back" href="#course/${c.id}">← ${esc(c.title)}</a>
+  <h2 class="section">${esc(c.title)} · 圖卡總目錄 <small>${d.chapters.length} 章 · ${total} 張</small></h2>
+  <p class="lead-note">選一章看圖卡；「考前衝刺」直接到學習試題的同一章作答。</p>
+  ${deckChaptersHtml(c, d)}`;
+
+  const i = d.chapters.findIndex(ch => ch.no === no);
+  if (i < 0) return `<a class="btn secondary back" href="#cards/${c.id}">← 圖卡總目錄</a><p class="empty-note">找不到這一章的圖卡。</p>`;
+  const ch = d.chapters[i], prev = d.chapters[i - 1], next = d.chapters[i + 1];
+  let n = 0;
+  return `
+  <a class="btn secondary back" href="#cards/${c.id}">← 圖卡總目錄</a>
+  <div class="chap-head">
+    <div class="chap-title">
+      <span class="eyebrow">${esc(c.title)} · ${chapLabel(ch)}</span>
+      <h2>${esc(ch.title)}${ch.subtitle ? ` <small>${esc(ch.subtitle)}</small>` : ''}</h2>
+      <p class="dc-meta">${ch.cards.length} 張圖卡${ch.date ? ' · 上課日期 ' + esc(ch.date) : ''}　點圖可看大圖</p>
+    </div>
+    ${chapHasExams(c, ch.no) ? `<a class="btn" href="#examzone/${c.id}/${esc(ch.no)}">考前衝刺：做這章的試題 →</a>` : ''}
+  </div>
+  ${ch.groups.map(g => `
+  <section class="cgrp">
+    <div class="cgrp-head"><span class="cgrp-name">${esc(g.name)}</span><span class="cgrp-count">${g.cards.length} 張</span>${g.note ? `<span class="cgrp-note">${esc(g.note)}</span>` : ''}</div>
+    <div class="cgrid">${g.cards.map(x => `
+      <button type="button" class="ccard" data-card="${n++}">
+        <span class="cc-thumb"><img src="${esc(x.thumb)}" alt="" loading="lazy"></span>
+        <span class="cc-text"><span class="cc-id">${esc(x.id)}</span><b>${esc(x.title)}</b>${x.tags.length ? `<span class="cc-tags">${cardTagsHtml(x.tags)}</span>` : ''}</span>
+      </button>`).join('')}</div>
+  </section>`).join('')}
+  <nav class="chap-pager" aria-label="上一章／下一章">
+    ${prev ? `<a class="btn secondary" href="#cards/${c.id}/${esc(prev.no)}">‹ ${chapLabel(prev)} ${esc(prev.title)}</a>` : '<span></span>'}
+    ${next ? `<a class="btn secondary" href="#cards/${c.id}/${esc(next.no)}">${chapLabel(next)} ${esc(next.title)} ›</a>` : '<span></span>'}
+  </nav>
+  <div class="lb" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="看大圖">
+    <div class="lb-bar">
+      <span class="lb-count"></span><span class="lb-title"></span>
+      <a class="lb-btn lb-orig" target="_blank" rel="noopener">原圖</a>
+      <button type="button" class="lb-btn lb-close" aria-label="關閉">✕</button>
+    </div>
+    <div class="lb-stage"><img class="lb-img" alt=""></div>
+    <button type="button" class="lb-nav prev" aria-label="上一張">‹</button>
+    <button type="button" class="lb-nav next" aria-label="下一張">›</button>
+    <p class="lb-hint">點圖放大／縮小 · 左右滑動或方向鍵換張 · Esc 關閉</p>
+  </div>`;
+}
+
+// 看大圖：點縮圖開啟；左右鍵／滑動換張；點圖切換放大；Esc 或 ✕ 關閉
+let lbIndex = -1, lbKeys = null;
+function bindCards() {
+  document.body.classList.remove('lb-open');
+  const box = document.getElementById('lightbox');
+  lbKeys = null;
+  if (!box) return;
+  const c = getCourse(routeParts[1]);
+  const ch = deckOf(c.id).chapters.find(x => x.no === routeParts[2]);
+  const list = ch.cards;
+  const img = box.querySelector('.lb-img'), stage = box.querySelector('.lb-stage');
+  const show = i => {
+    lbIndex = (i + list.length) % list.length;
+    const x = list[lbIndex];
+    box.classList.remove('zoomed');
+    img.src = x.img; img.alt = x.title;
+    box.querySelector('.lb-count').textContent = `${lbIndex + 1} / ${list.length}`;
+    box.querySelector('.lb-title').textContent = `${x.id}　${x.title}`;
+    box.querySelector('.lb-orig').href = x.img;
+    stage.scrollTo(0, 0);
+    [list[lbIndex + 1], list[lbIndex - 1]].forEach(y => { if (y) new Image().src = y.img; });   // 先載入前後兩張
+  };
+  const open = i => { box.hidden = false; document.body.classList.add('lb-open'); show(i); box.querySelector('.lb-close').focus(); };
+  const close = () => { box.hidden = true; document.body.classList.remove('lb-open'); const b = document.querySelector(`[data-card="${lbIndex}"]`); lbIndex = -1; b?.focus(); };
+  document.querySelectorAll('[data-card]').forEach(b => b.onclick = () => open(Number(b.dataset.card)));
+  box.querySelector('.lb-close').onclick = close;
+  box.querySelector('.lb-nav.prev').onclick = () => show(lbIndex - 1);
+  box.querySelector('.lb-nav.next').onclick = () => show(lbIndex + 1);
+  img.onclick = () => box.classList.toggle('zoomed');
+  stage.onclick = e => { if (e.target === stage && !box.classList.contains('zoomed')) close(); };
+  let sx = 0, sy = 0;
+  stage.addEventListener('touchstart', e => { if (e.touches.length === 1) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; } }, { passive: true });
+  stage.addEventListener('touchend', e => {
+    if (box.classList.contains('zoomed') || e.changedTouches.length !== 1) return;
+    const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) show(lbIndex + (dx < 0 ? 1 : -1));
+  }, { passive: true });
+  lbKeys = e => {
+    if (box.hidden) return;
+    if (e.key === 'Escape') { e.preventDefault(); close(); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); show(lbIndex + 1); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); show(lbIndex - 1); }
+  };
+}
+document.addEventListener('keydown', e => { if (lbKeys) lbKeys(e); });

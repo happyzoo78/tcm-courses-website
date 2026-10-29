@@ -62,8 +62,40 @@ async function loadExtraFiles() {
     const res = await fetch('/content/courses/manifest.json', { credentials: 'same-origin', cache: 'no-store' });
     const j = res.ok ? await res.json() : null;
     extraFiles = Array.isArray(j?.files) ? j.files.filter(f => f && f.path && f.title) : [];
+    await loadDecks(Array.isArray(j?.decks) ? j.decks.filter(d => d && d.path) : []);
   } catch { extraFiles = []; }
 }
+
+// 依章節整理的圖卡集（manifest.json 的 decks → 各科 cards.json）；讀不到的就略過
+let decks = [];
+async function loadDecks(list) {
+  const got = await Promise.all(list.map(async d => {
+    try {
+      const res = await fetch(d.path, { credentials: 'same-origin', cache: 'no-store' });
+      const j = res.ok ? await res.json() : null;
+      if (!j || !Array.isArray(j.chapters)) return null;
+      const base = d.path.replace(/[^/]*$/, '');
+      const v = encodeURIComponent(j.version || '');
+      const chapters = j.chapters.filter(ch => ch && ch.no && Array.isArray(ch.groups)).map(ch => {
+        const groups = ch.groups.map(g => ({ name: g.name || '', note: g.note || '',
+          cards: (g.cards || []).filter(x => x && x.id).map(x => ({ ...x, tags: x.tags || [],
+            img: `${base}${x.id}.webp?v=${v}`, thumb: `${base}thumb/${x.id}.webp?v=${v}` })) })).filter(g => g.cards.length);
+        const cards = groups.flatMap(g => g.cards);
+        const cover = cards.find(x => x.id === ch.cover) || cards[0];
+        return { ...ch, groups, cards, cover };
+      }).filter(ch => ch.cards.length);
+      return { ...d, title: j.title || '', version: j.version || '', chapters };
+    } catch { return null; }
+  }));
+  decks = got.filter(Boolean);
+}
+// 某科目的圖卡集（依學期＋英文代碼對應，代碼對不上時用科目名稱）
+const deckOf = courseId => {
+  const c = getCourse(courseId);
+  if (!c) return null;
+  return decks.find(d => d.semester === c.semesterCode && ((c.slug && d.course === c.slug) || d.courseTitle === c.title)) || null;
+};
+const deckCardCount = courseId => (deckOf(courseId)?.chapters || []).reduce((n, ch) => n + ch.cards.length, 0);
 
 async function loadContent() {
   try {
@@ -197,8 +229,9 @@ const fmtSize = n => n >= 1048576 ? (n / 1048576).toFixed(2) + ' MB' : Math.max(
    #home  #account  #editor/new/科目編號  #editor/網頁編號
    #exam/考卷編號  #attempt/作答編號  #examedit/new/科目編號  #examedit/考卷編號  #examstats/考卷編號  #courses  #course/科目編號  #items/科目編號  #projects  #about  #admin
    #detail/item/編號  #detail/project/編號
+   #cards/科目編號（圖卡總目錄）  #cards/科目編號/章號（章節圖卡）  #examzone/科目編號/章號（學習試題直接跳到該章）
    ========================================================= */
-const PAGES = ['home', 'courses', 'course', 'items', 'projects', 'detail', 'about', 'admin', 'account', 'editor', 'exam', 'attempt', 'retry', 'examedit', 'examstats', 'examzone'];
+const PAGES = ['home', 'courses', 'course', 'cards', 'items', 'projects', 'detail', 'about', 'admin', 'account', 'editor', 'exam', 'attempt', 'retry', 'examedit', 'examstats', 'examzone'];
 let page = 'home', filter = 'all', query = '', adminType = 'pages', detailTarget = ['item', 0], courseTarget = 0;
 let pagesCourse = 0;
 let accountFrom = '#home';      // 進入「我的帳號」前所在的頁面（返回按鈕用）

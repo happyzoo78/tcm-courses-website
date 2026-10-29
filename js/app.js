@@ -4,7 +4,7 @@
 /* =========================================================
    六、畫面更新與按鈕綁定
    ========================================================= */
-const VIEWS = { home: homePage, courses: coursesPage, course: coursePage, items: itemsPage, projects: projectsPage, detail: detailPage, about: aboutPage, admin: adminPage, account: accountPage, editor: editorPage,
+const VIEWS = { home: homePage, courses: coursesPage, course: coursePage, cards: cardsPage, items: itemsPage, projects: projectsPage, detail: detailPage, about: aboutPage, admin: adminPage, account: accountPage, editor: editorPage,
   exam: examPage, attempt: attemptPage, retry: retryPage, examedit: examEditPage, examstats: examStatsPage, examzone: examZonePage };
 
 function render() {
@@ -25,7 +25,7 @@ function render() {
     app.innerHTML = VIEWS[page]();
   }
   // 導覽列目前位置
-  const navKey = ['editor', 'examedit', 'examstats'].includes(page) ? 'admin' : ['exam', 'attempt', 'retry'].includes(page) ? 'examzone' : (page === 'items' || page === 'course') ? 'courses' : page === 'detail' ? (detailTarget[0] === 'project' ? 'projects' : 'courses') : page;
+  const navKey = ['editor', 'examedit', 'examstats'].includes(page) ? 'admin' : ['exam', 'attempt', 'retry'].includes(page) ? 'examzone' : (page === 'items' || page === 'course' || page === 'cards') ? 'courses' : page === 'detail' ? (detailTarget[0] === 'project' ? 'projects' : 'courses') : page;
   document.querySelectorAll('[data-nav]').forEach(a => {
     if (a.dataset.nav === navKey) a.setAttribute('aria-current', 'page');
     else a.removeAttribute('aria-current');
@@ -125,6 +125,7 @@ function bind() {
   addPwToggles();
   revealSelected();
   bindCarousels();
+  bindCards();
   // 手機的科目下拉選單：選了就等於按下對應的科目按鈕
   document.querySelectorAll('[data-subj-select]').forEach(sel => sel.onchange = () => {
     document.querySelector(`[${sel.dataset.subjSelect}="${sel.value}"]`)?.click();

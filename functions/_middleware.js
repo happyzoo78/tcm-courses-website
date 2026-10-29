@@ -62,9 +62,11 @@ export async function onRequest(context) {
   }
 
   // 4. 已登入：回傳檔案，並禁止任何共用快取保存內容
+  //    圖片（圖卡）可以存在自己的瀏覽器 7 天，換張時更不用重新下載；網址帶 ?v= 版本，換圖會改版本
   const response = await next();
   const res = new Response(response.body, response);
-  res.headers.set("Cache-Control", "private, no-store");
+  const isImage = /\.(webp|png|jpe?g|gif|avif)$/.test(lower);
+  res.headers.set("Cache-Control", isImage && response.ok ? "private, max-age=604800" : "private, no-store");
   res.headers.set("X-Robots-Tag", "noindex, nofollow");
   return res;
 }

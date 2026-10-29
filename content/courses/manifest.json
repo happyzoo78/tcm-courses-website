@@ -1,4 +1,12 @@
 {
-  "說明": "Claude 代為上傳到 content/courses/ 的網頁清單。每筆：semester=學期代碼、course=科目英文代碼、title=標題、path=網址、description=說明、updated=更新日期。",
-  "files": []
+  "說明": "Claude 代為上傳到 content/courses/ 的網頁清單。每筆：semester=學期代碼、course=科目英文代碼、title=標題、path=網址、description=說明、updated=更新日期。 decks＝依章節整理的圖卡集：semester、course（科目英文代碼）、courseTitle（科目名稱，代碼對不上時用）、path（cards.json 的網址）。",
+  "files": [],
+  "decks": [
+    {
+      "semester": "2026_y1s1",
+      "course": "tcm-basic-theory",
+      "courseTitle": "中醫基礎理論",
+      "path": "/content/courses/2026_y1s1/tcm-basic-theory/cards/cards.json"
+    }
+  ]
 }
