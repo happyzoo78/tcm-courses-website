@@ -88,7 +88,7 @@ function shelfCardsHtml() {
             <span class="mini-text"><b>${esc(i.title)}</b><small>${esc(i.date || '')}</small></span>
           </a>`).join('')}</div>`
           : '<p class="empty-note">這個書架還沒有圖卡。</p>'}
-        <a class="link shelf-more" href="#course/${c.id}" title="打開「${esc(c.title)}」書架" aria-label="打開「${esc(c.title)}」書架">More ...</a>
+        <a class="more-btn" href="#course/${c.id}" title="打開「${esc(c.title)}」書架" aria-label="打開「${esc(c.title)}」書架">More<span class="arr" aria-hidden="true">›</span></a>
       </div>`;
   };
   const start = sems.length - 1;   // 預設停在最新的學期
@@ -131,7 +131,7 @@ function homePage() {
     </div>
   </section>
 
-  <h2 class="section">各科圖卡 <small class="motto">博觀約取，厚積薄發</small><a class="link h2-more" href="#courses" title="全部書架" aria-label="全部書架">More</a></h2>
+  <h2 class="section">各科圖卡 <small class="motto">博觀約取，厚積薄發</small><a class="more-btn" href="#courses" title="全部書架" aria-label="全部書架">More<span class="arr" aria-hidden="true">›</span></a></h2>
   ${shelfCardsHtml()}
 
   <h2 class="section">最新更新 <small class="motto">日新又新，學無止境</small></h2>
