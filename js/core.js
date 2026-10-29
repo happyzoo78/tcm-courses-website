@@ -316,6 +316,26 @@ function subjChipsHtml(sems, curId, count, attr) {
 
 /* 首頁、關於我們的底圖（原創向量圖，顏色跟著深淺色主題）：
    八卦太極環、懸壺（葫蘆）、銀針三枚、藥碾、人參（掌狀複葉＋紅果） */
+// 科目卡封面的淡淡中醫線條圖（依科目輪流：八卦、懸壺、草藥、銀針），只當底紋，不搶浮水印大字
+const COVER_ART = (() => {
+  const st = 'fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"';
+  const tri = [[1,1,1],[1,1,0],[1,0,1],[1,0,0],[0,0,0],[0,0,1],[0,1,0],[0,1,1]];
+  const bagua = `<g transform="translate(96 54)" ${st} stroke-width="1.2"><circle r="44"/><circle r="30" opacity=".7"/>
+    <g stroke-width="2.4">${tri.map((t, i) => `<g transform="rotate(${i * 45}) translate(0 -37)">${t.map((y, j) => y ? `<line x1="-6" y1="${j * 3.6 - 3.6}" x2="6" y2="${j * 3.6 - 3.6}"/>` : `<line x1="-6" y1="${j * 3.6 - 3.6}" x2="-1.6" y2="${j * 3.6 - 3.6}"/><line x1="1.6" y1="${j * 3.6 - 3.6}" x2="6" y2="${j * 3.6 - 3.6}"/>`).join('')}</g>`).join('')}</g>
+    <path d="M0 -14 A14 14 0 0 1 0 14 A7 7 0 0 1 0 0 A7 7 0 0 0 0 -14 Z" fill="currentColor" stroke="none" opacity=".6"/><circle r="14"/></g>`;
+  const gourd = `<g transform="translate(92 0)" ${st} stroke-width="1.3"><line x1="0" y1="0" x2="0" y2="26"/>
+    <path d="M0 26 C6 26 9 31 9 36 C9 41 5 44 4 46 C14 49 20 57 20 66 C20 78 11 84 0 84 C-11 84 -20 78 -20 66 C-20 57 -14 49 -4 46 C-5 44 -9 41 -9 36 C-9 31 -6 26 0 26 Z"/>
+    <path d="M-5 46 Q0 48 5 46" stroke-width="2"/><path d="M-3 86 C-5 96 -3 104 -1 108 M3 86 C5 96 3 104 1 108"/></g>`;
+  const leaf = 'M0 0 C5 -8 5 -21 0 -29 C-5 -21 -5 -8 0 0 Z';
+  const palm = a => `<g transform="${a}"><path d="${leaf}"/><path d="${leaf}" transform="rotate(-38) scale(.8)"/><path d="${leaf}" transform="rotate(38) scale(.8)"/><path d="${leaf}" transform="rotate(-74) scale(.55)"/><path d="${leaf}" transform="rotate(74) scale(.55)"/></g>`;
+  const herb = `<g ${st} stroke-width="1.2"><path d="M70 150 C76 110 84 80 100 46"/><path d="M84 96 C70 86 62 82 50 84"/>
+    ${palm('translate(100 46) rotate(12)')}${palm('translate(50 84) rotate(-60) scale(.8)')}
+    <g fill="currentColor" stroke="none" opacity=".7"><circle cx="104" cy="16" r="3"/><circle cx="110" cy="20" r="3"/><circle cx="99" cy="22" r="3"/></g></g>`;
+  const needle = n => `<g transform="translate(${n[0]} ${n[1]}) rotate(${n[2]})" ${st} stroke-width="1.1"><line x1="0" y1="0" x2="0" y2="78"/><rect x="-2.4" y="-22" width="4.8" height="22" rx="1.8"/><line x1="-2.4" y1="-16" x2="2.4" y2="-13"/><line x1="-2.4" y1="-9" x2="2.4" y2="-6"/></g>`;
+  const needles = [[78, 22, 28], [92, 24, 20], [106, 28, 12]].map(needle).join('');
+  const arts = [bagua, gourd, herb, needles];
+  return i => `<svg class="cover-art" viewBox="0 0 140 160" preserveAspectRatio="xMaxYMin meet" aria-hidden="true">${arts[((i % arts.length) + arts.length) % arts.length]}</svg>`;
+})();
 const HERO_ART = `<svg class="hero-art" viewBox="0 0 640 300" preserveAspectRatio="xMaxYMax slice" aria-hidden="true">
   <defs>
     <radialGradient id="ha-glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="var(--gold)" stop-opacity=".22"/><stop offset="1" stop-color="var(--gold)" stop-opacity="0"/></radialGradient>

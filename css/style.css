@@ -178,6 +178,9 @@ h2.section:has(+ .year-tabs) { border-bottom: 0; padding-bottom: 0; margin-botto
   color: var(--cover-ink);
 }
 .cover .taiji { display: none; }
+/* 淡淡的中醫線條底紋（八卦／懸壺／草藥／銀針，依科目輪流），在浮水印字後面 */
+.cover-art { position: absolute; top: 8px; right: 6px; width: 78%; height: auto; color: var(--cover-ink); opacity: .16; pointer-events: none; }
+.cover span { position: relative; }
 /* 科目封面（2026-10-30 擁有者選定）：書封浮水印大字＋底圖漸層。宋體直書、半透明，靠左下，像書封上的題字 */
 .cover span {
   font-family: "Noto Serif TC", "Noto Serif CJK TC", "Source Han Serif TC", "Songti TC", "STSong", "Songti SC", "SimSun", "PMingLiU", serif;
