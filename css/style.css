@@ -1124,3 +1124,9 @@ body.lb-open { overflow: hidden; }
 .crumbs [aria-current="page"] { color: var(--ink); font-weight: 600; }
 @media (max-width: 720px) { .crumbs { font-size: 13px; } .crumbs li + li::before { margin: 0 5px; } }
 .crumbs + h2.section, .crumbs + * > h2.section:first-child { margin-top: 6px; }   /* 路線下方的頁面大標題不要空太開 */
+
+/* 手機：往下捲時頁首收起網站名稱那一排（只留導覽列），往上捲再出現 */
+header { transition: transform .2s ease; will-change: transform; }
+header.compact { transform: translateY(calc(-1 * var(--hdr-hide, 0px) + 6px)); }   /* 留 6px 讓導覽列不貼邊 */
+header.compact .logo, header.compact .actions { visibility: hidden; transition: visibility 0s .2s; }
+@media (prefers-reduced-motion: reduce) { header { transition: none; } }

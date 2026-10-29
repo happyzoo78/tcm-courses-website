@@ -597,3 +597,26 @@ updateThemeButton();
 readLoginResult();
 readHash();
 boot();
+
+// 手機／平板（導覽列在第二排時）：往下捲，頁首收起網站名稱那一排，只留導覽列；往上捲或回到頂端再展開
+// 用位移（transform）收起，不改版面高度，內容不會跳動
+(function compactHeader() {
+  const header = document.querySelector('header');
+  const nav = header && header.querySelector('.nav');
+  if (!header || !nav) return;
+  let lastY = window.scrollY, acc = 0, ticking = false;
+  const update = () => {
+    ticking = false;
+    const y = Math.max(0, window.scrollY);
+    const hide = nav.offsetTop;                       // 導覽列上方那一排的高度；導覽列在同一排（寬螢幕）時是 0
+    header.style.setProperty('--hdr-hide', `${hide}px`);
+    if (hide < 20 || y < hide + 10) { header.classList.remove('compact'); acc = 0; lastY = y; return; }
+    const dy = y - lastY; lastY = y;
+    acc = (dy > 0) === (acc > 0) ? acc + dy : dy;     // 同方向累積，換方向重算
+    if (acc > 24) header.classList.add('compact');
+    else if (acc < -24) header.classList.remove('compact');
+  };
+  window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+  window.addEventListener('resize', update, { passive: true });
+  window.addEventListener('hashchange', () => header.classList.remove('compact'));
+})();
