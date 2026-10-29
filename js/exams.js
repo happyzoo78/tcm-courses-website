@@ -119,7 +119,7 @@ function examListHtml(list, c, cat) {
 const examFilter = {};   // 每個科目目前選的分類、章節
 // 分類說明：選到該分類時，在章節上方顯示提醒框（名稱含關鍵字即適用，各科通用）
 const EXAM_CAT_NOTES = [
-  [/學習通/, '題目皆取自<strong>學習通上的課間練習測驗題</strong>，可反覆作答、熟悉題型，穩紮穩打。'],
+  [/學習通/, '題目皆取自<strong>學習通上的課間練習測驗題</strong>，可反覆作答、熟悉基本題型，穩紮穩打。'],
   [/期末/, '本分類題目依照<strong>老師上課提過的考題方向</strong>出題，供期末複習參考。'],
 ];
 const examCatNote = cat => { const n = EXAM_CAT_NOTES.find(([re]) => re.test(cat)); return n ? `<div class="note-box ex-note"><span class="note-lab">出題說明</span>${n[1]}</div>` : ''; };
