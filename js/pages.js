@@ -512,13 +512,22 @@ function openCardViewer(list, start = 0, opts = {}) {
   box.querySelector('.lb-nav.next')?.addEventListener('click', () => show(i + 1));
   img.onclick = () => box.classList.toggle('zoomed');
   stage.onclick = e => { if (e.target === stage && !box.classList.contains('zoomed')) box.close(); };
-  let sx = 0, sy = 0;
-  stage.addEventListener('touchstart', e => { if (e.touches.length === 1) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; } }, { passive: true });
-  stage.addEventListener('touchend', e => {
-    if (list.length < 2 || box.classList.contains('zoomed') || e.changedTouches.length !== 1) return;
-    const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
-    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) show(i + (dx < 0 ? 1 : -1));
+  // 左右滑動換張：只認「一根手指、快速、明顯水平」的滑動。
+  // 兩指放大（含放大後放開其中一指）、畫面已被放大、點圖放大模式下拖曳看圖，都不換張，避免誤觸跳到別張
+  let sx = 0, sy = 0, st = 0, multi = false;
+  const pageZoomed = () => (window.visualViewport?.scale || 1) > 1.05;
+  stage.addEventListener('touchstart', e => {
+    if (e.touches.length > 1) { multi = true; return; }
+    if (e.touches.length === 1) { multi = false; sx = e.touches[0].clientX; sy = e.touches[0].clientY; st = Date.now(); }
   }, { passive: true });
+  stage.addEventListener('touchend', e => {
+    if (e.touches.length > 0) return;            // 還有手指在螢幕上（兩指手勢進行中）
+    const wasMulti = multi; multi = false;
+    if (wasMulti || list.length < 2 || box.classList.contains('zoomed') || pageZoomed() || e.changedTouches.length !== 1) return;
+    const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+    if (Date.now() - st < 600 && Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 2) show(i + (dx < 0 ? 1 : -1));
+  }, { passive: true });
+  stage.addEventListener('touchcancel', () => { multi = false; }, { passive: true });
   lbKeys = e => {
     if (e.key === 'Escape') { e.preventDefault(); box.close(); }
     else if (list.length > 1 && e.key === 'ArrowRight') { e.preventDefault(); show(i + 1); }
