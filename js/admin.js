@@ -262,6 +262,50 @@ function semestersAdminHtml() {
   </div>`;
 }
 
+// 科目管理：直接在清單上指派科目負責人（不用進「編輯」）
+let ownerOpen = 0;   // 目前展開指派面板的科目
+function ownerPanelHtml(c) {
+  if (!members) return '<div class="owner-panel"><p class="meta-label">成員名單載入中…</p></div>';
+  const list = members.filter(m => m.status === 'active' && m.role !== 'owner');
+  return `
+  <form class="owner-panel" data-owner-form="${c.id}">
+    <p class="owner-cap">「${esc(c.title)}」的負責人可以新增、修改、刪除這個科目的試題（可以勾選多位）</p>
+    <div class="owner-list">
+      ${list.map(m => `<label class="check"><input type="checkbox" name="owner" value="${m.id}" ${(c.owners || []).some(o => o.id === m.id) ? 'checked' : ''}> ${esc(m.displayName)} <small>${esc(m.email)}</small></label>`).join('') || '<p class="meta-label">名單上還沒有其他成員。請先到「成員管理」新增成員。</p>'}
+    </div>
+    <div class="owner-actions">
+      <button type="submit" class="btn">儲存負責人</button>
+      <button type="button" class="btn secondary" data-owner-close>取消</button>
+      <span class="owner-msg" role="status"></span>
+    </div>
+  </form>`;
+}
+function bindOwnerPanels() {
+  document.querySelectorAll('[data-owner-open]').forEach(b => b.onclick = () => {
+    const id = Number(b.dataset.ownerOpen);
+    ownerOpen = ownerOpen === id ? 0 : id;
+    render();
+    if (ownerOpen && !members && !membersLoading) loadMembers();
+  });
+  document.querySelectorAll('[data-owner-close]').forEach(b => b.onclick = () => { ownerOpen = 0; render(); });
+  document.querySelectorAll('[data-owner-form]').forEach(f => f.onsubmit = async e => {
+    e.preventDefault();
+    const id = Number(f.dataset.ownerForm);
+    const btn = f.querySelector('[type=submit]');
+    const msg = f.querySelector('.owner-msg');
+    const userIds = [...f.querySelectorAll('[name=owner]:checked')].map(x => Number(x.value));
+    btn.disabled = true; btn.textContent = '儲存中…';
+    try {
+      await api(`/api/admin/courses/${id}/owners`, { method: 'PUT', body: { userIds } });
+      ownerOpen = 0;
+      await reloadAfterChange(`已更新「${getCourse(id)?.title || ''}」的負責人`);
+    } catch (err) {
+      btn.disabled = false; btn.textContent = '儲存負責人';
+      handleError(err, msg);
+    }
+  });
+}
+
 function adminPage() {
   if (!hasAdminAccess()) {
     return '<h2 class="section">管理後台</h2><p class="empty">你的帳號是「觀看者」，沒有後台權限。如需上傳資料，請聯絡網站管理者。</p>';
@@ -307,12 +351,14 @@ function adminPage() {
     ${list.map(i => `
       <div class="adminrow">
         <div><b>${esc(i.title)}</b><br><small>${isCourses
-          ? `${esc(semesterLabel(i.semesterCode))} · ${pagesOf(i.id).length} 份講義 · 負責人：${i.owners?.length ? i.owners.map(o => esc(o.name)).join('、') : '未指派'}`
+          ? `${esc(semesterLabel(i.semesterCode))}${pagesOf(i.id).length ? ` · ${pagesOf(i.id).length} 份講義` : ''} · 負責人：${i.owners?.length ? i.owners.map(o => esc(o.name)).join('、') : '<span class="unassigned">未指派</span>'}`
           : esc(i.date || '')}${adminType === 'items' ? ' · ' + esc(courseName(i.courseId)) : ''}</small></div>
         <div class="row-actions">
+          ${isCourses && admin.canManageMembers ? `<button type="button" class="btn ${ownerOpen === i.id ? '' : 'secondary'}" data-owner-open="${i.id}" aria-expanded="${ownerOpen === i.id}">負責人</button>` : ''}
           ${canEditRow ? `<button type="button" class="btn secondary" data-edit="${i.id}">編輯</button>` : ''}
           ${admin.canDelete ? `<button type="button" class="btn secondary danger" data-delete="${i.id}">刪除</button>` : ''}
         </div>
+        ${isCourses && ownerOpen === i.id ? ownerPanelHtml(i) : ''}
       </div>`).join('') || '<p class="empty-note">這個年級還沒有資料。</p>'}
   </div>
   <div id="editor"></div>`;

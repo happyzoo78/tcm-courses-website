@@ -892,3 +892,13 @@ h2.section .more-btn { margin-left: auto; align-self: center; }
 
 /* 後台分頁：「成員管理」（人員）和內容管理之間用「｜」隔開 */
 .admin-tab-sep { flex: none; align-self: center; color: var(--line); font-size: 20px; padding: 0 2px; user-select: none; }
+
+/* 科目管理：清單上直接指派負責人 */
+.unassigned { color: var(--red); }
+.adminrow .owner-panel { flex: 1 1 100%; margin-top: 10px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--bg); }
+.owner-cap { margin: 0 0 8px; font-size: 14px; color: var(--muted); }
+.owner-list { display: grid; gap: 6px; max-height: 260px; overflow-y: auto; }
+.owner-list .check small { color: var(--muted); }
+.owner-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
+.owner-msg:empty { display: none; }
+.adminrow:has(.owner-panel) { flex-wrap: wrap; }

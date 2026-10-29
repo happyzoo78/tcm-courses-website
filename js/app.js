@@ -251,6 +251,7 @@ function bind() {
     }
   });
 
+  bindOwnerPanels();
   const add = document.getElementById('add');
   if (add) add.onclick = () => showEditor(null);
 
