@@ -657,7 +657,7 @@ fieldset.owners .check small { color: var(--muted); }
 .ex-sep { color: var(--line); padding: 0 8px; user-select: none; }
 /* 第三層：章節放在內嵌小框裡，上方小字標明屬於哪個分類 */
 .exnav-chaps { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; padding: 10px 12px 12px; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-m); }
-.exnav-cap { flex: 1 1 100%; font-size: 12.5px; color: var(--muted); letter-spacing: .05em; margin-bottom: 2px; }
+.exnav-cap { flex: 1 1 100%; font-size: 15px; font-weight: 700; color: var(--ink); letter-spacing: .04em; margin-bottom: 4px; }
 .ex-ch { background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); border-radius: var(--r-m); padding: 4px 12px; font: inherit; font-size: 14.5px; font-weight: 600; color: var(--accent-soft-ink); cursor: pointer; white-space: nowrap; }
 .ex-ch[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; }
 .ex-ch[aria-pressed="true"] small { color: var(--accent-ink); }
