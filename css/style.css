@@ -248,7 +248,7 @@ input:focus, textarea:focus, select:focus { border-color: var(--accent); }
 /* 詳細內容（長文閱讀：限制行寬） */
 .reading { max-width: 760px; margin: 0 auto; }
 .reading h1 { font-size: clamp(26px, 3.6vw, 34px); line-height: 1.45; margin: 6px 0 4px; }
-.reading .date { color: var(--muted); font-size: 15px; margin: 0 0 14px; }
+.reading .date { color: var(--muted); font-size: 15px; margin: 0 0 14px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
 .reading .content { white-space: pre-wrap; font-size: 18px; line-height: 1.95; }
 .detail-image { display: block; max-height: 460px; margin: 14px auto; border-radius: var(--r-m); }
 
@@ -531,13 +531,18 @@ fieldset.owners .check small { color: var(--muted); }
 @media (max-width: 720px) { .ed-body .ql-editor { min-height: 260px; font-size: 16px; } }
 
 /* 模擬考題 */
-.exam-head { margin-bottom: 18px; }
+.exam-head { margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }   /* 試題標題區與題目分開 */
 .exam-head h2 { font-family: var(--serif, inherit); font-size: 26px; margin: 4px 0 6px; }
 .exam-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin-top: 10px; }
 .my-attempts { margin: 10px 0; }
 .my-attempts summary { cursor: pointer; color: var(--accent); font-weight: 600; }
 .my-attempts ul { margin: 8px 0 0; padding-left: 20px; }
 .exam-form { display: grid; gap: 14px; }
+/* 題型段落標題（單選題、多選題…） */
+.q-sec { display: flex; align-items: baseline; gap: 10px; margin: 12px 0 0; padding: 0 2px 8px; border-bottom: 2px solid color-mix(in srgb, var(--gold) 45%, transparent); }
+.q-sec:first-child { margin-top: 0; }
+.q-sec-name { font-size: 17px; font-weight: 700; color: var(--gold); letter-spacing: .04em; }
+.q-sec-count { font-size: 13px; color: var(--muted); }
 .q-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-l); padding: 16px 18px; }
 .q-card[hidden] { display: none; }
 .q-top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-bottom: 8px; }
@@ -846,7 +851,7 @@ fieldset.owners .check small { color: var(--muted); }
 /* 首頁：學習圖卡（每個書架一塊，兩欄；每架最多 4 張小卡） */
 .shelves { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .shelf { padding: 16px 18px; border: 1px solid var(--line); border-radius: var(--r-l); background: var(--surface); display: flex; flex-direction: column; }
-.shelf-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 10px; }
+.shelf-head { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }   /* 科目卡標題列與內容分開 */
 .shelf-head h4 { margin: 0; font-family: "Noto Serif TC", "Noto Serif CJK TC", "Source Han Serif TC", "Songti TC", "STSong", "Songti SC", "SimSun", "PMingLiU", serif; font-size: 19px; display: flex; align-items: center; gap: 8px; }
 .shelf-meta { font-size: 13.5px; color: var(--muted); }
 .shelf-list { display: grid; gap: 8px; }

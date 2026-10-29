@@ -508,11 +508,16 @@ function xpBlocks(lines) {
 // 依題目順序畫出來，遇到共用選項組先畫選項
 function questionsHtml(questions, groups, mode, ctx) {
   let lastGroup = null;
+  // 題型分段：題型改變時加段落標題（例如「單選題 70 題」），整份只有一種題型就不加
+  const kind = q => q.group ? 'group' : q.type;
+  const runs = []; for (const q of questions) { if (!runs.length || runs[runs.length - 1].k !== kind(q)) runs.push({ k: kind(q), n: 0, first: q.id }); runs[runs.length - 1].n++; }
+  const secName = k => k === 'group' ? '共用選項題' : EXAM_TYPE[k] || '題目';
+  const heads = runs.length > 1 ? Object.fromEntries(runs.map(r => [r.first, `<div class="q-sec"><span class="q-sec-name">${secName(r.k)}</span><span class="q-sec-count">${r.n} 題</span></div>`])) : {};
   return questions.map(q => {
-    let pre = '';
+    let pre = heads[q.id] || '';
     if (q.group && q.group !== lastGroup) {
       const g = groups.find(x => x.id === q.group);
-      pre = `<div class="q-group"><b>共用選項</b>（第 ${esc(q.label || q.no)} 題起的題目共用）<ol type="A">${g.options.map(o => `<li><b>${o.key}.</b> ${esc(o.text)}</li>`).join('')}</ol></div>`;
+      pre += `<div class="q-group"><b>共用選項</b>（第 ${esc(q.label || q.no)} 題起的題目共用）<ol type="A">${g.options.map(o => `<li><b>${o.key}.</b> ${esc(o.text)}</li>`).join('')}</ol></div>`;
     }
     lastGroup = q.group || null;
     return pre + questionHtml(q, groups, mode, ctx);

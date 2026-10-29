@@ -190,7 +190,7 @@ function coursePage() {
   const items = data.items.filter(i => i.courseId == c.id).sort(byDateDesc);
   const pages = [...list, ...filesOf(c.id).map(f => ({ url: f.path, title: f.title, description: f.description || '', updatedAt: f.updated, updatedBy: '', file: true }))];
   return `
-  <a class="back-link" href="#courses">← 學習科目</a>
+  <a class="btn secondary back" href="#courses">← 學習科目</a>
   <h2 class="section">${esc(c.title)}${isExamSubject(c) ? ' <span class="exam-tag">執醫考科</span>' : ''} <small>${esc(semesterLabel(c.semesterCode))}${c.owners?.length ? `　負責人：${c.owners.map(o => esc(o.name)).join('、')}` : ''}</small></h2>
   ${pages.length ? `
   <h3 class="sec-title">講義</h3>
