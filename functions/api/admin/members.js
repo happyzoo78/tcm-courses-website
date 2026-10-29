@@ -27,6 +27,12 @@ export async function onRequestGet({ request, env }) {
     `).all());
   }
   const now = await env.DB.prepare("SELECT CURRENT_TIMESTAMP AS t").first();
+  // 每位成員最近一次收到設定／重設密碼信的時間（資料表不存在時略過）
+  const mailed = {};
+  try {
+    const { results: t } = await env.DB.prepare("SELECT user_id, MAX(created_at) AS at FROM password_tokens GROUP BY user_id").all();
+    for (const r of t || []) mailed[r.user_id] = r.at;
+  } catch {}
 
   return jsonResponse({
     now: now?.t || null,
@@ -42,6 +48,7 @@ export async function onRequestGet({ request, env }) {
       lastLoginAt: m.last_login_at,
       lastSeenAt: m.last_seen_at ?? null,
       hasPassword: Boolean(m.password_hash) && m.password_hash !== NO_PASSWORD,
+      mailedAt: mailed[m.id] || null,
       isSelf: m.id === auth.admin.id
     }))
   });

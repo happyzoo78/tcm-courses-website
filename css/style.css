@@ -341,7 +341,8 @@ details.pw-login[open] summary { margin-bottom: 10px; }
 /* 成員管理 */
 .role { display: inline-block; padding: 0 10px; border-radius: var(--r-s); font-size: 13px; margin-left: 6px; vertical-align: 2px; background: var(--accent-soft); color: var(--accent-soft-ink); }
 .role.off { background: transparent; color: var(--red); border: 1px solid var(--red); }
-.role.mail-need { background: color-mix(in srgb, var(--red) 14%, var(--surface)); color: var(--red); border: 1px solid var(--red); font-weight: 700; }
+.role.mail-need { background: transparent; color: var(--red); border: 1px solid var(--red); }
+.role.mail-sent { background: transparent; color: var(--muted); border: 1px solid var(--line); }
 .role.mail-suggest { background: transparent; color: var(--gold); border: 1px solid var(--gold); }
 /* 面板標題區：標題＋說明，下方分隔線，與表單內容分出層級（參考關於本站） */
 .panel-head { margin: 0 0 18px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }

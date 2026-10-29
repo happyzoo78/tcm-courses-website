@@ -15,7 +15,7 @@ function randomToken() {
 // purpose：reset＝同學自己按「忘記密碼」（30 分鐘有效）；invite＝管理者寄出的設定密碼信（3 天有效）
 const LIFETIME = { reset: "+30 minutes", invite: "+3 days" };
 
-export async function createAndSend(env, origin, user, purpose, ipHash) {
+export async function createAndSend(env, origin, user, purpose, ipHash, opts = {}) {
   const token = randomToken();
   await env.DB.prepare(`
     INSERT INTO password_tokens (user_id, token_hash, purpose, expires_at, ip_hash)
@@ -25,7 +25,9 @@ export async function createAndSend(env, origin, user, purpose, ipHash) {
   const link = `${origin}/#reset/${token}`;
   const raw = user.display_name && user.display_name !== user.email ? user.display_name : "同學";
   const name = String(raw).replace(/[<>&"']/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;" }[c]));
-  const first = purpose === "invite" ? "網站管理者邀請你設定「2026福建中醫台灣班網站」的登入密碼。" : "我們收到你「忘記密碼」的申請。";
+  const first = opts.auto
+    ? "你已經加入「2026福建中醫台灣班網站」的成員名單，但還沒登入過。用 Gmail 的同學可以直接在網站按「使用 Google 帳號登入」；不能用 Google 登入的話，可以用下面的連結設定密碼，改用 Email＋密碼登入。"
+    : purpose === "invite" ? "網站管理者邀請你設定「2026福建中醫台灣班網站」的登入密碼。" : "我們收到你設定／重設登入密碼的申請。";
   const expire = purpose === "invite" ? "3 天" : "30 分鐘";
   const text = `${raw}你好：\n\n${first}\n請在 ${expire}內打開下面的連結，設定新密碼：\n${link}\n\n設定好之後，就可以用這個 Email＋新密碼登入網站。\n如果不是你本人申請，請直接忽略這封信，你的密碼不會改變。\n\n2026福建中醫台灣班網站`;
   const html = `<div style="font-family:sans-serif;line-height:1.8;color:#2b2f2a">

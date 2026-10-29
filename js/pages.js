@@ -279,7 +279,7 @@ function contactHtml() {
       <div class="field"><label for="c-subject">主旨（選填）</label><input id="c-subject" name="subject" maxlength="60" placeholder="例如：試題有錯字、想協助出題"></div>
       <div class="field"><label for="c-msg">內容</label><textarea id="c-msg" name="message" maxlength="2000" required></textarea></div>
       <p class="meta-label" style="margin-top:0">管理者會回信到你的登入信箱 ${esc(admin.email)}。</p>
-      <div class="note-box"><span class="note-lab">提醒</span>管理者的回信<strong>有可能被歸到垃圾郵件</strong>，<strong>沒收到請先查看垃圾郵件匣</strong>。<br>這個表單<strong>要登入才能使用</strong>。若有同學進不了網站，請他在登入頁按<strong>「忘記密碼？」</strong>重設，或<strong>在班群私訊網站管理者</strong>。</div>
+      <div class="note-box"><span class="note-lab">提醒</span>管理者的回信<strong>有可能被歸到垃圾郵件</strong>，<strong>沒收到請先查看垃圾郵件匣</strong>。<br>這個表單<strong>要登入才能使用</strong>。若有同學進不了網站，請他在登入頁按<strong>「忘記密碼／第一次設定密碼？」</strong>，或<strong>在班群私訊網站管理者</strong>。</div>
       <div id="contactmsg"></div>
       <button class="btn" type="submit">寄出</button>
     </form>
@@ -339,7 +339,7 @@ function welcomePage() {
         <li><b>班級專用</b>：本站只給 2026 福建中醫藥大學台灣班成員學習使用。請勿把帳號借給別人，也不要把講義、圖卡、試題、作業答案轉貼或外流。</li>
         <li><b>尊重著作權</b>：教材著作權屬於原作者與學校，本站內容是同學整理的複習資料，僅供個人學習。</li>
         <li><b>內容以課堂為準</b>：講義、圖卡、試題由同學整理，難免有錯，請以老師上課與教材為準；發現錯誤請告訴科目負責人。</li>
-        <li><b>登入方式</b>：可以用 Google 帳號，或「Email＋密碼」。<b>人在大陸時 Google 常常不能用</b>，建議現在就設一組備用密碼。忘記密碼時，可在登入頁按「忘記密碼？」收信重設，或請網站管理者幫忙。</li>
+        <li><b>登入方式</b>：可以用 Google 帳號，或「Email＋密碼」。<b>人在大陸時 Google 常常不能用</b>，建議現在就設一組備用密碼。忘記密碼時，可在登入頁按「忘記密碼／第一次設定密碼？」收信重設，或請網站管理者幫忙。</li>
         <li><b>本站會記錄的資料</b>：你的 Email、暱稱、最後登入與上線時間、試題作答與成績（科目負責人與管理者看得到成績）。詳細內容請看<a class="link" href="/privacy.html" target="_blank" rel="noopener">隱私權政策</a>。</li>
       </ol>
       <form id="welcomeform">

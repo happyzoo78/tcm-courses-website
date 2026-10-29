@@ -58,7 +58,7 @@ function loginGateHtml() {
       ${loginNotice ? `<div class="msg error">${esc(loginNotice)}</div>` : ''}
       <a class="google-btn" href="/api/auth/google/start" id="google-login"><span class="g">G</span> 使用 Google 帳號登入</a>
       <div class="login-or"><span>或用 Email＋密碼登入</span></div>
-      <p class="meta-label" style="margin-top:0">沒有 Google 帳號、或人在大陸不能用 Google 時，請用管理者給你的密碼登入。</p>
+      <p class="meta-label" style="margin-top:0">沒有 Google 帳號、或人在大陸不能用 Google 時，請用密碼登入；還沒有密碼的話，按下方「忘記密碼／第一次設定密碼？」收信設定。</p>
       <form id="loginform" class="pw-login">
         <div class="field"><label for="l-email">Email</label><input id="l-email" name="email" type="email" autocomplete="username" required></div>
         <div class="field"><label for="l-pw">密碼</label><input id="l-pw" name="password" type="password" autocomplete="current-password" required></div>
@@ -67,7 +67,7 @@ function loginGateHtml() {
         <p class="meta-label">為保護帳號安全，密碼連續輸錯 5 次會暫停登入 15 分鐘。</p>
       </form>
       <details class="forgot">
-        <summary>忘記密碼？</summary>
+        <summary>忘記密碼／第一次設定密碼？</summary>
         <form id="forgotform">
           <p class="meta-label" style="margin-top:6px">輸入你登入用的 Email，我們會寄一封「設定新密碼」的信給你。</p>
           <div class="field"><label for="f-email">Email</label><input id="f-email" name="email" type="email" autocomplete="username" required></div>
@@ -76,7 +76,7 @@ function loginGateHtml() {
           <button class="btn" type="submit">寄送設定密碼的信</button>
         </form>
       </details>
-      <div class="note-box"><span class="note-lab">進不了網站嗎？</span>忘記密碼請按上方<strong>「忘記密碼？」</strong>；還沒加入或其他問題，請<strong>在班群私訊網站管理者</strong>。</div>
+      <div class="note-box"><span class="note-lab">進不了網站嗎？</span>忘記密碼或還沒設過密碼，請按上方<strong>「忘記密碼／第一次設定密碼？」</strong>；還沒加入或其他問題，請<strong>在班群私訊網站管理者</strong>。</div>
     </div>
   </div>`;
 }
@@ -122,8 +122,8 @@ function membersHtml() {
     <div id="memberformmsg"></div>
   </div>
   <h3 class="sec-title">成員名單 <small>${members.length} 人</small></h3>
-  ${(() => { const need = members.filter(m => mailAdvice(m) === 'need'), sug = members.filter(m => mailAdvice(m) === 'suggest');
-    return need.length || sug.length ? `<div class="note-box"><span class="note-lab">密碼信建議</span>${need.length ? `<strong>需寄 ${need.length} 人</strong>（${need.map(m => esc(m.displayName)).join('、')}）：沒有密碼、從未登入，信箱不是 Gmail，可能無法用 Google 登入。` : ''}${need.length && sug.length ? '<br>' : ''}${sug.length ? `建議寄 ${sug.length} 人（${sug.map(m => esc(m.displayName)).join('、')}）：從未登入的 Gmail，可用 Google 登入，寄信當作邀請提醒。` : ''}<br>已有密碼或已用 Google 登入過的同學不用寄；他們可在須知頁或「我的帳號」自己設定備用密碼。</div>` : ''; })()}
+  ${membersMeta.mailEnabled ? (() => { const need = members.filter(m => mailAdvice(m) === 'need');
+    return `<div class="note-box"><span class="note-lab">密碼信</span>加入超過 <strong>1 小時</strong>還沒登入、也沒有密碼的成員，網站會<strong>自動寄一次</strong>設定密碼信（不用你手動寄）。不能用 Google 登入的同學，也可以自己在登入頁按「忘記密碼／第一次設定密碼？」。${need.length ? `<br>目前<strong>可能需要密碼</strong>、還沒收過信：${need.map(m => esc(m.displayName)).join('、')}（加入未滿 1 小時的會稍後自動寄出；加入超過 7 天的不會自動寄，需要時請按「寄密碼信」）。` : ''}</div>`; })() : ''}
   ${memberGroupsHtml(roleOptions)}`;
 }
 
@@ -134,13 +134,15 @@ const MEMBER_GROUPS = [
   ['一般會員', '只能看內容', m => m.status === 'active' && !['owner', 'admin', 'editor'].includes(m.role)],
   ['已停用', '暫時不能登入，可隨時恢復', m => m.status !== 'active'],
 ];
-// 判斷要不要寄「設定密碼」信：
-//   need＝沒有密碼、從未登入、而且不是 Gmail（可能不能用 Google 登入，等於完全進不來）
-//   suggest＝沒有密碼、從未登入的 Gmail（可用 Google 登入，寄信當作邀請提醒）
-//   ok＝已有密碼，或已經用 Google 登入過（第一次登入的須知頁可自己設備用密碼）
+// 密碼狀態：
+//   ok＝已有密碼、已登入過、擁有者自己或已停用 → 不用處理
+//   mailed＝已寄過設定／重設密碼信（手動或自動）
+//   need＝沒有密碼、從未登入、非 Gmail（可能不能用 Google 登入）
+//   suggest＝沒有密碼、從未登入的 Gmail（可用 Google 登入）
+// 加入超過 1 小時仍未登入、沒有密碼者，網站會自動寄一次（functions/_lib/autoinvite.js）
 function mailAdvice(m) {
-  if (m.role === 'owner' || m.isSelf || m.status !== 'active' || m.hasPassword) return 'ok';
-  if (m.lastLoginAt) return 'ok';
+  if (m.role === 'owner' || m.isSelf || m.status !== 'active' || m.hasPassword || m.lastLoginAt) return 'ok';
+  if (m.mailedAt) return 'mailed';
   return /@(gmail|googlemail)\.com$/i.test(m.email || '') ? 'suggest' : 'need';
 }
 function memberGroupsHtml(roleOptions) {
@@ -152,14 +154,14 @@ function memberGroupsHtml(roleOptions) {
       return `
       <div class="adminrow">
         <div>
-          ${membersMeta.seenSupported ? `<span class="online-dot ${seen.online ? 'on' : ''}" title="${esc(seen.text)}"></span>` : ''}<b>${esc(m.displayName)}</b>${showRole ? `<span class="role">${ROLE_NAME[m.role] || esc(m.role)}</span>` : ''}${m.hasPassword ? '<span class="role" title="可以用 Email＋密碼登入">密碼</span>' : ''}${off ? '<span class="role off">已停用</span>' : ''}${{ need: '<span class="role mail-need" title="沒有密碼、從未登入，信箱不是 Gmail，可能無法用 Google 登入">需寄密碼信</span>', suggest: '<span class="role mail-suggest" title="沒有密碼、從未登入；Gmail 可用 Google 登入，寄信可當作邀請提醒">建議寄密碼信</span>' }[mailAdvice(m)] || ''}
+          ${membersMeta.seenSupported ? `<span class="online-dot ${seen.online ? 'on' : ''}" title="${esc(seen.text)}"></span>` : ''}<b>${esc(m.displayName)}</b>${showRole ? `<span class="role">${ROLE_NAME[m.role] || esc(m.role)}</span>` : ''}${m.hasPassword ? '<span class="role" title="可以用 Email＋密碼登入">密碼</span>' : ''}${off ? '<span class="role off">已停用</span>' : ''}${{ need: '<span class="role mail-need" title="沒有密碼、從未登入，信箱不是 Gmail，可能無法用 Google 登入">可能需要密碼</span>', suggest: '<span class="role mail-suggest" title="沒有密碼、從未登入；Gmail 可用 Google 登入">尚未登入</span>', mailed: `<span class="role mail-sent" title="已寄出設定密碼的信">已寄密碼信 ${esc(fmtTime(m.mailedAt))}</span>` }[mailAdvice(m)] || ''}
           <br><small>${membersMeta.seenSupported ? `<span class="${seen.online ? 'seen-on' : ''}">${esc(seen.text)}</span> · ` : ''}${esc(m.email)} · 最後登入：${esc(fmtTime(m.lastLoginAt))}</small>
         </div>
         <div class="row-actions">
           ${m.isSelf ? '<a class="btn secondary" href="#account">改暱稱</a>' : locked ? '' : `
             <button type="button" class="btn secondary" data-member-rename="${m.id}">改名</button>
             <button type="button" class="btn secondary" data-member-pw="${m.id}">${m.hasPassword ? '重設密碼' : '設定密碼'}</button>
-            ${membersMeta.mailEnabled ? `<button type="button" class="btn ${mailAdvice(m) === 'need' ? '' : 'secondary'}" data-member-mail="${m.id}" title="寄一封設定密碼的信到 ${esc(m.email)}">寄密碼信</button>` : ''}
+            ${membersMeta.mailEnabled ? `<button type="button" class="btn secondary" data-member-mail="${m.id}" title="寄一封設定密碼的信到 ${esc(m.email)}">寄密碼信</button>` : ''}
             <select data-member-role="${m.id}" aria-label="變更權限">${roleOptions(m.role)}</select>
             <button type="button" class="btn secondary ${off ? '' : 'danger'}" data-member-status="${m.id}" data-to="${off ? 'active' : 'suspended'}">${off ? '恢復' : '停用'}</button>
             ${m.lastLoginAt ? '' : `<button type="button" class="btn secondary danger" data-member-delete="${m.id}">移除</button>`}`}

@@ -4,8 +4,9 @@ import { jsonResponse } from "../_lib/auth.js";
 import { getCurrentAdmin, hasPermission } from "../_lib/session.js";
 import { ownedCourseIds } from "../_lib/pages.js";
 import { mailConfigured } from "../_lib/mail.js";
+import { maybeAutoInvite } from "../_lib/autoinvite.js";
 
-export async function onRequestGet({ request, env }) {
+export async function onRequestGet({ request, env, waitUntil }) {
   if (!env.DB) {
     return jsonResponse({ error: "Service unavailable" }, 503);
   }
@@ -19,6 +20,9 @@ export async function onRequestGet({ request, env }) {
   }
 
   if (!admin) return jsonResponse({ admin: null });
+
+  // 順便檢查：加入超過 1 小時還沒登入、沒有密碼的成員，自動寄設定密碼信（背景執行，不拖慢回應）
+  maybeAutoInvite(env, new URL(request.url).origin, waitUntil);
 
   let hasPassword = false;
   try {
