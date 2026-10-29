@@ -211,7 +211,6 @@ function coursePage() {
   const deck = deckOf(c.id);
   const pages = [...list, ...filesOf(c.id).map(f => ({ url: f.path, title: f.title, description: f.description || '', updatedAt: f.updated, updatedBy: '', file: true }))];
   return `
-  <a class="btn secondary back" href="#courses">← 學習科目</a>
   <h2 class="section">${esc(c.title)} · 圖卡總目錄${isExamSubject(c) ? ' <span class="exam-tag">執醫考科</span>' : ''} <small>${esc(semesterLabel(c.semesterCode))}${c.owners?.length ? `　負責人：${c.owners.map(o => esc(o.name)).join('、')}` : ''}</small></h2>
   ${pages.length ? `
   <h3 class="sec-title">講義</h3>
@@ -257,7 +256,6 @@ function itemGridHtml() {
 }
 function itemsPage() {
   return `
-  <a class="btn secondary back" href="${filter !== 'all' ? '#course/' + esc(filter) : '#courses'}">← 返回</a>
   <h2 class="section">圖卡目錄 ${filter !== 'all' ? `<small>${esc(courseName(filter))}</small>` : ''}</h2>
   <div class="toolbar">
     <input id="search" type="search" placeholder="搜尋圖卡或內容…" aria-label="搜尋圖卡" value="${esc(query)}">
@@ -283,7 +281,6 @@ function detailPage() {
   const backHref = type === 'item' ? `#course/${i.courseId}` : '#projects';
   return `
   <div class="reading">
-    <a class="btn secondary back" href="${backHref}">← 返回列表</a>
     <article class="panel prose">
       <div class="eyebrow">${type === 'item' ? esc(courseName(i.courseId)) : '活動專案'}</div>
       <h1>${esc(i.title)}</h1>
@@ -330,7 +327,6 @@ function accountPage() {
   const flash = adminFlash ? `<div class="msg ok">${esc(adminFlash)}</div>` : '';
   adminFlash = '';
   return `
-  <a class="btn secondary back" href="${esc(accountFrom || '#home')}">← 返回</a>
   <h2 class="section">我的帳號</h2>
   ${flash}
   <div class="panel prose account">
@@ -425,26 +421,23 @@ function deckChaptersHtml(c, d, compact) {
 function cardsPage() {
   const c = getCourse(routeParts[1]);
   const d = c && deckOf(c.id);
-  if (!c || !d) return `<a class="btn secondary back" href="${c ? '#course/' + c.id : '#courses'}">← 返回</a><p class="empty-note">這個科目還沒有依章節整理的圖卡。</p>`;
+  if (!c || !d) return `<p class="empty-note">這個科目還沒有依章節整理的圖卡。</p>`;
   const no = routeParts[2];
   // 圖卡總目錄就是科目頁
   if (!no) { courseTarget = c.id; history.replaceState(null, '', '#course/' + c.id); return coursePage(); }
 
   const i = d.chapters.findIndex(ch => ch.no === no);
-  if (i < 0) return `<a class="btn secondary back" href="#course/${c.id}">← 回上一層</a><p class="empty-note">找不到這一章的圖卡。</p>`;
+  if (i < 0) return `<p class="empty-note">找不到這一章的圖卡。</p>`;
   const ch = d.chapters[i], prev = d.chapters[i - 1], next = d.chapters[i + 1];
   let n = 0;
   return `
-  <div class="chap-actions">
-    <a class="btn secondary" href="#course/${c.id}" title="回到${esc(c.title)}圖卡總目錄">← 回上一層</a>
-    ${chapHasExams(c, ch.no) ? `<a class="btn" href="#examzone/${c.id}/${esc(ch.no)}" title="到學習試題作答這一章">學習試題 →</a>` : ''}
-  </div>
   <div class="chap-head">
     <div class="chap-title">
       <span class="eyebrow">${esc(c.title)} · ${chapLabel(ch)}</span>
       <h2>${esc(ch.title)}${ch.subtitle ? ` <small>${esc(ch.subtitle)}</small>` : ''}</h2>
       <p class="dc-meta">${ch.cards.length} 張圖卡${ch.date ? ' · 上課日期 ' + esc(ch.date) : ''}　點圖可看大圖</p>
     </div>
+    ${chapHasExams(c, ch.no) ? `<a class="btn" href="#examzone/${c.id}/${esc(ch.no)}" title="到學習試題作答這一章">學習試題 →</a>` : ''}
   </div>
   ${ch.groups.map(g => `
   <section class="cgrp">

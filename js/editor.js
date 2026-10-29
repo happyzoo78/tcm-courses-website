@@ -56,7 +56,6 @@ function editorPage() {
 
   return `
   <div class="editor-head">
-    <a class="btn secondary back" href="#admin/pages/${courseId}" id="ed-back">← 回講義管理</a>
     <h2 class="section" style="margin:0;border:0;padding:0">${pageRow ? '線上編輯講義' : '寫新講義'} <small>${esc(semesterLabel(course.semesterCode))}｜${esc(course.title)}</small></h2>
   </div>
   <div class="panel prose editor-panel">

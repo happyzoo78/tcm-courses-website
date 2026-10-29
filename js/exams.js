@@ -569,7 +569,6 @@ async function mountExam() {
   const course = getCourse(e.courseId);
   root.innerHTML = `
     ${examCrumbs(e.id, e.courseId, e.title)}
-    <a class="btn secondary back" href="#course/${e.courseId}">← 回到「${esc(course?.title || '科目')}」</a>
     <div class="exam-head">
       <div class="eyebrow">${esc(course?.title || '')} · ${esc(e.category || OTHER_CATEGORY)}</div>
       <h2>${esc(e.title)}</h2>
@@ -663,7 +662,6 @@ async function mountAttempt() {
   const wrong = a.questions.filter(q => q.type !== 'essay' && !a.results[q.id]?.correct).length;
   root.innerHTML = `
     ${a.mine ? examCrumbs(a.examId, a.courseId, a.title, [['我的成績']]) : crumbsHtml([['管理後台', '#admin'], ['試題管理', `#admin/exams/${a.courseId}`], ['全班統計', `#examstats/${a.examId}`], [`${a.name || ''} 的作答`]])}
-    <a class="btn secondary back" href="${a.mine ? `#exam/${a.examId}` : `#examstats/${a.examId}`}">← ${a.mine ? '回到試題' : '回到統計'}</a>
     <div class="exam-head">
       <div class="eyebrow">${a.mine ? '我的成績' : `${esc(a.name || '')} 的作答`}</div>
       <h2>${esc(a.title)}</h2>
@@ -729,7 +727,6 @@ async function mountRetry() {
   const strip = q => { const { answer, explanation, reference, rubric, ...rest } = q; return rest; };
   const head = `
     ${examCrumbs(a.examId, a.courseId, a.title, [['我的成績', `#attempt/${a.id}`], ['錯題練習']])}
-    <a class="btn secondary back" href="#attempt/${a.id}">← 回到成績頁</a>
     <div class="exam-head">
       <div class="eyebrow">錯題練習</div>
       <h2>${esc(a.title)}</h2>
@@ -804,7 +801,6 @@ async function mountExamEdit() {
   root.innerHTML = `
     ${crumbsHtml([['管理後台', '#admin'], ['試題管理', `#admin/exams/${course.id}`], [isNew ? '新增試題' : '編輯試題']])}
     <div class="editor-head">
-      <a class="btn secondary back" href="#admin/exams/${course.id}">← 回試題管理</a>
       <h2 class="section" style="margin:0;border:0;padding:0">${isNew ? '新增試題' : '編輯試題'} <small>${esc(semesterLabel(course.semesterCode))}｜${esc(course.title)}</small></h2>
     </div>
     <div class="panel prose editor-panel">
@@ -925,7 +921,6 @@ async function mountExamStats() {
   const num = v => v == null ? '—' : `${v}%`;
   root.innerHTML = `
     ${crumbsHtml([['管理後台', '#admin'], ['試題管理', `#admin/exams/${s.courseId}`], ['全班統計']])}
-    <a class="btn secondary back" href="#admin/exams/${s.courseId}">← 回試題管理</a>
     <h2 class="section">${esc(s.title)} <small>全班統計 · 第 ${s.version} 版</small></h2>
     <p class="meta-label">本頁只有擁有者、管理員和這個科目的負責人看得到。題目統計只計算目前版本的作答${s.allAttempts > s.attempts ? `（另有 ${s.allAttempts - s.attempts} 次舊版作答）` : ''}。</p>
     <div class="stats stats-row">
