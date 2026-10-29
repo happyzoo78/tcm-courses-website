@@ -314,7 +314,7 @@ function bind() {
     try {
       await api('/api/contact', { method: 'POST', body: { subject: cf.subject.value, message } });
       cf.reset();
-      msg.innerHTML = '<div class="msg ok">已寄出，管理者會回信到你的信箱。回信<b>有可能被歸到垃圾郵件</b>，沒看到請到垃圾郵件匣找找。</div>';
+      msg.innerHTML = '<div class="msg ok">已寄出，管理者會回信到你的信箱。回信<b>有可能被歸到垃圾郵件</b>，<b>沒看到請到垃圾郵件匣找找</b>。</div>';
     } catch (err) {
       msg.innerHTML = `<div class="msg error">${esc(err.message || '寄送失敗，請稍後再試')}</div>`;
     } finally { btn.disabled = false; }
