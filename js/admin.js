@@ -269,7 +269,7 @@ function adminPage() {
   const tabs = {
     pages: '講義',
     exams: '試題',
-    ...(admin.canWrite ? TYPE_NAME : {}),
+    ...(admin.canWrite ? { courses: TYPE_NAME.courses, items: TYPE_NAME.items } : {}),   // 活動專案前台已移除，後台也不再顯示（資料保留在資料庫）
     ...(admin.canManageCourses ? { semesters: '學期' } : {}),
     ...(admin.canManageMembers ? { members: '成員' } : {})
   };
