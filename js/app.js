@@ -96,8 +96,33 @@ function startHeartbeat() {
   }, 60000);
 }
 
+// 每個密碼欄右側加「顯示／隱藏」切換，讓使用者確認自己沒有打錯
+function addPwToggles() {
+  document.querySelectorAll('input[type="password"]:not([data-pw-t])').forEach(inp => {
+    inp.dataset.pwT = '1';
+    const wrap = document.createElement('div');
+    wrap.className = 'pw-wrap';
+    inp.before(wrap);
+    wrap.append(inp);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'pw-eye';
+    btn.textContent = '顯示';
+    btn.setAttribute('aria-label', '顯示密碼');
+    btn.onclick = () => {
+      const show = inp.type === 'password';
+      inp.type = show ? 'text' : 'password';
+      btn.textContent = show ? '隱藏' : '顯示';
+      btn.setAttribute('aria-label', show ? '隱藏密碼' : '顯示密碼');
+      inp.focus();
+    };
+    wrap.append(btn);
+  });
+}
+
 function bind() {
   if (admin) startHeartbeat();
+  addPwToggles();
   revealSelected();
   bindCarousels();
   // 手機的科目下拉選單：選了就等於按下對應的科目按鈕

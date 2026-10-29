@@ -913,6 +913,10 @@ h2.section .more-btn { margin-left: auto; align-self: center; }
 .login-or { display: flex; align-items: center; gap: 10px; margin: 18px 0 6px; color: var(--muted); font-size: 14px; }
 .login-or::before, .login-or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
 /* 成員管理：臨時密碼欄＋產生按鈕 */
+.pw-wrap { position: relative; }
+.pw-wrap input { width: 100%; padding-right: 64px; }
+.pw-eye { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); min-height: 34px; padding: 0 10px; border: 1px solid var(--line); border-radius: var(--r-s); background: var(--surface-2); color: var(--muted); font: inherit; font-size: 14px; cursor: pointer; }
+.pw-eye:hover { color: var(--ink); border-color: var(--accent); }
 .pw-gen { display: flex; gap: 6px; }
 .pw-gen input { flex: 1; min-width: 0; }
 .pw-gen .btn { flex: none; }
