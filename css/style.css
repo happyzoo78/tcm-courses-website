@@ -889,3 +889,6 @@ h2.section .more-btn { margin-left: auto; align-self: center; }
 .sem-switch[aria-checked="true"] .sw { background: var(--accent); }
 .sem-switch[aria-checked="true"] .sw-knob { transform: translateX(20px); }
 .sem-switch:hover .sw { filter: brightness(1.06); }
+
+/* 後台分頁：「成員管理」（人員）和內容管理之間用「｜」隔開 */
+.admin-tab-sep { flex: none; align-self: center; color: var(--line); font-size: 20px; padding: 0 2px; user-select: none; }
