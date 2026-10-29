@@ -194,7 +194,7 @@ async function readHtmlFile(file) {
 function semestersAdminHtml() {
   const sems = [...data.semesters].sort((a, b) => a.sortOrder - b.sortOrder);
   return `
-  <p class="meta-label">只有「開放中」的學期會顯示在首頁、各科書架和試題。新學期開始時，在這裡打開即可。</p>
+  <p class="meta-label">只有「開放中」的學期會顯示在首頁、學習書架和試題。新學期開始時，在這裡打開即可。</p>
   <div class="sem-grid">
     ${YEAR_NAMES.map((n, i) => {
       const list = sems.filter(s => yearOf(s.code) === i + 1);
