@@ -6,10 +6,10 @@
    ========================================================= */
 const TYPE_NAME = { courses: '科目', items: '圖卡', projects: '活動專案' };
 const ROLE_NAME = { owner: '擁有者', admin: '管理員', editor: '編輯者', viewer: '一般會員' };
-// 身分顯示：一般會員被指派為科目負責人時，只顯示較高的「科目負責人」（已包含一般會員的權限）
+// 身分顯示：一般會員、編輯者被指派為科目負責人時，只顯示「科目負責人」（擁有者決定，名稱不重複）
 function roleLabel(role, ownsCourses) {
-  if (role === 'viewer' && ownsCourses) return '科目負責人';
-  return (ROLE_NAME[role] || role) + (ownsCourses && role === 'editor' ? '・科目負責人' : '');
+  if ((role === 'viewer' || role === 'editor') && ownsCourses) return '科目負責人';
+  return ROLE_NAME[role] || role;
 }
 
 // 偵測是否在 LINE、Facebook 等 App 的內建瀏覽器裡（Google 不允許在這些地方登入）
