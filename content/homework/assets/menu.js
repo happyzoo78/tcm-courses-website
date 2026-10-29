@@ -149,7 +149,7 @@ const HW_DATA = [
   .hwz-year[aria-selected="true"] { color: var(--ink); font-weight: 700; border-bottom-color: var(--accent); }
   .hwz-year:disabled { opacity: .5; cursor: not-allowed; }
   .hwz-semrow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 0 0 8px; }
-  .hwz-sem { flex: none; align-self: stretch; display: inline-flex; align-items: center; padding: 0 12px 0 0; margin-right: 4px; border-right: 2px solid var(--accent); font-size: 15px; font-weight: 700; color: var(--ink); letter-spacing: .04em; }
+  .hwz-sem { flex: none; align-self: stretch; display: inline-flex; align-items: center; padding: 0 12px 0 0; margin-right: 4px; border-right: 2px solid color-mix(in srgb, var(--gold, #8a6f46) 55%, transparent); font-size: 15px; font-weight: 700; color: var(--gold, #8a6f46); letter-spacing: .04em; }
   /* 科目按鈕：與主站一致（淡綠底＋綠框），選到＝實心綠 */
   .hwz-subj { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); border-radius: 6px; background: color-mix(in srgb, var(--accent) 16%, var(--surface)); color: var(--ink); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; white-space: nowrap; }
   .hwz-subj small { font-size: 12px; color: inherit; opacity: .75; font-weight: 400; }

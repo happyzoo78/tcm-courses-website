@@ -346,7 +346,7 @@ details.pw-login[open] summary { margin-bottom: 10px; }
 .role.mail-suggest { background: transparent; color: var(--gold); border: 1px solid var(--gold); }
 /* 面板標題區：標題＋說明，下方分隔線，與表單內容分出層級（參考關於本站） */
 .panel-head { margin: 0 0 18px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
-.panel-head h3 { margin: 0 0 6px; }
+.panel-head h3 { margin: 0 0 6px; font-size: 20px; }
 .panel-head p { margin: 0; font-size: 14px; line-height: 1.7; color: var(--muted); }
 .list-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 0 14px; }
 .list-head h3 { margin: 0; font-size: 19px; color: var(--accent); display: flex; align-items: baseline; gap: 10px; }
@@ -374,7 +374,7 @@ details.pw-login[open] summary { margin-bottom: 10px; }
 .mf-mail { grid-area: mail; align-self: start; margin-top: 38px; }
 .mf-submit { grid-area: submit; padding-top: 12px; border-top: 1px solid var(--line); }
 .mf-submit .btn { min-width: 160px; }
-.mf-hint { display: block; margin-top: 5px; font-size: 13px; line-height: 1.5; color: var(--muted); }
+.mf-hint { display: block; margin-top: 5px; font-size: 14px; line-height: 1.5; color: var(--muted); }
 .member-form .field { margin: 0; }
 .row-actions select { width: auto; padding: 8px 10px; }
 @media (max-width: 720px) { .member-form { grid-template-columns: 1fr; grid-template-areas: "email" "name" "role" "pw" "mail" "submit"; } .mf-mail { margin-top: 0; } .mf-submit .btn { width: 100%; } }
@@ -698,10 +698,6 @@ fieldset.owners .check small { color: var(--muted); }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .exnav { margin: 0 0 14px; padding: 14px 18px 12px; border: 1px solid var(--line); border-radius: var(--r-l); background: var(--surface); }
 .exnav-top { display: flex; align-items: center; gap: 12px; }
-.exnav-course { position: relative; flex: 0 1 auto; min-width: 0; }
-.exnav-course::after { content: "▾"; position: absolute; right: 2px; top: 50%; transform: translateY(-50%); color: var(--accent); pointer-events: none; }
-.exnav-course select { appearance: none; -webkit-appearance: none; width: auto; max-width: 100%; padding: 4px 24px 4px 0; border: 0; border-bottom: 1px dashed var(--line); border-radius: 0; background: transparent; font-family: "Noto Serif TC", "Noto Serif CJK TC", "Source Han Serif TC", "Songti TC", "STSong", "Songti SC", "SimSun", "PMingLiU", serif; font-size: 20px; font-weight: 700; color: var(--ink); cursor: pointer; text-overflow: ellipsis; }
-.exnav-course select:focus { border-bottom-color: var(--accent); outline: none; }
 .exnav-add { flex: none; padding: 8px 14px; font-size: 15px; }
 .exnav-cats { display: flex; flex-wrap: wrap; align-items: center; margin-top: 12px; }
 .ex-cat { background: none; border: 0; border-bottom: 2px solid transparent; padding: 6px 2px; font: inherit; font-size: 16px; color: var(--muted); cursor: pointer; white-space: nowrap; }
@@ -719,7 +715,6 @@ fieldset.owners .check small { color: var(--muted); }
 .exnav-empty { margin: 10px 0 0; color: var(--muted); font-size: 14.5px; }
 @media (max-width: 720px) {
   .exnav { padding: 12px 12px 10px; }
-  .exnav-course select { font-size: 17px; }
   .exnav-add { padding: 7px 10px; font-size: 14px; }
   /* 分類一排橫向滑動，避免「｜」掉到行尾 */
   .exnav-cats { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-right: -12px; padding-right: 12px; }
@@ -748,7 +743,7 @@ fieldset.owners .check small { color: var(--muted); }
 /* 第二層：科目膠囊 */
 .subj-rows { display: flex; flex-direction: column; gap: 8px; margin: 0 0 14px; }
 .subj-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
-.subj-sem { flex: none; align-self: stretch; display: inline-flex; align-items: center; padding: 0 12px 0 0; margin-right: 4px; border-right: 2px solid var(--accent); font-size: 15px; font-weight: 700; color: var(--ink); letter-spacing: .04em; }
+.subj-sem { flex: none; align-self: stretch; display: inline-flex; align-items: center; padding: 0 12px 0 0; margin-right: 4px; border-right: 2px solid color-mix(in srgb, var(--gold) 55%, transparent); font-size: 15px; font-weight: 700; color: var(--gold); letter-spacing: .04em; }
 /* 科目按鈕：與全站次要按鈕同一套（淡綠底＋綠框），選到＝實心綠 */
 .subj-chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); border-radius: var(--r-m); background: var(--accent-soft); color: var(--accent-soft-ink); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; white-space: nowrap; }
 .subj-chip small { font-size: 12px; color: inherit; opacity: .75; font-weight: 400; }
@@ -929,20 +924,8 @@ h2.section .more-btn { margin-left: auto; align-self: center; }
 @media (max-width: 720px) { .shelf-list, .shelf .empty-note { margin-bottom: 8px; } }
 
 /* 後台分層科目選單：年級 › 學期 › 科目（每層只列該層選項，科目再多也不會變長） */
-.apick-path { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; min-width: 0; margin-right: auto; }
-.apick { position: relative; flex: none; }
-.apick:not(.exnav-course)::after { content: "▾"; position: absolute; right: 2px; top: 50%; transform: translateY(-50%); color: var(--accent); font-size: 12px; pointer-events: none; }
-.apick:not(.exnav-course) select { appearance: none; -webkit-appearance: none; padding: 3px 18px 3px 0; border: 0; border-bottom: 1px dashed var(--line); border-radius: 0; background: transparent; font: inherit; font-size: 15px; line-height: 1.5; height: auto; color: var(--muted); cursor: pointer; }
-.apick:not(.exnav-course) select:disabled { cursor: default; opacity: 1; }
-.apick:has(select:disabled)::after { display: none; }
-.apick:has(select:disabled) select { padding-right: 0; border-bottom-color: transparent; }
-.apick select:focus { border-bottom-color: var(--accent); outline: none; }
-.apick-sep { color: var(--gold); font-size: 15px; }
-.apick-path .exnav-course { flex: 0 1 auto; min-width: 0; }
 @media (max-width: 720px) {
   .exnav-top { flex-wrap: wrap; align-items: flex-end; }
-  .apick-path { flex: 1 1 100%; }
-  .apick:not(.exnav-course) select { font-size: 14px; }
 }
 
 /* 學期管理：開關（綠＝同學看得到，灰＝同學看不到），文字直接寫出結果 */
