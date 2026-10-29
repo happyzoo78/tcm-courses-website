@@ -568,6 +568,7 @@ async function mountExam() {
   try { saved = JSON.parse(localStorage.getItem(examDraftKey(e)) || '{}'); } catch {}
   const course = getCourse(e.courseId);
   root.innerHTML = `
+    ${examCrumbs(e.id, e.courseId, e.title)}
     <a class="btn secondary back" href="#course/${e.courseId}">← 回到「${esc(course?.title || '科目')}」</a>
     <div class="exam-head">
       <div class="eyebrow">${esc(course?.title || '')} · ${esc(e.category || OTHER_CATEGORY)}</div>
@@ -625,6 +626,15 @@ async function mountExam() {
   };
 }
 
+// 試題相關頁面的階層路線：首頁 › 學習試題 › 科目 › 分類 › 試題（› 成績 › 錯題練習）
+function examCrumbs(examId, courseId, title, tail = []) {
+  const c = getCourse(courseId);
+  const e = (data.exams || []).find(x => x.id == examId);
+  const name = e && c ? shortExamTitle(e, c) : title;
+  return crumbsHtml([['學習試題', '#examzone'], c && [c.title, `#examzone/${c.id}`], e?.category && [e.category, `#examzone/${c.id}`],
+    tail.length ? [name, `#exam/${examId}`] : [name], ...tail]);
+}
+
 // 試題 → 同一章的圖卡（依試題名稱開頭的章號；那章還沒有圖卡就不顯示）
 function examCardsLink(examId) {
   const e = (data.exams || []).find(x => x.id == examId);
@@ -652,6 +662,7 @@ async function mountAttempt() {
   const pending = essays.filter(q => !a.results[q.id]?.selfScored).length;
   const wrong = a.questions.filter(q => q.type !== 'essay' && !a.results[q.id]?.correct).length;
   root.innerHTML = `
+    ${a.mine ? examCrumbs(a.examId, a.courseId, a.title, [['我的成績']]) : crumbsHtml([['管理後台', '#admin'], ['試題管理', `#admin/exams/${a.courseId}`], ['全班統計', `#examstats/${a.examId}`], [`${a.name || ''} 的作答`]])}
     <a class="btn secondary back" href="${a.mine ? `#exam/${a.examId}` : `#examstats/${a.examId}`}">← ${a.mine ? '回到試題' : '回到統計'}</a>
     <div class="exam-head">
       <div class="eyebrow">${a.mine ? '我的成績' : `${esc(a.name || '')} 的作答`}</div>
@@ -717,6 +728,7 @@ async function mountRetry() {
   // 作答畫面不能帶出答案
   const strip = q => { const { answer, explanation, reference, rubric, ...rest } = q; return rest; };
   const head = `
+    ${examCrumbs(a.examId, a.courseId, a.title, [['我的成績', `#attempt/${a.id}`], ['錯題練習']])}
     <a class="btn secondary back" href="#attempt/${a.id}">← 回到成績頁</a>
     <div class="exam-head">
       <div class="eyebrow">錯題練習</div>
@@ -790,6 +802,7 @@ async function mountExamEdit() {
   if (!course || !canEditCourseUI(course.id)) { root.innerHTML = '<p class="empty">你不是這個科目的負責人，不能出題。</p>'; return; }
   examEditDirty = false;
   root.innerHTML = `
+    ${crumbsHtml([['管理後台', '#admin'], ['試題管理', `#admin/exams/${course.id}`], [isNew ? '新增試題' : '編輯試題']])}
     <div class="editor-head">
       <a class="btn secondary back" href="#admin/exams/${course.id}">← 回試題管理</a>
       <h2 class="section" style="margin:0;border:0;padding:0">${isNew ? '新增試題' : '編輯試題'} <small>${esc(semesterLabel(course.semesterCode))}｜${esc(course.title)}</small></h2>
@@ -911,6 +924,7 @@ async function mountExamStats() {
   if (!document.getElementById('examstats-root')) return;
   const num = v => v == null ? '—' : `${v}%`;
   root.innerHTML = `
+    ${crumbsHtml([['管理後台', '#admin'], ['試題管理', `#admin/exams/${s.courseId}`], ['全班統計']])}
     <a class="btn secondary back" href="#admin/exams/${s.courseId}">← 回試題管理</a>
     <h2 class="section">${esc(s.title)} <small>全班統計 · 第 ${s.version} 版</small></h2>
     <p class="meta-label">本頁只有擁有者、管理員和這個科目的負責人看得到。題目統計只計算目前版本的作答${s.allAttempts > s.attempts ? `（另有 ${s.allAttempts - s.attempts} 次舊版作答）` : ''}。</p>

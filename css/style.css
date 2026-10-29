@@ -1113,3 +1113,13 @@ body.lb-open { overflow: hidden; }
 .cref.missing { padding: 6px 10px; font-size: 13px; color: var(--red); border-style: dashed; cursor: default; }
 .lb-loading { display: none; position: absolute; left: 50%; bottom: 44px; transform: translateX(-50%); margin: 0; padding: 4px 12px; border-radius: var(--r-m); background: rgba(0,0,0,.6); font-size: 13px; }
 .lb.loading .lb-loading { display: block; }
+
+/* 階層路線（麵包屑）：首頁 › 學習科目 › … 讓同學知道自己在哪一層 */
+.crumbs { margin: 0 0 14px; font-size: 14px; color: var(--muted); }
+.crumbs ol { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 0; margin: 0; padding: 0; list-style: none; }
+.crumbs li { display: inline-flex; align-items: center; min-width: 0; }
+.crumbs li + li::before { content: "›"; margin: 0 8px; color: var(--line); font-weight: 700; color: color-mix(in srgb, var(--muted) 70%, transparent); }
+.crumbs a { color: var(--accent); text-decoration: none; }
+.crumbs a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.crumbs [aria-current="page"] { color: var(--ink); font-weight: 600; }
+@media (max-width: 720px) { .crumbs { font-size: 13px; } .crumbs li + li::before { margin: 0 5px; } }

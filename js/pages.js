@@ -569,3 +569,36 @@ document.addEventListener('click', e => {
   const k = list.findIndex(x => x.id === b.dataset.cref);
   if (k >= 0) openCardViewer(list, k);
 });
+
+
+/* =========================================================
+   各頁的階層路線（麵包屑）：同步畫出來的頁面在這裡；試題、成績等載入後才知道名稱的頁面在 exams.js 裡各自加
+   ========================================================= */
+const ADMIN_TAB_NAME = { semesters: '學期管理', courses: '科目管理', items: '圖卡管理', exams: '試題管理', members: '成員管理', pages: '講義管理' };
+function pageCrumbs() {
+  const subj = c => [`${c.title}圖卡總目錄`, `#course/${c.id}`];
+  switch (page) {
+    case 'courses': return crumbsHtml([['學習科目']]);
+    case 'course': { const c = getCourse(courseTarget); return crumbsHtml([['學習科目', '#courses'], c && [subj(c)[0]]]); }
+    case 'cards': {
+      const c = getCourse(routeParts[1]);
+      if (!c) return crumbsHtml([['學習科目', '#courses']]);
+      const ch = routeParts[2] && (deckOf(c.id)?.chapters || []).find(x => x.no === routeParts[2]);
+      return crumbsHtml([['學習科目', '#courses'], ch ? subj(c) : [subj(c)[0]], ch && [`第 ${ch.no} 章 ${ch.title}`]]);
+    }
+    case 'examzone': return crumbsHtml([['學習試題']]);
+    case 'items': return crumbsHtml([['學習科目', '#courses'], ['圖卡目錄']]);
+    case 'detail': {
+      const [type, id] = detailTarget;
+      if (type === 'project') return crumbsHtml([['活動專案', '#projects'], [(data.projects.find(x => x.id == id) || {}).title || '內容']]);
+      const i = data.items.find(x => x.id == id), c = i && getCourse(i.courseId);
+      return crumbsHtml([['學習科目', '#courses'], c && subj(c), [i?.title || '內容']]);
+    }
+    case 'projects': return crumbsHtml([['活動專案']]);
+    case 'about': return crumbsHtml([['關於本站']]);
+    case 'account': return crumbsHtml([['我的帳號']]);
+    case 'admin': return hasAdminAccess() ? crumbsHtml([['管理後台', '#admin'], [ADMIN_TAB_NAME[adminType] || '管理']]) : crumbsHtml([['管理後台']]);
+    case 'editor': return crumbsHtml([['管理後台', '#admin'], ['講義編輯']]);
+    default: return '';   // 首頁不用；試題、成績、出題、統計頁載入後自己加
+  }
+}

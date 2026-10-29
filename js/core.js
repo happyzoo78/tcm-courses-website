@@ -166,6 +166,14 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const cut = (s, n) => { s = String(s ?? ''); return s.length > n ? s.slice(0, n) + '…' : s; };
 const getCourse = id => data.courses.find(c => c.id == id);
+// 階層路線（麵包屑）：首頁 › 學習科目 › 中醫基礎理論圖卡總目錄 › 第 00 章 緒論
+// list＝[[文字, 網址], …]，最後一項是目前所在頁面（不加連結）
+function crumbsHtml(list) {
+  const all = [['首頁', '#home'], ...list.filter(Boolean)];
+  return `<nav class="crumbs" aria-label="目前位置"><ol>${all.map(([t, h], i) => i === all.length - 1
+    ? `<li aria-current="page">${esc(t)}</li>`
+    : `<li><a href="${esc(h)}">${esc(t)}</a></li>`).join('')}</ol></nav>`;
+}
 const courseName = id => getCourse(id)?.title || '未分類';
 const byDateDesc = (a, b) => String(b.date || '').localeCompare(String(a.date || ''));
 

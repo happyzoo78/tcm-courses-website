@@ -22,7 +22,8 @@ function render() {
   } else if (admin && admin.termsAccepted === false) {
     app.innerHTML = welcomePage();   // 第一次登入：先看須知
   } else {
-    app.innerHTML = VIEWS[page]();
+    const html = VIEWS[page]();          // 先畫頁面（有些頁面會順便改網址，例如圖卡總目錄併入科目頁）
+    app.innerHTML = pageCrumbs() + html;
   }
   // 導覽列目前位置
   const navKey = ['editor', 'examedit', 'examstats'].includes(page) ? 'admin' : ['exam', 'attempt', 'retry'].includes(page) ? 'examzone' : (page === 'items' || page === 'course' || page === 'cards') ? 'courses' : page === 'detail' ? (detailTarget[0] === 'project' ? 'projects' : 'courses') : page;
