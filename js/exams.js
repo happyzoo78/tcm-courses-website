@@ -556,6 +556,7 @@ async function mountExam() {
       <h2>${esc(e.title)}</h2>
       ${e.description ? `<p>${nl2br(e.description)}</p>` : ''}
       <p class="meta-label">共 ${e.questions.length} 題 · 滿分 ${e.totalPoints} 分 · 作答內容會自動暫存在這台電腦，交卷後才批改。</p>
+      ${examCardsLink(e.id) ? `<div class="exam-actions">${examCardsLink(e.id)}</div>` : ''}
       ${e.published ? '' : '<div class="notice">這份試題是<b>草稿</b>，只有科目負責人看得到。到「編輯」勾選「公開」後同學才看得到。</div>'}
       ${e.myAttempts.length ? `<details class="my-attempts"><summary>我的作答紀錄（${e.myAttempts.length} 次）</summary>
         <ul>${e.myAttempts.map(a => `<li><a class="link" href="#attempt/${a.id}">${esc(fmtTime(a.createdAt))}</a>　${a.score} / ${a.maxScore} 分（${pctText(a.score, a.maxScore)}）${a.oldVersion ? '　<small>舊版考卷</small>' : ''}</li>`).join('')}</ul></details>` : ''}
@@ -606,6 +607,16 @@ async function mountExam() {
   };
 }
 
+// 試題 → 同一章的圖卡（依試題名稱開頭的章號；那章還沒有圖卡就不顯示）
+function examCardsLink(examId) {
+  const e = (data.exams || []).find(x => x.id == examId);
+  const c = e && getCourse(e.courseId);
+  if (!c) return '';
+  const no = examChapNo(shortExamTitle(e, c));
+  const ch = no && (deckOf(c.id)?.chapters || []).find(x => x.no === no);
+  return ch ? `<a class="btn secondary" href="#cards/${c.id}/${esc(ch.no)}" title="第 ${esc(ch.no)} 章 ${esc(ch.title)}：${ch.cards.length} 張圖卡">看這章的圖卡 →</a>` : '';
+}
+
 /* ---------- 成績頁 #attempt/編號 ---------- */
 function attemptPage() {
   return '<div id="attempt-root"><p class="empty">成績載入中…</p></div>';
@@ -633,6 +644,7 @@ async function mountAttempt() {
       <div class="exam-actions">
         ${a.mine ? `<a class="btn" href="#exam/${a.examId}">再做一次</a>` : ''}
         ${a.mine && !a.oldVersion && wrong ? `<a class="btn secondary" href="#retry/${a.id}">只練答錯的 ${wrong} 題</a>` : ''}
+        ${examCardsLink(a.examId)}
         <label class="check"><input type="checkbox" id="only-wrong"> 只看答錯的題目</label>
       </div>
     </div>
@@ -691,6 +703,7 @@ async function mountRetry() {
       <div class="eyebrow">錯題練習</div>
       <h2>${esc(a.title)}</h2>
       <p class="meta-label">共 ${qs.length} 題，都是你上次答錯的題目。練習結果<b>不會留下紀錄</b>，也不算進成績統計，可以重複練。</p>
+      ${examCardsLink(a.examId) ? `<div class="exam-actions">${examCardsLink(a.examId)}</div>` : ''}
     </div>`;
   if (!qs.length) { root.innerHTML = head + '<p class="empty">這次作答沒有答錯的客觀題，太棒了！</p>'; return; }
 
