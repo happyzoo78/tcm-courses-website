@@ -307,3 +307,36 @@ function accountPage() {
     </form>
   </div>`;
 }
+
+
+/* 第一次登入：使用須知＋備用密碼（同意之前不能使用其他頁面） */
+function welcomePage() {
+  const needPw = !admin.hasPassword;
+  return `
+  <div class="welcome">
+    <div class="panel prose">
+      <div class="eyebrow">歡迎加入</div>
+      <h2 style="margin-top:4px">${esc(admin.displayName && admin.displayName !== admin.email ? admin.displayName : '同學')}，開始使用前請先閱讀</h2>
+      <ol class="terms">
+        <li><b>班級專用</b>：本站只給 2026 福建中醫藥大學台灣班成員學習使用。請勿把帳號借給別人，也不要把講義、圖卡、試題、作業答案轉貼或外流。</li>
+        <li><b>尊重著作權</b>：教材著作權屬於原作者與學校，本站內容是同學整理的複習資料，僅供個人學習。</li>
+        <li><b>內容以課堂為準</b>：講義、圖卡、試題由同學整理，難免有錯，請以老師上課與教材為準；發現錯誤請告訴科目負責人。</li>
+        <li><b>登入方式</b>：可以用 Google 帳號，或「Email＋密碼」。<b>人在大陸時 Google 常常不能用</b>，建議現在就設一組備用密碼。忘記密碼時，可在登入頁按「忘記密碼？」收信重設，或請網站管理者幫忙。</li>
+        <li><b>本站會記錄的資料</b>：你的 Email、暱稱、最後登入與上線時間、試題作答與成績（科目負責人與管理者看得到成績）。詳細內容請看<a class="link" href="/privacy.html" target="_blank" rel="noopener">隱私權政策</a>。</li>
+      </ol>
+      <form id="welcomeform">
+        ${needPw ? `
+        <fieldset class="welcome-pw">
+          <legend>設定備用密碼（建議，以防不能用 Google 登入）</legend>
+          <input type="email" name="username" value="${esc(admin.email)}" autocomplete="username" hidden>
+          <div class="field"><label for="w-pw">密碼（至少 12 字）</label><input id="w-pw" name="pw" type="password" minlength="12" maxlength="128" autocomplete="new-password"></div>
+          <div class="field"><label for="w-pw2">再輸入一次</label><input id="w-pw2" name="pw2" type="password" minlength="12" maxlength="128" autocomplete="new-password"></div>
+          <p class="meta-label" style="margin:0">之後登入時，輸入 <b>${esc(admin.email)}</b> 和這組密碼即可。現在不設也可以，之後到「我的帳號」設定。</p>
+        </fieldset>` : '<p class="meta-label">你已經設定過登入密碼，可以用 Email＋密碼登入。</p>'}
+        <label class="agree"><input type="checkbox" name="agree" required> 我已閱讀並同意以上須知</label>
+        <div id="welcomemsg"></div>
+        <button class="btn" type="submit">同意，開始使用</button>
+      </form>
+    </div>
+  </div>`;
+}

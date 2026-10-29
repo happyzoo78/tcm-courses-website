@@ -15,6 +15,16 @@ export async function onRequestPut({ request, env }) {
   if (parsed.error) return parsed.error;
 
   if ("newPassword" in parsed.body) return changePassword(env, auth.admin, parsed.body);
+  if (parsed.body.acceptTerms === true) {
+    try {
+      await env.DB.prepare("UPDATE admin_users SET terms_accepted_at = CURRENT_TIMESTAMP WHERE id = ?").bind(auth.admin.id).run();
+      await audit(env, auth.admin, "update", "account", auth.admin.id, { terms: "accepted" });
+      return jsonResponse({ success: true });
+    } catch (error) {
+      console.error("Accept terms failed", error);
+      return jsonResponse({ success: true, note: "terms column missing" });
+    }
+  }
 
   // 去掉換行等看不見的控制字元，前後空白也去掉
   const name = String(parsed.body.displayName ?? "").replace(/[\u0000-\u001f\u007f]/g, "").trim();

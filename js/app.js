@@ -19,6 +19,8 @@ function render() {
     app.innerHTML = '<p class="empty">資料載入中…</p>';
   } else if (loadState === 'error') {
     app.innerHTML = `<div class="msg error">無法載入資料：${esc(loadError)}</div><button type="button" class="btn" id="retry">重新載入</button>`;
+  } else if (admin && admin.termsAccepted === false) {
+    app.innerHTML = welcomePage();   // 第一次登入：先看須知
   } else {
     app.innerHTML = VIEWS[page]();
   }
@@ -324,6 +326,31 @@ function bind() {
   };
   const rc = document.getElementById('reset-cancel');
   if (rc) rc.onclick = e => { e.preventDefault(); resetToken = ''; history.replaceState(null, '', '#home'); boot(); };
+
+  // 第一次登入：設定備用密碼（選填）＋同意須知
+  const wf = document.getElementById('welcomeform');
+  if (wf) wf.onsubmit = async e => {
+    e.preventDefault();
+    const msg = document.getElementById('welcomemsg'), btn = wf.querySelector('[type=submit]');
+    const pw = wf.elements.pw ? wf.elements.pw.value : '';
+    msg.innerHTML = '';
+    if (pw || (wf.elements.pw2 && wf.elements.pw2.value)) {
+      if (pw.length < 12) { msg.innerHTML = '<div class="msg error">備用密碼至少要 12 個字（不想設定的話請把兩格都清空）。</div>'; return; }
+      if (pw !== wf.elements.pw2.value) { msg.innerHTML = '<div class="msg error">兩次輸入的密碼不一樣。</div>'; return; }
+    }
+    btn.disabled = true;
+    try {
+      if (pw) { await api('/api/account', { method: 'PUT', body: { currentPassword: '', newPassword: pw } }); admin.hasPassword = true; }
+      await api('/api/account', { method: 'PUT', body: { acceptTerms: true } });
+      admin.termsAccepted = true;
+      adminFlash = pw ? '歡迎！備用密碼已設定好。' : '';
+      render();
+      window.scrollTo(0, 0);
+    } catch (err) {
+      btn.disabled = false;
+      handleError(err, msg);
+    }
+  };
 
   // 自己修改／設定登入密碼
   const pf = document.getElementById('pwform');

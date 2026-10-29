@@ -25,6 +25,13 @@ export async function onRequestGet({ request, env }) {
     hasPassword = Boolean(row?.password_hash) && row.password_hash !== "!google-only";
   } catch (error) { console.error("Password flag lookup failed", error); }
 
+  // 有沒有看過並同意「使用須知」（第一次登入時要先看）；資料庫還沒有這個欄位時視為已同意，不擋人
+  let termsAccepted = true;
+  try {
+    const t = await env.DB.prepare("SELECT terms_accepted_at FROM admin_users WHERE id = ?").bind(admin.id).first();
+    termsAccepted = Boolean(t?.terms_accepted_at);
+  } catch { termsAccepted = true; }
+
   let owned = [];
   try { owned = await ownedCourseIds(env, admin); } catch (error) { console.error("Owner lookup failed", error); }
 
@@ -38,7 +45,8 @@ export async function onRequestGet({ request, env }) {
       canDelete: hasPermission(admin, "publish"),
       canManageMembers: hasPermission(admin, "manage_users"),
       canManageCourses: hasPermission(admin, "publish"),   // 建立科目、指派負責人、開放學期
-      hasPassword,                                          // 有沒有設定登入密碼（我的帳號頁用）
+      hasPassword,
+      termsAccepted,                                        // 是否已同意使用須知                                          // 有沒有設定登入密碼（我的帳號頁用）
       ownedCourseIds: owned                                 // 自己負責的科目
 
     }
