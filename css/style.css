@@ -243,7 +243,7 @@ input:focus, textarea:focus, select:focus { border-color: var(--accent); }
 .item-body .kicker { font-size: 14px; color: var(--red); }
 .item h3 { margin: 2px 0 6px; font-size: 19px; line-height: 1.5; }
 .item p { margin: 0 0 12px; font-size: 15px; color: var(--muted); }
-.item .link { margin-top: auto; align-self: flex-end; }
+.item .go { margin-top: auto; align-self: flex-end; }
 
 /* 詳細內容（長文閱讀：限制行寬） */
 .reading { max-width: 760px; margin: 0 auto; }
@@ -1094,7 +1094,7 @@ body.lb-open { overflow: hidden; }
 .dc-links .link { display: inline-block; margin: 0; font-size: 15px; }
 .exam-jump { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 30px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--r-l); background: var(--surface); color: var(--muted); }
 .exam-jump b { color: var(--ink); }
-.exam-jump .btn { margin-left: auto; }   /* 往下一層靠右 */
+.exam-jump .more-btn { margin-left: auto; }   /* 往下一層靠右 */
 .chap-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
 @media (max-width: 720px) { .chap-actions .btn { flex: 1; text-align: center; } }
 /* 科目頁（圖卡總目錄）區塊標題：標題下加分隔線，與頁面大標題、說明框分出層級 */
@@ -1123,3 +1123,4 @@ body.lb-open { overflow: hidden; }
 .crumbs a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .crumbs [aria-current="page"] { color: var(--ink); font-weight: 600; }
 @media (max-width: 720px) { .crumbs { font-size: 13px; } .crumbs li + li::before { margin: 0 5px; } }
+.crumbs + h2.section, .crumbs + * > h2.section:first-child { margin-top: 6px; }   /* 路線下方的頁面大標題不要空太開 */

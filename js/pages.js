@@ -16,7 +16,7 @@ function courseCard(c) {
       <p class="meta-label">${[n ? `${n} 份講義` : '', `${k} 張圖卡`, `${x} 份試題`].filter(Boolean).join(' · ')}</p>
       <p class="meta-label">最新進度</p>
       <div class="latest">${esc(c.latest) || '—'}</div>
-      <a class="link go" href="#course/${c.id}">進入圖卡總目錄 →</a>
+      <a class="more-btn go" href="#course/${c.id}">進入圖卡總目錄<span class="arr" aria-hidden="true">›</span></a>
     </div>
   </article>`;
 }
@@ -40,7 +40,7 @@ function itemCard(i, type) {
       <span class="kicker">${esc(kicker)}</span>
       <h3>${esc(i.title)}</h3>
       <p>${esc(cut(i.description, 80))}</p>
-      <a class="link" href="#detail/${type}/${i.id}">查看詳細內容 →</a>
+      <a class="more-btn go" href="#detail/${type}/${i.id}">查看詳細內容<span class="arr" aria-hidden="true">›</span></a>
     </div>
   </article>`;
 }
@@ -240,7 +240,7 @@ function courseExamJumpHtml(c) {
   return `
   <div class="exam-jump">
     <span>這一科有 <b>${n}</b> 份試題</span>
-    <a class="btn secondary" href="#examzone/${c.id}">到學習試題作答 →</a>
+    <a class="more-btn" href="#examzone/${c.id}">到學習試題作答<span class="arr" aria-hidden="true">›</span></a>
   </div>`;
 }
 
@@ -412,7 +412,7 @@ function deckChaptersHtml(c, d, compact) {
         ${ch.subtitle ? `<p class="dc-sub">${esc(ch.subtitle)}</p>` : ''}
         <p class="dc-meta">${ch.cards.length} 張圖卡${ch.date ? ' · ' + esc(ch.date) : ''}</p>
         <div class="dc-links">
-          <a class="link" href="#cards/${c.id}/${esc(ch.no)}">看圖卡 →</a>
+          <a class="more-btn" href="#cards/${c.id}/${esc(ch.no)}">看圖卡<span class="arr" aria-hidden="true">›</span></a>
         </div>
       </div>
     </article>`).join('')}</div>`;
