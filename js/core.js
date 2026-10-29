@@ -215,7 +215,10 @@ const filesOf = courseId => {
   if (!c || !c.slug) return [];
   return extraFiles.filter(f => f.semester === c.semesterCode && f.course === c.slug);
 };
-const itemsOf = courseId => data.items.filter(i => i.courseId == courseId);
+// 資料庫單張圖卡（後台「圖卡管理」）前台暫時隱藏（擁有者 2026-10-30）：科目頁「其他圖卡」、首頁圖卡架／最新更新／圖卡數都不顯示。
+// 要恢復顯示，把 false 改成 true。後台照常可以管理。
+const SHOW_DB_ITEMS = false;
+const itemsOf = courseId => SHOW_DB_ITEMS ? data.items.filter(i => i.courseId == courseId) : [];
 const publishedExamsOf = courseId => (data.exams || []).filter(e => e.courseId == courseId && e.published);
 // 目前的帳號能不能管理某個科目的網頁（擁有者、管理員、該科目負責人）
 const canEditCourseUI = id => !!admin && (admin.canManageCourses || (admin.ownedCourseIds || []).includes(Number(id)));

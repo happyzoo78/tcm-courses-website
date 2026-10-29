@@ -53,7 +53,7 @@ function recentUpdates(limit) {
   const list = [
     ...(data.pages || []).filter(p => visible(p.courseId)).map(p => ({ t: p.updatedAt, date: day(fmtTime(p.updatedAt)).replace(/\//g, '-'), kind: '講義', courseId: p.courseId, title: p.title, desc: p.description, href: p.url })),
     ...(data.exams || []).filter(e => e.published && visible(e.courseId)).map(e => ({ t: e.updatedAt, date: day(fmtTime(e.updatedAt)).replace(/\//g, '-'), kind: '試題', group: `${e.courseId}|${e.category || ''}`, courseId: e.courseId, title: shortExamTitle(e, getCourse(e.courseId) || {}), desc: `${e.category || '其他試題'} · ${e.questionCount} 題`, href: `#exam/${e.id}` })),
-    ...data.items.filter(i => visible(i.courseId)).map(i => ({ t: i.date, date: i.date, kind: '圖卡', courseId: i.courseId, title: i.title, desc: i.description, href: `#detail/item/${i.id}` })),
+    ...data.items.filter(i => visible(i.courseId) && itemsOf(i.courseId).length).map(i => ({ t: i.date, date: i.date, kind: '圖卡', courseId: i.courseId, title: i.title, desc: i.description, href: `#detail/item/${i.id}` })),
     ...data.courses.filter(c => open.has(c.semesterCode)).flatMap(c => (deckOf(c.id)?.chapters || []).map(ch => { const t = ch.updated || deckOf(c.id).version; return { t, date: day(t), kind: '圖卡', courseId: c.id, title: `第 ${ch.no} 章 ${ch.title}`, desc: `${ch.cards.length} 張圖卡`, href: `#cards/${c.id}/${ch.no}` }; })),
     ...data.courses.filter(c => open.has(c.semesterCode)).flatMap(c => filesOf(c.id).map(f => ({ t: f.updated, date: day(f.updated), kind: '講義', courseId: c.id, title: f.title, desc: f.description || '', href: f.path })))
   ];
@@ -207,7 +207,7 @@ function coursePage() {
   const c = getCourse(courseTarget);
   if (!c) return `<p class="empty-note">找不到這個科目。</p><a class="btn secondary" href="#courses">回學習科目</a>`;
   const list = pagesOf(c.id);
-  const items = data.items.filter(i => i.courseId == c.id).sort(byDateDesc);
+  const items = itemsOf(c.id).slice().sort(byDateDesc);
   const deck = deckOf(c.id);
   const pages = [...list, ...filesOf(c.id).map(f => ({ url: f.path, title: f.title, description: f.description || '', updatedAt: f.updated, updatedBy: '', file: true }))];
   return `
