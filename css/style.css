@@ -1139,3 +1139,6 @@ header.compact .logo, header.compact .actions { visibility: hidden; transition: 
 .chap-next b { font-size: 16px; color: var(--ink); }
 .chap-next span { font-size: 14px; color: var(--muted); }
 .chap-next .more-btn { margin-left: auto; }
+/* 大區塊之間的分隔線（例如「關於本站」與「聯絡管理員」）：整條虛線，表示是兩個不同的區塊 */
+.block-sep { margin: 44px 0 0; border: 0; border-top: 1px dashed color-mix(in srgb, var(--muted) 45%, transparent); }
+.block-sep + h2.section { margin-top: 28px; }
