@@ -435,7 +435,7 @@ function cardsPage() {
     <div class="chap-title">
       <span class="eyebrow">${esc(c.title)} · ${chapLabel(ch)}</span>
       <h2>${esc(ch.title)}${ch.subtitle ? ` <small>${esc(ch.subtitle)}</small>` : ''}</h2>
-      <p class="dc-meta">${ch.cards.length} 張圖卡${ch.date ? ' · 上課日期 ' + esc(ch.date) : ''} · 點圖可看大圖${chapHasExams(c, ch.no) ? ` · <a class="meta-link" href="#examzone/${c.id}/${esc(ch.no)}" title="到學習試題，直接做這一章的題目">做這章的試題 ›</a>` : ''}</p>
+      <p class="dc-meta">${ch.cards.length} 張圖卡${ch.date ? ' · 上課日期 ' + esc(ch.date) : ''} · 點圖可看大圖</p>
     </div>
   </div>
   ${ch.groups.map(g => `
