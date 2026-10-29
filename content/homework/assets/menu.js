@@ -133,12 +133,12 @@ const HW_DATA = [
   /* 作業專區首頁 */
   .hwz-years { display: flex; gap: 8px; margin: 18px 0 14px; overflow-x: auto; scrollbar-width: none; }
   .hwz-years::-webkit-scrollbar { display: none; }
-  .hwz-year { flex: 1 0 auto; min-width: 80px; min-height: 58px; justify-content: center; padding: 8px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); font: inherit; font-size: 16px; cursor: pointer; display: flex; flex-direction: column; align-items: center; line-height: 1.3; }
-  .hwz-year small { font-size: 12px; color: var(--muted); }
+  .hwz-year { flex: 1 0 auto; min-width: 80px; min-height: 58px; justify-content: center; padding: 8px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; line-height: 1.3; }
+  .hwz-year small { font-size: 12px; color: var(--muted); font-weight: 400; }
   .hwz-year[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
   .hwz-year:disabled { opacity: .55; cursor: not-allowed; }
   .hwz-semrow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 0 0 8px; }
-  .hwz-sem { font-size: 13px; color: var(--muted); min-width: 4.5em; }
+  .hwz-sem { flex: none; align-self: stretch; display: inline-flex; align-items: center; padding: 0 12px 0 0; margin-right: 4px; border-right: 2px solid var(--accent); font-size: 15px; font-weight: 700; color: var(--ink); letter-spacing: .04em; }
   .hwz-subj { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); font: inherit; font-size: 15px; cursor: pointer; white-space: nowrap; }
   .hwz-subj small { font-size: 12px; color: var(--muted); }
   .hwz-subj.none { opacity: .55; }
@@ -158,7 +158,6 @@ const HW_DATA = [
     .hwz-semrow { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
     .hwz-semrow::-webkit-scrollbar { display: none; }
     .hwz-subj, .hwz-sem { flex: none; }
-    .hwz-sem { min-width: 0; }
     .hwz-panel { padding: 14px; }
   }
   .hwz-select-wrap { display: none; position: relative; margin: 0 0 12px; }
@@ -258,6 +257,7 @@ const HW_DATA = [
     let curYear = Math.max(0, ...openYears);          // 預設最新的年級
     let curKey = '';                                   // 目前選的科目：學期代碼|科目代碼
     const key = (se, s) => se.id + '|' + (s.slug || s.name);
+    const half = se => /s2$/.test(se.id) ? '下学期' : '上学期';   // 年級已在上方選好，這裡只標上／下學期
     const draw = () => {
       const inYear = sems.filter(se => yearNo(se) === curYear).slice().reverse();   // 上學期在前
       const all = inYear.flatMap(se => se.subjects.map(s => ({ se, s })));
@@ -268,9 +268,9 @@ const HW_DATA = [
           const y = i + 1, ok = openYears.has(y);
           return `<button type="button" role="tab" class="hwz-year" data-hwz-year="${y}" aria-selected="${y === curYear}" ${ok ? '' : 'disabled'}>${n}${ok ? '' : '<small>尚未开课</small>'}</button>`;
         }).join('')}</div>
-        ${inYear.map(se => `<div class="hwz-semrow"><span class="hwz-sem">${esc(label(se))}</span>${se.subjects.map(s =>
+        ${inYear.map(se => `<div class="hwz-semrow"><span class="hwz-sem">${half(se)}</span>${se.subjects.map(s =>
           `<button type="button" class="hwz-subj${s.works.length ? '' : ' none'}" data-hwz-subj="${esc(key(se, s))}" aria-pressed="${key(se, s) === curKey}">${esc(s.name)}<small>${s.works.length}</small></button>`).join('')}</div>`).join('')}
-        <label class="hwz-select-wrap"><select class="hwz-select" aria-label="科目">${inYear.map(se => `<optgroup label="${esc(label(se))}">${se.subjects.map(s =>
+        <label class="hwz-select-wrap"><select class="hwz-select" aria-label="科目">${inYear.map(se => `<optgroup label="${half(se)}">${se.subjects.map(s =>
           `<option value="${esc(key(se, s))}" ${key(se, s) === curKey ? 'selected' : ''}>${esc(s.name)}（${s.works.length}）</option>`).join('')}</optgroup>`).join('')}</select></label>
         ${cur ? `<div class="hwz-panel">
           <div class="hwz-title" role="heading" aria-level="3">${esc(cur.s.name)}${examTag(cur.s)}<small>${esc(cur.se.name)}</small></div>
