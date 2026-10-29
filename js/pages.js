@@ -279,7 +279,7 @@ function contactHtml() {
       <div class="field"><label for="c-subject">主旨（選填）</label><input id="c-subject" name="subject" maxlength="60" placeholder="例如：試題有錯字、想協助出題"></div>
       <div class="field"><label for="c-msg">內容</label><textarea id="c-msg" name="message" maxlength="2000" required></textarea></div>
       <p class="meta-label" style="margin-top:0">管理者會回信到你的登入信箱 ${esc(admin.email)}。</p>
-      <div class="note-box"><span class="note-lab">提醒</span>這個表單<strong>要登入才能使用</strong>。若有同學進不了網站，請他在登入頁按<strong>「忘記密碼？」</strong>重設，或<strong>在班群私訊網站管理者</strong>。</div>
+      <div class="note-box"><span class="note-lab">提醒</span>管理者的回信<strong>有可能被歸到垃圾郵件</strong>，沒收到請先查看垃圾郵件匣。<br>這個表單<strong>要登入才能使用</strong>。若有同學進不了網站，請他在登入頁按<strong>「忘記密碼？」</strong>重設，或<strong>在班群私訊網站管理者</strong>。</div>
       <div id="contactmsg"></div>
       <button class="btn" type="submit">寄出</button>
     </form>

@@ -71,6 +71,7 @@ function loginGateHtml() {
         <form id="forgotform">
           <p class="meta-label" style="margin-top:6px">輸入你登入用的 Email，我們會寄一封「設定新密碼」的信給你。</p>
           <div class="field"><label for="f-email">Email</label><input id="f-email" name="email" type="email" autocomplete="username" required></div>
+          <div class="note-box"><span class="note-lab">提醒</span>信件<strong>有可能被歸到垃圾郵件</strong>，沒收到請先查看「垃圾郵件」匣；QQ、163 信箱也請看看「廣告郵件」或「訂閱郵件」。</div>
           <div id="forgotmsg"></div>
           <button class="btn secondary" type="submit">寄送設定密碼的信</button>
         </form>

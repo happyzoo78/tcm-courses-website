@@ -187,7 +187,7 @@ function bind() {
       const r = await api('/api/admin/members', { method: 'POST', body });
       let mailNote = '';
       if (wantMail && r.id) {
-        try { await api(`/api/admin/members/${r.id}/mail`, { method: 'POST', body: {} }); mailNote = '，已寄出設定密碼的信'; }
+        try { await api(`/api/admin/members/${r.id}/mail`, { method: 'POST', body: {} }); mailNote = '，已寄出設定密碼的信（請對方也檢查垃圾郵件）'; }
         catch (err) { mailNote = `，但寄信失敗：${friendly(err)}`; }
       }
       reloadMembers(`已將 ${body.email.trim().toLowerCase()} 加入名單${body.password ? `。臨時密碼：${body.password}（請轉告對方，登入後可到「我的帳號」修改）` : ''}${mailNote}`);
@@ -314,7 +314,7 @@ function bind() {
     try {
       await api('/api/contact', { method: 'POST', body: { subject: cf.subject.value, message } });
       cf.reset();
-      msg.innerHTML = '<div class="msg ok">已寄出，管理者會回信到你的信箱。</div>';
+      msg.innerHTML = '<div class="msg ok">已寄出，管理者會回信到你的信箱。回信<b>有可能被歸到垃圾郵件</b>，沒看到請到垃圾郵件匣找找。</div>';
     } catch (err) {
       msg.innerHTML = `<div class="msg error">${esc(err.message || '寄送失敗，請稍後再試')}</div>`;
     } finally { btn.disabled = false; }
