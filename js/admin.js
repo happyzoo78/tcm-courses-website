@@ -105,8 +105,10 @@ function membersHtml() {
     <span class="meta-label">（${ONLINE_MIN} 分鐘內有使用網站算線上；每分鐘自動更新）</span>
   </div>` : `<div class="notice">要顯示「上線狀態」，需要先在資料庫加一個欄位，請照 Claude 給的步驟操作一次。</div>`}
   <div class="panel prose" style="margin:6px 0 16px">
-    <h3 style="margin-top:0">加入新成員</h3>
-    <p class="meta-label" style="margin-top:0">請同學提供登入用的 Email。用 Gmail 的同學加入後可直接按「使用 Google 帳號登入」。</p>
+    <div class="panel-head">
+      <h3>加入新成員</h3>
+      <p>請同學提供登入用的 Email。用 Gmail 的同學加入後可直接按「使用 Google 帳號登入」。</p>
+    </div>
     <form id="memberform" class="member-form">
       <div class="field mf-email"><label for="m-email">Email</label><input id="m-email" name="email" type="email" required placeholder="例如 student@gmail.com"></div>
       <div class="field mf-name"><label for="m-name">名稱（選填）</label><input id="m-name" name="displayName" maxlength="100" placeholder="例如 王小明"></div>

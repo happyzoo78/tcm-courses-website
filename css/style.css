@@ -326,7 +326,11 @@ details.pw-login[open] summary { margin-bottom: 10px; }
 /* 成員管理 */
 .role { display: inline-block; padding: 0 10px; border-radius: var(--r-s); font-size: 13px; margin-left: 6px; vertical-align: 2px; background: var(--accent-soft); color: var(--accent-soft-ink); }
 .role.off { background: transparent; color: var(--red); border: 1px solid var(--red); }
-.member-form { display: grid; grid-template-columns: 1.4fr 1fr 1fr; grid-template-areas: "email name role" "pw mail mail" "submit submit submit"; gap: 14px 14px; align-items: start; margin-top: 14px; }
+/* 面板標題區：標題＋說明，下方分隔線，與表單內容分出層級（參考關於本站） */
+.panel-head { margin: 0 0 18px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.panel-head h3 { margin: 0 0 6px; }
+.panel-head p { margin: 0; font-size: 14px; line-height: 1.7; color: var(--muted); }
+.member-form { display: grid; grid-template-columns: 1.4fr 1fr 1fr; grid-template-areas: "email name role" "pw mail mail" "submit submit submit"; gap: 14px 14px; align-items: start; }
 .mf-email { grid-area: email; } .mf-name { grid-area: name; } .mf-role { grid-area: role; } .mf-pw { grid-area: pw; }
 .mf-mail { grid-area: mail; align-self: start; margin-top: 38px; }
 .mf-submit { grid-area: submit; padding-top: 12px; border-top: 1px solid var(--line); }
