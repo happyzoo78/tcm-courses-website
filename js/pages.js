@@ -234,7 +234,7 @@ function itemsPage() {
 
 function projectsPage() {
   return `
-  <h2 class="section">活動專案 <small class="motto">同窗共讀，教學相長</small></h2>
+  <h2 class="section">活動專案 <small class="motto">切磋琢磨，教學相長</small></h2>
   <div class="itemgrid">${[...data.projects].sort(byDateDesc).map(i => itemCard(i, 'project')).join('') || '<p class="empty">尚無活動專案。</p>'}</div>`;
 }
 
