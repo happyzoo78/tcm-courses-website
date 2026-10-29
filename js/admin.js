@@ -75,7 +75,7 @@ function loginGateHtml() {
           <button class="btn secondary" type="submit">寄送設定密碼的信</button>
         </form>
       </details>
-      <p class="meta-label">還不能登入嗎？請把你的 Email 提供給網站管理者，加入名單後就可以使用。</p>
+      <p class="meta-label">進不了網站嗎？忘記密碼請按上方「忘記密碼？」；還沒加入或其他問題，請在班群私訊網站管理者。</p>
     </div>
   </div>`;
 }
