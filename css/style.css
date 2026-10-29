@@ -351,6 +351,11 @@ details.pw-login[open] summary { margin-bottom: 10px; }
 .list-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 0 14px; }
 .list-head h3 { margin: 0; font-size: 19px; color: var(--accent); display: flex; align-items: baseline; gap: 10px; }
 .list-head h3 small { font-size: 14px; font-weight: 400; color: var(--muted); }
+.mail-note { margin: 0 0 16px; }
+.note-dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; margin: 4px 0 0; }
+.note-dl dt { font-weight: 700; color: var(--ink); white-space: nowrap; }
+.note-dl dd { margin: 0; }
+@media (max-width: 720px) { .note-dl { grid-template-columns: 1fr; gap: 0; } .note-dl dd { margin-bottom: 6px; } }
 .mgroup { margin: 0 0 14px; padding: 12px 14px 14px; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-l); }
 .mgroup-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; margin: 0 0 10px; }
 .mgroup-name { font-size: 15px; font-weight: 700; color: var(--gold); letter-spacing: .04em; }

@@ -123,7 +123,12 @@ function membersHtml() {
   </div>
   <h3 class="sec-title">成員名單 <small>${members.length} 人</small></h3>
   ${membersMeta.mailEnabled ? (() => { const need = members.filter(m => mailAdvice(m) === 'need');
-    return `<div class="note-box"><span class="note-lab">密碼信</span>加入超過 <strong>1 小時</strong>還沒登入、也沒有密碼的成員，網站會<strong>自動寄一次</strong>設定密碼信（不用你手動寄）。不能用 Google 登入的同學，也可以自己在登入頁按「忘記密碼／第一次設定密碼？」。${need.length ? `<br>目前<strong>可能需要密碼</strong>、還沒收過信：${need.map(m => esc(m.displayName)).join('、')}（加入未滿 1 小時的會稍後自動寄出；加入超過 7 天的不會自動寄，需要時請按「寄密碼信」）。` : ''}</div>`; })() : ''}
+    return `<div class="note-box mail-note"><span class="note-lab">密碼信</span>
+      <dl class="note-dl">
+        <dt>自動寄信</dt><dd>加入滿 <strong>1 小時</strong>仍未登入、也沒有密碼 → 網站<strong>自動寄一次</strong>，不用手動寄。</dd>
+        <dt>同學自設</dt><dd>登入頁按「忘記密碼／第一次設定密碼？」即可收信設定。</dd>
+        ${need.length ? `<dt>尚未收信</dt><dd>${need.map(m => esc(m.displayName)).join('、')}（未滿 1 小時會稍後自動寄；加入超過 7 天的請手動按「寄密碼信」）</dd>` : ''}
+      </dl></div>`; })() : ''}
   ${memberGroupsHtml(roleOptions)}`;
 }
 
