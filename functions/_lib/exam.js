@@ -24,6 +24,7 @@ const RE = {
   reference: /^\s*(?:參考答案|参考答案|範例答案|范例答案)\s*[:：]\s*(.*)$/,
   rubric: /^\s*(?:評分要點|评分要点|得分要點|得分要点)\s*[:：]\s*(.*)$/,
   points: /^\s*(?:配分|分數|分数|分值)\s*[:：]\s*(\d+(?:\.\d+)?)\s*分?\s*$/,
+  cards: /^\s*(?:圖卡|图卡|對照圖卡|对照图卡)\s*[:：]\s*(.*)$/,
   groupStart: /^\s*(?:\[\s*(?:共用)?選項\s*\]|\[\s*(?:共用)?选项\s*\]|共用選項\s*[:：]?|共用选项\s*[:：]?|共用備選答案\s*[:：]?|共用备选答案\s*[:：]?)\s*$/,
   groupEnd: /^\s*\[\s*\/\s*(?:共用)?(?:選項|选项)\s*\]\s*$/,
   perPoints: /每題\s*(\d+(?:\.\d+)?)\s*分|每题\s*(\d+(?:\.\d+)?)\s*分/,
@@ -134,6 +135,14 @@ export function parseExam(source) {
     if ((m = RE.reference.exec(line)) && q) { q.reference = m[1]; field = "reference"; return; }
     if ((m = RE.rubric.exec(line)) && q) { q.rubric = m[1]; field = "rubric"; return; }
     if ((m = RE.points.exec(line)) && q) { q.points = Number(m[1]); field = null; return; }
+    // 對照圖卡：「圖卡：00-06」，多張用「、」或逗號分開（成績頁的解析下方會出現可點開的圖卡）
+    if ((m = RE.cards.exec(line)) && q) {
+      const ids = m[1].split(/[\s,，、;；\/／]+/).map(x => x.normalize("NFKC").trim()).filter(Boolean);
+      const bad = ids.filter(x => !/^\d{2}-\d{2}$/.test(x));
+      if (bad.length) errors.push({ no: q.no, line: lineNo, message: `第 ${lineNo} 行圖卡編號「${bad.join("、")}」格式不對，要像 00-06（章號-張號）。` });
+      q.cards = [...new Set([...(q.cards || []), ...ids.filter(x => !bad.includes(x))])];
+      field = null; return;
+    }
 
     // 選項：屬於目前題目；題目已有答案（或還沒有題目）時，就是新的共用選項組
     if ((m = RE.option.exec(line)) && !(field && field !== "stem")) {
@@ -178,7 +187,7 @@ export function parseExam(source) {
     }
 
     const base = { id: `q${q.no}`, no: q.no, type, stem: q.stem.trim(), points: q.points ?? q.sectionPoints ?? (type === "essay" ? 10 : 1),
-                   explanation: q.explanation || "", group: grp ? grp.id : null };
+                   explanation: q.explanation || "", group: grp ? grp.id : null, ...(q.cards?.length ? { cards: q.cards } : {}) };
     if (!(base.points > 0) || base.points > 100) err("配分要在 0～100 之間。");
 
     if (type === "single" || type === "multi") {
@@ -232,12 +241,21 @@ export function summarize(parsed) {
   return { count, total, questionCount: parsed.questions.length };
 }
 
-// 給同學作答用：拿掉答案、解析、參考答案
+// 給同學作答用：拿掉答案、解析、參考答案、對照圖卡（圖卡會透露答案）
 export function publicExam(parsed) {
   return {
     groups: parsed.groups,
-    questions: parsed.questions.map(({ answer, explanation, reference, rubric, ...rest }) => rest)
+    questions: parsed.questions.map(({ answer, explanation, reference, rubric, cards, ...rest }) => rest)
   };
+}
+
+// 會影響作答與批改的內容（題目、選項、答案、配分）。只改解析、參考答案、對照圖卡時不算改版，舊的作答紀錄照常可用
+export function gradingSignature(parsed) {
+  if (!parsed || !Array.isArray(parsed.questions)) return "";
+  return JSON.stringify({
+    groups: parsed.groups || [],
+    questions: parsed.questions.map(q => [q.id, q.type, q.stem, q.points, q.group || null, q.options || [], q.answer ?? null, q.blanks ?? null])
+  });
 }
 
 const sameSet = (a, b) => a.length === b.length && a.every((x, i) => x === b[i]);

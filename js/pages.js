@@ -458,62 +458,98 @@ function cardsPage() {
   <nav class="chap-pager" aria-label="上一章／下一章">
     ${prev ? `<a class="btn secondary" href="#cards/${c.id}/${esc(prev.no)}">‹ ${chapLabel(prev)} ${esc(prev.title)}</a>` : '<span></span>'}
     ${next ? `<a class="btn secondary" href="#cards/${c.id}/${esc(next.no)}">${chapLabel(next)} ${esc(next.title)} ›</a>` : '<span></span>'}
-  </nav>
-  <div class="lb" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="看大圖">
+  </nav>`;
+}
+
+// 看大圖（共用）：章節圖卡頁、試題解析的「對照圖卡」都用這個
+// list＝[{ id, title, img, chapterHref? }]；左右鍵／滑動換張；點圖切換原始大小；Esc 或 ✕ 關閉；不會換頁
+let lbKeys = null;
+function openCardViewer(list, start = 0, opts = {}) {
+  closeCardViewer();
+  if (!list.length) return;
+  const box = document.createElement('div');
+  box.className = 'lb'; box.id = 'lightbox';
+  box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true'); box.setAttribute('aria-label', '看大圖');
+  box.innerHTML = `
     <div class="lb-bar">
       <span class="lb-count"></span><span class="lb-title"></span>
+      <a class="lb-btn lb-chap" target="_blank" rel="noopener" hidden>整章圖卡 ↗</a>
       <a class="lb-btn lb-orig" target="_blank" rel="noopener">原圖</a>
       <button type="button" class="lb-btn lb-close" aria-label="關閉">✕</button>
     </div>
     <div class="lb-stage"><img class="lb-img" alt=""></div>
-    <button type="button" class="lb-nav prev" aria-label="上一張">‹</button>
-    <button type="button" class="lb-nav next" aria-label="下一張">›</button>
-    <p class="lb-hint">點圖放大／縮小 · 左右滑動或方向鍵換張 · Esc 關閉</p>
-  </div>`;
-}
-
-// 看大圖：點縮圖開啟；左右鍵／滑動換張；點圖切換放大；Esc 或 ✕ 關閉
-let lbIndex = -1, lbKeys = null;
-function bindCards() {
-  document.body.classList.remove('lb-open');
-  const box = document.getElementById('lightbox');
-  lbKeys = null;
-  if (!box) return;
-  const c = getCourse(routeParts[1]);
-  const ch = deckOf(c.id).chapters.find(x => x.no === routeParts[2]);
-  const list = ch.cards;
+    ${list.length > 1 ? '<button type="button" class="lb-nav prev" aria-label="上一張">‹</button><button type="button" class="lb-nav next" aria-label="下一張">›</button>' : ''}
+    <p class="lb-hint">點圖放大／縮小${list.length > 1 ? ' · 左右滑動或方向鍵換張' : ''} · Esc 關閉</p>`;
+  document.body.appendChild(box);
+  document.body.classList.add('lb-open');
   const img = box.querySelector('.lb-img'), stage = box.querySelector('.lb-stage');
-  const show = i => {
-    lbIndex = (i + list.length) % list.length;
-    const x = list[lbIndex];
+  let i = 0;
+  const show = k => {
+    i = (k + list.length) % list.length;
+    const x = list[i];
     box.classList.remove('zoomed');
     img.src = x.img; img.alt = x.title;
-    box.querySelector('.lb-count').textContent = `${lbIndex + 1} / ${list.length}`;
+    box.querySelector('.lb-count').textContent = list.length > 1 ? `${i + 1} / ${list.length}` : '';
     box.querySelector('.lb-title').textContent = `${x.id}　${x.title}`;
     box.querySelector('.lb-orig').href = x.img;
+    const chap = box.querySelector('.lb-chap');
+    chap.hidden = !x.chapterHref; if (x.chapterHref) chap.href = x.chapterHref;
     stage.scrollTo(0, 0);
-    [list[lbIndex + 1], list[lbIndex - 1]].forEach(y => { if (y) new Image().src = y.img; });   // 先載入前後兩張
+    [list[i + 1], list[i - 1]].forEach(y => { if (y) new Image().src = y.img; });   // 先載入前後兩張
+    opts.onShow?.(i);
   };
-  const open = i => { box.hidden = false; document.body.classList.add('lb-open'); show(i); box.querySelector('.lb-close').focus(); };
-  const close = () => { box.hidden = true; document.body.classList.remove('lb-open'); const b = document.querySelector(`[data-card="${lbIndex}"]`); lbIndex = -1; b?.focus(); };
-  document.querySelectorAll('[data-card]').forEach(b => b.onclick = () => open(Number(b.dataset.card)));
-  box.querySelector('.lb-close').onclick = close;
-  box.querySelector('.lb-nav.prev').onclick = () => show(lbIndex - 1);
-  box.querySelector('.lb-nav.next').onclick = () => show(lbIndex + 1);
+  const back = document.activeElement;
+  box.close = () => { box.remove(); document.body.classList.remove('lb-open'); lbKeys = null; opts.onClose?.(i); if (back && document.contains(back)) back.focus(); };
+  box.querySelector('.lb-close').onclick = () => box.close();
+  box.querySelector('.lb-nav.prev')?.addEventListener('click', () => show(i - 1));
+  box.querySelector('.lb-nav.next')?.addEventListener('click', () => show(i + 1));
   img.onclick = () => box.classList.toggle('zoomed');
-  stage.onclick = e => { if (e.target === stage && !box.classList.contains('zoomed')) close(); };
+  stage.onclick = e => { if (e.target === stage && !box.classList.contains('zoomed')) box.close(); };
   let sx = 0, sy = 0;
   stage.addEventListener('touchstart', e => { if (e.touches.length === 1) { sx = e.touches[0].clientX; sy = e.touches[0].clientY; } }, { passive: true });
   stage.addEventListener('touchend', e => {
-    if (box.classList.contains('zoomed') || e.changedTouches.length !== 1) return;
+    if (list.length < 2 || box.classList.contains('zoomed') || e.changedTouches.length !== 1) return;
     const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
-    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) show(lbIndex + (dx < 0 ? 1 : -1));
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) show(i + (dx < 0 ? 1 : -1));
   }, { passive: true });
   lbKeys = e => {
-    if (box.hidden) return;
-    if (e.key === 'Escape') { e.preventDefault(); close(); }
-    else if (e.key === 'ArrowRight') { e.preventDefault(); show(lbIndex + 1); }
-    else if (e.key === 'ArrowLeft') { e.preventDefault(); show(lbIndex - 1); }
+    if (e.key === 'Escape') { e.preventDefault(); box.close(); }
+    else if (list.length > 1 && e.key === 'ArrowRight') { e.preventDefault(); show(i + 1); }
+    else if (list.length > 1 && e.key === 'ArrowLeft') { e.preventDefault(); show(i - 1); }
   };
+  show(start);
+  box.querySelector('.lb-close').focus();
 }
+function closeCardViewer() { document.getElementById('lightbox')?.close?.(); document.body.classList.remove('lb-open'); lbKeys = null; }
 document.addEventListener('keydown', e => { if (lbKeys) lbKeys(e); });
+
+// 依編號找圖卡（00-06 → 第 00 章第 06 張）；找不到回傳 null
+function findCard(courseId, id) {
+  const ch = (deckOf(courseId)?.chapters || []).find(x => x.no === String(id).split('-')[0]);
+  const card = ch && ch.cards.find(x => x.id === id);
+  return card ? { ...card, chapter: ch, chapterHref: `#cards/${courseId}/${ch.no}` } : null;
+}
+
+// 章節圖卡頁：點縮圖看大圖；網址 #cards/科目/章號/圖卡編號 直接打開那一張
+function bindCards() {
+  closeCardViewer();
+  if (page !== 'cards' || !routeParts[2]) return;
+  const c = getCourse(routeParts[1]);
+  const ch = c && (deckOf(c.id)?.chapters || []).find(x => x.no === routeParts[2]);
+  if (!ch) return;
+  const open = k => openCardViewer(ch.cards, k, { onClose: last => document.querySelector(`[data-card="${last}"]`)?.focus() });
+  document.querySelectorAll('[data-card]').forEach(b => b.onclick = () => open(Number(b.dataset.card)));
+  const want = routeParts[3] && ch.cards.findIndex(x => x.id === routeParts[3]);
+  if (want >= 0) { routeParts = routeParts.slice(0, 3); history.replaceState(null, '', `#cards/${c.id}/${ch.no}`); open(want); }
+}
+
+// 試題解析裡的「對照圖卡」：點了在原頁面打開大圖（不換頁）
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-cref]');
+  if (!b) return;
+  const box = b.closest('.q-cards');
+  const refs = [...box.querySelectorAll('[data-cref]')];
+  const list = refs.map(x => findCard(x.dataset.course, x.dataset.cref)).filter(Boolean);
+  const k = list.findIndex(x => x.id === b.dataset.cref);
+  if (k >= 0) openCardViewer(list, k);
+});

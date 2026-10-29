@@ -1100,3 +1100,14 @@ body.lb-open { overflow: hidden; }
 /* 科目頁（圖卡總目錄）區塊標題：標題下加分隔線，與頁面大標題、說明框分出層級 */
 .sec-title.sec-rule { margin-top: 30px; padding-bottom: 8px; border-bottom: 1px solid var(--line); font-size: 21px; }
 .deck-note { margin: 12px 0 18px; }
+
+/* 試題解析下方的「對照圖卡」（點了在原頁面看大圖） */
+.q-cards { margin-top: 10px; padding: 10px 12px; border: 1px dashed color-mix(in srgb, var(--gold) 55%, transparent); border-radius: var(--r-m); background: color-mix(in srgb, var(--gold) 6%, transparent); }
+.q-cards > b { display: block; margin-bottom: 8px; font-size: 14px; color: var(--gold); letter-spacing: .04em; }
+.cref-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.cref { display: flex; align-items: center; gap: 10px; max-width: 100%; padding: 6px 12px 6px 6px; font: inherit; text-align: left; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-m); cursor: zoom-in; }
+.cref:hover { border-color: var(--action); }
+.cref img { flex: none; width: 44px; height: 58px; object-fit: cover; object-position: top; border-radius: var(--r-s); border: 1px solid var(--line); }
+.cref span { display: flex; flex-direction: column; font-size: 14px; line-height: 1.4; }
+.cref small { font-size: 12px; font-weight: 700; color: var(--gold); }
+.cref.missing { padding: 6px 10px; font-size: 13px; color: var(--red); border-style: dashed; cursor: default; }

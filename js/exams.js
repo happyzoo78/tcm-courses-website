@@ -19,6 +19,7 @@ C. 前半夜
 D. 後半夜
 答案：D
 解析：後半夜屬陰中之陽。
+圖卡：01-03
 
 二、多選題
 2. 下列屬於陽的有？
@@ -60,6 +61,7 @@ const EXAM_PROMPT = `請依照下面的格式出題，只輸出題目本身，�
 - 申論題要有「參考答案：」，可加「評分要點：」和「配分：10」。
 - 解析寫在「解析：」後面；解析或參考答案裡的分點請用（1）（2），不要用「1.」「2.」。
 - 段落標題可寫「一、單選題（每題 2 分）」，會自動套用配分。
+- （可省略）「圖卡：00-06」＝這題可對照的圖卡編號（章號-張號），多張用「、」分開；同學交卷後在解析下方可點開看大圖。
 
 範例：
 ${EXAM_FORMAT}`;
@@ -405,7 +407,7 @@ function questionHtml(q, groups, mode, ctx = {}) {
     const stem = inline ? parts.map((p, i) => nl2br(p) + (i < q.blanks ? field(i) : '')).join('') : nl2br(q.stem);
     const extra = inline ? '' : `<div class="q-blanks">${Array.from({ length: q.blanks }, (_, i) => `<label>第 ${i + 1} 格 ${field(i)}</label>`).join('')}</div>`;
     const answerLine = mode !== 'take' && q.answer ? `<div class="q-answer">正確答案：${q.answer.map(a => esc(a.join(' / '))).join('；')}</div>` : '';
-    return `<div class="q-card" data-q="${q.id}">${head}<div class="q-stem">${stem}</div>${extra}${answerLine}${explainHtml(q, mode)}</div>`;
+    return `<div class="q-card" data-q="${q.id}">${head}<div class="q-stem">${stem}</div>${extra}${answerLine}${explainHtml(q, mode, ctx)}</div>`;
   } else if (q.type === 'essay') {
     body = `<textarea class="q-essay" name="${name}" rows="6" maxlength="5000" ${mode === 'take' ? '' : 'readonly'} placeholder="${mode === 'take' ? '在這裡寫下你的答案' : ''}">${esc(given || '')}</textarea>`;
     if (mode !== 'take') {
@@ -418,7 +420,7 @@ function questionHtml(q, groups, mode, ctx = {}) {
       }
     }
   }
-  return `<div class="q-card" data-q="${q.id}">${head}<div class="q-stem">${nl2br(q.stem)}</div>${yourAnswerHtml(q, mode, given, res)}${body}${explainHtml(q, mode)}</div>`;
+  return `<div class="q-card" data-q="${q.id}">${head}<div class="q-stem">${nl2br(q.stem)}</div>${yourAnswerHtml(q, mode, given, res)}${body}${explainHtml(q, mode, ctx)}</div>`;
 }
 
 // 選項旁的標示：正確答案／你的選擇
@@ -440,9 +442,20 @@ function yourAnswerHtml(q, mode, given, res) {
   return `<div class="q-yours">你的答案：<b class="${res?.correct ? 'ok' : 'bad'}">${mine ? esc(mine) : '未作答'}</b>　正確答案：<b class="ok">${esc(right)}</b></div>`;
 }
 
-function explainHtml(q, mode) {
-  if (mode === 'take' || !q.explanation) return '';
-  return `<div class="q-explain"><b>解析</b>${formatExplanation(q.explanation)}</div>`;
+function explainHtml(q, mode, ctx = {}) {
+  if (mode === 'take') return '';
+  return (q.explanation ? `<div class="q-explain"><b>解析</b>${formatExplanation(q.explanation)}</div>` : '') + cardRefsHtml(q, mode, ctx);
+}
+// 對照圖卡：解析下方列出這題相關的圖卡（縮圖＋編號＋標題），點了在原頁面看大圖
+function cardRefsHtml(q, mode, ctx) {
+  if (!q.cards?.length || !ctx.courseId) return '';
+  const chips = q.cards.map(id => {
+    const x = findCard(ctx.courseId, id);
+    if (!x) return mode === 'preview' ? `<span class="cref missing">${esc(id)}（網站上找不到這張圖卡）</span>` : '';
+    return `<button type="button" class="cref" data-cref="${esc(id)}" data-course="${esc(ctx.courseId)}" title="看大圖（不會離開這一頁）">
+      <img src="${esc(x.thumb)}" alt="" loading="lazy"><span><small>${esc(id)}</small>${esc(x.title)}</span></button>`;
+  }).join('');
+  return chips ? `<div class="q-cards"><b>對照圖卡</b><div class="cref-list">${chips}</div></div>` : '';
 }
 
 /* 解析排版：用顏色區分各段
@@ -649,7 +662,7 @@ async function mountAttempt() {
         <label class="check"><input type="checkbox" id="only-wrong"> 只看答錯的題目</label>
       </div>
     </div>
-    <div id="att-list">${questionsHtml(a.questions, a.groups, 'result', { answers: a.answers, results: a.results, canSelfScore })}</div>
+    <div id="att-list">${questionsHtml(a.questions, a.groups, 'result', { answers: a.answers, results: a.results, canSelfScore, courseId: a.courseId })}</div>
     ${canSelfScore ? '<div class="exam-bar"><span>申論題自評完成後請儲存</span><button class="btn" type="button" id="self-save">儲存自評</button></div><div id="self-msg"></div>' : ''}`;
 
   document.getElementById('only-wrong').onchange = ev => {
@@ -741,7 +754,7 @@ async function mountRetry() {
             <button type="button" class="btn" id="retry-again">再練一次</button>
             <a class="btn secondary" href="#exam/${a.examId}">整份重新作答</a>
           </div>
-          <div class="exam-form" style="margin-top:14px">${questionsHtml(r.questions, r.groups, 'result', { answers: r.given, results: r.results })}</div>`;
+          <div class="exam-form" style="margin-top:14px">${questionsHtml(r.questions, r.groups, 'result', { answers: r.given, results: r.results, courseId: a.courseId })}</div>`;
         document.getElementById('retry-again').onclick = () => { showForm(); window.scrollTo(0, 0); };
         window.scrollTo(0, 0);
       } catch (err) {
@@ -842,7 +855,7 @@ async function mountExamEdit() {
       msg.innerHTML = p.errors.length ? showErrors(p.errors)
         : `<div class="msg ok">格式正確：共 ${p.summary.questionCount} 題（${counts}），滿分 ${p.summary.total} 分。下方是同學交卷後看到的樣子（含答案）。</div>`;
       document.getElementById('xe-preview').innerHTML = p.questions.length
-        ? `<h3 class="sem-title">預覽</h3><div class="exam-form">${questionsHtml(p.questions, p.groups, 'preview', {})}</div>` : '';
+        ? `<h3 class="sem-title">預覽</h3><div class="exam-form">${questionsHtml(p.questions, p.groups, 'preview', { courseId: course.id })}</div>` : '';
     } catch (err) { handleError(err, msg); }
     btn.disabled = false; btn.textContent = '檢查格式';
   };
