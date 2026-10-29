@@ -119,7 +119,7 @@ function examListHtml(list, c, cat) {
 const examFilter = {};   // 每個科目目前選的分類、章節
 function examBrowserHtml(c) {
   const groups = examGroups(c.id);
-  if (!groups.length) return '<p class="empty-note">這個書架還沒有試題。</p>';
+  if (!groups.length) return '<p class="empty-note">這個科目還沒有試題。</p>';
   const f = examFilter[c.id] || (examFilter[c.id] = { cat: '', ch: '' });
   if (!groups.some(g => g[0] === f.cat)) { f.cat = groups[0][0]; f.ch = ''; }
   const rows = groups.find(g => g[0] === f.cat)[1];
@@ -184,7 +184,7 @@ function examsAdminHtml() {
       <span class="exnav-cap">${esc(f.cat)} › 章節</span>
       <button type="button" class="ex-ch" data-ex-ch="" aria-pressed="${!f.ch}">全部<small>${rows.length}</small></button>
       ${chapters.map(g => `<button type="button" class="ex-ch" data-ex-ch="${esc(g.chapter)}" aria-pressed="${g.chapter === f.ch}">${esc(g.chapter)}${g.items.length > 1 ? `<small>${g.items.length}</small>` : ''}</button>`).join('')}
-    </div>` : '<p class="exnav-empty">這個書架還沒有試題。按「＋ 新增試題」，把題目整份貼上，網站會自動拆題、批改、統計。</p>'}
+    </div>` : '<p class="exnav-empty">這個科目還沒有試題。按「＋ 新增試題」，把題目整份貼上，網站會自動拆題、批改、統計。</p>'}
   </div>
   <div class="adminlist exam-adminlist">
     ${shown.map(({ e, ...i }) => `

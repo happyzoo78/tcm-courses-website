@@ -208,7 +208,7 @@ function pagesAdminHtml() {
           <button type="button" class="btn secondary" data-page-edit="${p.id}">${p.editable ? '標題・排序' : '編輯'}</button>
           <button type="button" class="btn secondary danger" data-page-delete="${p.id}">刪除</button>
         </div>
-      </div>`).join('') || '<p class="empty-note">這個書架還沒有講義。按「✏️ 寫新講義」或上傳講義網頁檔。</p>'}
+      </div>`).join('') || '<p class="empty-note">這個科目還沒有講義。按「✏️ 寫新講義」或上傳講義網頁檔。</p>'}
   </div>
   <div id="editor"></div>`;
 }
@@ -242,7 +242,7 @@ async function readHtmlFile(file) {
 function semestersAdminHtml() {
   const sems = [...data.semesters].sort((a, b) => a.sortOrder - b.sortOrder);
   return `
-  <p class="meta-label">右側開關決定<b>同學看不看得到</b>這個學期的書架、講義、試題和圖卡。開關打開（綠色）＝同學看得到；關閉（灰色）＝只有管理者看得到。新學期開始時，把它打開即可。</p>
+  <p class="meta-label">右側開關決定<b>同學看不看得到</b>這個學期的科目，以及科目裡的圖卡和試題。開關打開（綠色）＝同學看得到；關閉（灰色）＝只有管理者看得到。新學期開始時，把它打開即可。</p>
   <div class="sem-grid">
     ${YEAR_NAMES.map((n, i) => {
       const list = sems.filter(s => yearOf(s.code) === i + 1);

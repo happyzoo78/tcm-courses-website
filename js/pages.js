@@ -16,7 +16,7 @@ function courseCard(c) {
       <p class="meta-label">${[n ? `${n} 份講義` : '', `${k} 張圖卡`, `${x} 份試題`].filter(Boolean).join(' · ')}</p>
       <p class="meta-label">最新進度</p>
       <div class="latest">${esc(c.latest) || '—'}</div>
-      <a class="link go" href="#course/${c.id}">打開書架 →</a>
+      <a class="link go" href="#course/${c.id}">進入科目 →</a>
     </div>
   </article>`;
 }
@@ -69,11 +69,11 @@ function recentUpdates(limit) {
     : u);
 }
 
-// 首頁主角：依年級顯示學習圖卡（每科最多 4 張，其餘到書架裡看）
-// 首頁學習圖卡：輪播以「學期」為一頁，每頁列出該學期所有書架（每架最多 3 張最新圖卡）
+// 首頁主角：依年級顯示學習圖卡（每科最多 4 張，其餘到科目頁看）
+// 首頁學習圖卡：輪播以「學期」為一頁，每頁列出該學期所有科目（每科最多 3 張最新圖卡）
 function shelfCardsHtml() {
   const sems = visibleSemesters().filter(s => coursesIn(s.code).length).sort((a, b) => a.sortOrder - b.sortOrder);
-  if (!sems.length) return '<p class="empty-note">目前沒有開放的書架。</p>';
+  if (!sems.length) return '<p class="empty-note">目前沒有開放的科目。</p>';
   const shelf = c => {
     const items = itemsOf(c.id).slice().sort(byDateDesc);
     return `
@@ -87,8 +87,8 @@ function shelfCardsHtml() {
             <span class="mini-thumb">${i.image ? `<img src="${esc(i.image)}" alt="" loading="lazy">` : TAIJI}</span>
             <span class="mini-text"><b>${esc(i.title)}</b><small>${esc(i.date || '')}</small></span>
           </a>`).join('')}</div>`
-          : '<p class="empty-note">這個書架還沒有圖卡。</p>'}
-        <a class="more-btn" href="#course/${c.id}" title="打開「${esc(c.title)}」書架" aria-label="打開「${esc(c.title)}」書架">More<span class="arr" aria-hidden="true">›</span></a>
+          : '<p class="empty-note">這個科目還沒有圖卡。</p>'}
+        <a class="more-btn" href="#course/${c.id}" title="進入「${esc(c.title)}」" aria-label="進入「${esc(c.title)}」">More<span class="arr" aria-hidden="true">›</span></a>
       </div>`;
   };
   const start = sems.length - 1;   // 預設停在最新的學期
@@ -103,7 +103,7 @@ function shelfCardsHtml() {
       const list = coursesIn(sm.code).slice().sort((a, b) => (itemsOf(b.id).length > 0) - (itemsOf(a.id).length > 0));
       return `
       <section class="car-slide" aria-label="${esc(sm.label)}">
-        <h3 class="sem-title">${esc(sm.label)} <small>${list.length} 個書架</small></h3>
+        <h3 class="sem-title">${esc(sm.label)} <small>${list.length} 個科目</small></h3>
         <div class="shelves" data-n="${list.length}">${list.map(shelf).join('')}</div>
       </section>`;
     }).join('')}</div>
@@ -124,14 +124,14 @@ function homePage() {
     <h1 class="hero-title"><span><em>2026</em>福建中醫台灣班 -</span> <span>學習圖書館</span></h1>
     <p>從台灣到福建，深耕中醫學問 · 經典為本，辨證為綱，系統整理，臨床致用。</p>
     <div class="stats">
-      <div class="stat"><strong>${shown.length}</strong><span>書架</span></div>
+      <div class="stat"><strong>${shown.length}</strong><span>科目</span></div>
       ${totalPages ? `<div class="stat"><strong>${totalPages}</strong><span>講義</span></div>` : ''}
       <div class="stat"><strong>${totalCards}</strong><span>圖卡</span></div>
       <div class="stat"><strong>${totalExams}</strong><span>試題</span></div>
     </div>
   </section>
 
-  <h2 class="section">學習圖卡 <small class="motto">博觀約取，厚積薄發</small><a class="more-btn" href="#courses" title="全部書架" aria-label="全部書架">More<span class="arr" aria-hidden="true">›</span></a></h2>
+  <h2 class="section">學習圖卡 <small class="motto">博觀約取，厚積薄發</small><a class="more-btn" href="#courses" title="全部科目" aria-label="全部科目">More<span class="arr" aria-hidden="true">›</span></a></h2>
   ${shelfCardsHtml()}
 
   <h2 class="section">最新更新 <small class="motto">日新又新，學無止境</small></h2>
@@ -147,7 +147,7 @@ function homePage() {
 
   <h2 class="section">使用說明</h2>
   <div class="panel prose">
-    <p><b>瀏覽方式：</b>本站依科目分成「書架」，每個書架收著該科的講義、試題與圖卡。上方「學習科目」依年級找科目；「學習試題」集中所有可線上作答的試題；「作業專區」不用登入也能看。</p>
+    <p><b>瀏覽方式：</b>本站依科目整理，每個科目收著該科的圖卡與試題。上方「學習科目」依年級找科目；「學習試題」集中所有可線上作答的試題；「作業專區」不用登入也能看。</p>
     ${hasAdminAccess() ? `<p><b>資料管理：</b>點右上角「管理後台」，可以上傳講義、出題${admin.canWrite ? '，或新增修改科目與圖卡' : '（限你負責的科目）'}。</p>` : ''}
     <p><b>使用範圍：</b>本站內容僅供班級成員學習使用，請勿轉貼或外流，並尊重教材著作權。</p>
   </div>`;
