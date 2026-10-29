@@ -217,10 +217,13 @@ function bind() {
 
   document.querySelectorAll('[data-sem]').forEach(b => b.onclick = async () => {
     const sem = getSemester(b.dataset.sem);
+    const show = b.dataset.to === '1';
+    const n = coursesIn(sem.code).length;
+    if (!show && n && !confirm(`確定要對同學隱藏「${sem.label}」？\n隱藏後，同學在首頁、學習科目、學習試題都看不到這學期的 ${n} 個科目（資料不會刪除，之後可以再打開）。`)) return;
     b.disabled = true;
     try {
       await api(`/api/admin/semesters/${encodeURIComponent(sem.code)}`, { method: 'PUT', body: { visible: b.dataset.to === '1' } });
-      await reloadAfterChange(`已${b.dataset.to === '1' ? '開放' : '關閉'}「${sem.label}」`);
+      await reloadAfterChange(show ? `「${sem.label}」現在同學看得到了` : `「${sem.label}」已對同學隱藏`);
     } catch (err) {
       b.disabled = false;
       handleError(err, null);
@@ -262,6 +265,7 @@ function bind() {
     }
   });
 
+  bindOwnerPanels();
   const add = document.getElementById('add');
   if (add) add.onclick = () => showEditor(null);
 
@@ -272,7 +276,7 @@ function bind() {
   document.querySelectorAll('[data-delete]').forEach(b => b.onclick = async () => {
     const id = Number(b.dataset.delete);
     if (adminType === 'courses' && (data.items.some(x => x.courseId === id) || pagesOf(id).length || examsOf(id).length)) {
-      alert('請先刪除或調整此科目裡的講義、題庫和圖卡。');
+      alert('請先刪除或調整此科目裡的講義、試題和圖卡。');
       return;
     }
     const row = data[adminType].find(x => x.id === id);
@@ -290,8 +294,7 @@ function bind() {
 
 // 網頁管理的按鈕
 function bindPagesAdmin() {
-  const sel = document.getElementById('pg-course');
-  if (sel) sel.onchange = () => { pagesCourse = Number(sel.value); render(); };
+  bindAdminPicker();
 
   const pf = document.getElementById('pageform');
   if (pf) pf.onsubmit = async e => {
@@ -379,7 +382,7 @@ window.addEventListener('hashchange', () => {
     editorDirty = false;
   }
   if (page === 'examedit' && examEditDirty) {
-    if (!confirm('題庫還沒儲存，確定要離開嗎？')) {
+    if (!confirm('試題還沒儲存，確定要離開嗎？')) {
       history.replaceState(null, '', lastHash || '#home');
       return;
     }
