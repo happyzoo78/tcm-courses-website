@@ -247,9 +247,11 @@ input:focus, textarea:focus, select:focus { border-color: var(--accent); }
   background: var(--accent); color: var(--accent-ink); border: 1px solid var(--accent);
 }
 .btn:hover { filter: brightness(1.08); }
-.btn.secondary { background: transparent; color: var(--ink); border-color: var(--line); }
-.btn.secondary:hover { background: var(--surface-2); }
-.btn.danger:hover { border-color: var(--red); color: var(--red); }
+/* 次要按鈕：淡綠底＋綠框，一看就知道可以按（不再只有細框，避免和提醒框混淆） */
+.btn.secondary { background: var(--accent-soft); color: var(--accent-soft-ink); border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+.btn.secondary:hover { border-color: var(--accent); filter: none; background: color-mix(in srgb, var(--accent) 22%, var(--surface)); }
+.btn.secondary.danger { background: color-mix(in srgb, var(--red) 9%, var(--surface)); color: var(--red); border-color: color-mix(in srgb, var(--red) 45%, transparent); }
+.btn.danger:hover { border-color: var(--red); color: var(--red); background: color-mix(in srgb, var(--red) 16%, var(--surface)); }
 .back { margin-bottom: 18px; }
 .back + h2.section { margin-top: 4px; }
 
