@@ -192,15 +192,16 @@ function coursePage() {
   return `
   <a class="back-link" href="#courses">← 學習書架</a>
   <h2 class="section">${esc(c.title)}${isExamSubject(c) ? ' <span class="exam-tag">執醫考科</span>' : ''} <small>${esc(semesterLabel(c.semesterCode))}${c.owners?.length ? `　負責人：${c.owners.map(o => esc(o.name)).join('、')}` : ''}</small></h2>
-  <h3 class="sec-title">講義${canEditCourseUI(c.id) ? `<a class="link sec-link" href="#admin/pages/${c.id}">管理講義 →</a>` : ''}</h3>
+  ${pages.length ? `
+  <h3 class="sec-title">講義</h3>
   <div class="pagelist">
     ${pages.map(p => `
       <a class="pagerow" href="${esc(p.url)}">
         <span class="pr-title">${esc(p.title)}</span>
         ${p.description ? `<span class="pr-desc">${esc(cut(p.description, 120))}</span>` : ''}
         <span class="pr-meta">更新：${esc(p.file ? String(p.updatedAt || '').slice(0, 10) : fmtTime(p.updatedAt).slice(0, 10))}${p.updatedBy ? ' · ' + esc(p.updatedBy) : ''}</span>
-      </a>`).join('') || '<p class="empty-note">這個書架還沒有講義。</p>'}
-  </div>
+      </a>`).join('')}
+  </div>` : ''}
   ${courseExamsHtml(c)}
   ${items.length ? `
   <h3 class="sec-title">圖卡<a class="link sec-link" href="#items/${c.id}">搜尋圖卡 →</a></h3>

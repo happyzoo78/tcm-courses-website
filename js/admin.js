@@ -266,14 +266,16 @@ function adminPage() {
   if (!hasAdminAccess()) {
     return '<h2 class="section">管理後台</h2><p class="empty">你的帳號是「觀看者」，沒有後台權限。如需上傳資料，請聯絡網站管理者。</p>';
   }
+  // 分頁順序：學期 → 科目 → 圖卡 → 試題 → 成員
+  // 「講義管理」目前沒有規劃，先隱藏（功能與資料都保留，要恢復時把 pages: '講義' 加回來）
+  // 「活動專案管理」前台已移除，後台也不顯示（資料保留在資料庫）
   const tabs = {
-    pages: '講義',
-    exams: '試題',
-    ...(admin.canWrite ? { courses: TYPE_NAME.courses, items: TYPE_NAME.items } : {}),   // 活動專案前台已移除，後台也不再顯示（資料保留在資料庫）
     ...(admin.canManageCourses ? { semesters: '學期' } : {}),
+    ...(admin.canWrite ? { courses: TYPE_NAME.courses, items: TYPE_NAME.items } : {}),
+    exams: '試題',
     ...(admin.canManageMembers ? { members: '成員' } : {})
   };
-  if (!tabs[adminType]) adminType = 'pages';
+  if (!tabs[adminType]) adminType = Object.keys(tabs)[0];
 
   const flash = adminFlash ? `<div class="msg ok">${esc(adminFlash)}</div>` : '';
   adminFlash = '';
