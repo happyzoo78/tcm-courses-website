@@ -32,7 +32,7 @@ export async function onRequestGet({ request, env, params }) {
       "X-Content-Type-Options": "nosniff",
       "Referrer-Policy": "same-origin",
       // 把上傳的網頁放進「沙盒」：網頁裡的程式照常執行，
-      // 但被當成獨立的來源，無法用觀看者的登入身分呼叫本站後台 API
+      // 但被當成獨立的來源，無法用一般會員的登入身分呼叫本站後台 API
       "Content-Security-Policy": "sandbox allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals allow-downloads"
     }
   });

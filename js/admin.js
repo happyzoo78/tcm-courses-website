@@ -5,7 +5,7 @@
    五、管理後台（登入後才能編輯，資料直接存進雲端資料庫）
    ========================================================= */
 const TYPE_NAME = { courses: '科目', items: '圖卡', projects: '活動專案' };
-const ROLE_NAME = { owner: '擁有者', admin: '管理員', editor: '編輯者', viewer: '觀看者' };
+const ROLE_NAME = { owner: '擁有者', admin: '管理員', editor: '編輯者', viewer: '一般會員' };
 
 // 偵測是否在 LINE、Facebook 等 App 的內建瀏覽器裡（Google 不允許在這些地方登入）
 function inAppBrowser() {
@@ -68,7 +68,7 @@ function membersHtml() {
       <button class="btn" type="submit">加入名單</button>
     </form>
     <div id="memberformmsg"></div>
-    <p class="meta-label">觀看者：只能看內容。編輯者：可以進後台新增、修改，但不能刪除。</p>
+    <p class="meta-label">一般會員：只能看內容。編輯者：可以進後台新增、修改，但不能刪除。</p>
   </div>
   <div class="adminlist">
     ${members.map(m => {
@@ -308,7 +308,7 @@ function bindOwnerPanels() {
 
 function adminPage() {
   if (!hasAdminAccess()) {
-    return '<h2 class="section">管理後台</h2><p class="empty">你的帳號是「觀看者」，沒有後台權限。如需上傳資料，請聯絡網站管理者。</p>';
+    return '<h2 class="section">管理後台</h2><p class="empty">你的帳號是「一般會員」，沒有後台權限。如需上傳資料，請聯絡網站管理者。</p>';
   }
   // 分頁順序：學期 → 科目 → 圖卡 → 試題 → 成員
   // 「講義管理」目前沒有規劃，先隱藏（功能與資料都保留，要恢復時把 pages: '講義' 加回來）
