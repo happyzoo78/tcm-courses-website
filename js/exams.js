@@ -228,13 +228,14 @@ let bulkRows = [];
 function bulkPanelHtml(c, cat) {
   return `
   <div class="panel prose bulk-panel">
-    <div class="panel-head"><h3>批次上傳</h3><p>一次選多個 txt 檔，網站依檔名自動命名與排序；同名試題會更新內容，原本整章的試題會改成第 1 個子項。</p></div>
+    <div class="panel-head"><h3>批次上傳</h3><p>一次選多個 txt 檔，網站依檔名自動命名與排序；同名試題會更新內容，原有的整章試題可保留並改名為「全題」。</p></div>
     <div class="bulk-fields">
       <div class="field"><label for="bulk-cat">分類標籤</label><input id="bulk-cat" maxlength="30" value="${esc(cat)}" placeholder="例如：中基全章模擬考"></div>
       <div class="field"><label for="bulk-base">起始排序</label><input id="bulk-base" type="number" min="0" step="1" value="110"><small class="meta-label">排序＝起始＋章號×10＋子項號，例如 03 藏象 - 01 → 141</small></div>
       <div class="field"><label for="bulk-files">選擇 txt 檔（可多選）</label><input id="bulk-files" type="file" accept=".txt,text/plain" multiple></div>
     </div>
     <label class="check"><input type="checkbox" id="bulk-pub" checked> 公開給同學作答</label>
+    <label class="check"><input type="checkbox" id="bulk-keep" checked> 已有整章試題時保留，並改名為「NN 章名 - 全題 (要分章節請作下面題目)」（不勾＝整章改成第 1 個子項）</label>
     <div id="bulk-preview">${bulkTableHtml(c)}</div>
     <div id="bulk-msg"></div>
     <div class="ed-actions"><button type="button" class="btn" id="bulk-go" ${bulkRows.length && bulkRows.every(r => r.ok) ? '' : 'disabled'}>開始上傳</button></div>
@@ -242,10 +243,10 @@ function bulkPanelHtml(c, cat) {
 }
 function bulkTableHtml(c) {
   if (!bulkRows.length) return '';
-  const act = { create: '新增', update: '更新同名試題', promote: '原整章改為此子項' };
+  const act = { create: '新增', update: '更新同名試題', promote: '原整章改為此子項', rename: '原整章保留，改名為「全題」' };
   return `<table class="bulk-table"><thead><tr><th>試題名稱</th><th>排序</th><th>題數／總分</th><th>動作</th></tr></thead><tbody>${bulkRows.map((r, i) => `
     <tr class="${r.ok ? '' : 'bad'}"><td>${esc(shortExamTitle({ title: r.title, category: r.cat }, c))}<br><small>${esc(r.file)}</small></td>
-    <td><input type="number" class="bulk-sort" data-i="${i}" value="${r.sort}" aria-label="排序"></td>
+    <td>${r.action === 'rename' ? r.sort : `<input type="number" class="bulk-sort" data-i="${i}" value="${r.sort}" aria-label="排序">`}</td>
     <td>${r.ok ? `${r.count} 題／${r.total} 分` : `<span class="unassigned">${esc(r.err)}</span>`}</td>
     <td>${r.status ? esc(r.status) : act[r.action] || ''}</td></tr>`).join('')}</tbody></table>`;
 }
@@ -259,19 +260,27 @@ function bulkParseName(file) {
 async function bulkPrepare(c, files) {
   const cat = document.getElementById('bulk-cat').value.trim();
   const base = Number(document.getElementById('bulk-base').value) || 0;
+  const keepWhole = document.getElementById('bulk-keep')?.checked !== false;
   const existing = examsOf(c.id).filter(e => (e.category || '') === cat);
+  const short = e => shortExamTitle(e, c).trim();
   bulkRows = [];
+  const renames = new Map();
   for (const f of [...files].sort((a, b) => a.name.localeCompare(b.name))) {
     const n = bulkParseName(f.name);
     const row = { file: f.name, cat, ok: false };
     if (!n) { row.err = '檔名看不出章節（要有「-NN-章名」）'; row.title = f.name; row.sort = ''; bulkRows.push(row); continue; }
-    row.title = `${c.title} - ${cat} - ${n.chapter}${n.sub ? ' - ' + n.sub : ''}`;
+    const shortTitle = `${n.chapter}${n.sub ? ' - ' + n.sub : ''}`;
+    row.title = `${c.title} - ${cat} - ${shortTitle}`;
     row.sort = base + n.chNo * 10 + n.subNo;
     row.source = await f.text();
-    const same = existing.find(e => e.title.trim() === row.title);
-    const whole = n.subNo === 1 ? existing.find(e => e.title.trim() === `${c.title} - ${cat} - ${n.chapter}`) : null;
-    row.action = same ? 'update' : whole ? 'promote' : 'create';
-    row.targetId = same ? same.id : whole ? whole.id : null;
+    // 名稱比對時去掉「科目 - 分類 -」前綴，所以「03 藏象」和「中醫基礎理論 - 分類 - 03 藏象」視為同一份
+    const same = existing.find(e => short(e) === shortTitle);
+    const whole = n.sub ? existing.find(e => short(e) === n.chapter) : null;
+    if (same) { row.action = 'update'; row.targetId = same.id; }
+    else if (whole && !keepWhole && n.subNo === 1) { row.action = 'promote'; row.targetId = whole.id; }
+    else { row.action = 'create'; row.targetId = null; }
+    if (whole && keepWhole && !renames.has(whole.id)) renames.set(whole.id, { file: '（網站上原有的整章試題）', cat, ok: true, action: 'rename', targetId: whole.id,
+      title: `${n.chapter} - 全題 (要分章節請作下面題目)`, sort: whole.sortOrder, count: whole.questionCount, total: whole.totalPoints });
     try {
       const p = await api('/api/admin/exams/preview', { method: 'POST', body: { source: row.source } });
       if (p.errors.length) row.err = `格式有 ${p.errors.length} 個問題：${p.errors[0].message}`;
@@ -279,6 +288,8 @@ async function bulkPrepare(c, files) {
     } catch (err) { row.err = err.message || '檢查失敗'; }
     bulkRows.push(row);
   }
+  bulkRows.push(...renames.values());
+  bulkRows.sort((a, b) => (Number(a.sort) || 0) - (Number(b.sort) || 0));
 }
 function bindExamsAdmin() {
   bindAdminPicker();
@@ -289,10 +300,10 @@ function bindExamsAdmin() {
     const c = getCourse(pagesCourse), msg = document.getElementById('bulk-msg');
     if (!document.getElementById('bulk-cat').value.trim()) { msg.innerHTML = '<div class="msg error">請先填分類標籤。</div>'; bf.value = ''; return; }
     msg.innerHTML = '<div class="msg ok">檢查中…</div>';
-    const keep = { cat: document.getElementById('bulk-cat').value, base: document.getElementById('bulk-base').value, pub: document.getElementById('bulk-pub').checked };
+    const keep = { cat: document.getElementById('bulk-cat').value, base: document.getElementById('bulk-base').value, pub: document.getElementById('bulk-pub').checked, whole: document.getElementById('bulk-keep').checked };
     await bulkPrepare(c, bf.files);
     render();
-    document.getElementById('bulk-cat').value = keep.cat; document.getElementById('bulk-base').value = keep.base; document.getElementById('bulk-pub').checked = keep.pub;
+    document.getElementById('bulk-cat').value = keep.cat; document.getElementById('bulk-base').value = keep.base; document.getElementById('bulk-pub').checked = keep.pub; document.getElementById('bulk-keep').checked = keep.whole;
     const bad = bulkRows.filter(r => !r.ok).length;
     document.getElementById('bulk-msg').innerHTML = bad ? `<div class="msg error">${bad} 個檔案有問題，請修正後重新選擇。</div>` : `<div class="msg ok">${bulkRows.length} 個檔案格式都正確，確認名稱與排序後按「開始上傳」。</div>`;
   };
@@ -307,7 +318,8 @@ function bindExamsAdmin() {
       r.status = '上傳中…'; document.getElementById('bulk-preview').innerHTML = bulkTableHtml(c);
       const body = { title: r.title, category: r.cat, sortOrder: Number(r.sort), published: pub, source: r.source };
       try {
-        if (r.targetId) await api(`/api/admin/exams/${r.targetId}`, { method: 'PUT', body: { ...body, description: examsOf(c.id).find(e => e.id === r.targetId)?.description || '' } });
+        if (r.action === 'rename') await api(`/api/admin/exams/${r.targetId}`, { method: 'PUT', body: { title: r.title } });
+        else if (r.targetId) await api(`/api/admin/exams/${r.targetId}`, { method: 'PUT', body: { ...body, description: examsOf(c.id).find(e => e.id === r.targetId)?.description || '' } });
         else await api('/api/admin/exams', { method: 'POST', body: { ...body, description: '', courseId: c.id } });
         r.status = '✓ 完成'; okN++;
       } catch (err) { r.status = '✗ ' + (err.message || '失敗'); }
