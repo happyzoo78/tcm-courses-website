@@ -1095,3 +1095,5 @@ body.lb-open { overflow: hidden; }
 .exam-jump { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 30px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--r-l); background: var(--surface); color: var(--muted); }
 .exam-jump b { color: var(--ink); }
 .exam-jump .sec-link { margin-left: auto; }
+.chap-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+@media (max-width: 720px) { .chap-actions .btn { flex: 1; text-align: center; } }

@@ -434,18 +434,20 @@ function cardsPage() {
   if (!no) { courseTarget = c.id; history.replaceState(null, '', '#course/' + c.id); return coursePage(); }
 
   const i = d.chapters.findIndex(ch => ch.no === no);
-  if (i < 0) return `<a class="btn secondary back" href="#course/${c.id}">← ${esc(c.title)}圖卡總目錄</a><p class="empty-note">找不到這一章的圖卡。</p>`;
+  if (i < 0) return `<a class="btn secondary back" href="#course/${c.id}">← 回上一層</a><p class="empty-note">找不到這一章的圖卡。</p>`;
   const ch = d.chapters[i], prev = d.chapters[i - 1], next = d.chapters[i + 1];
   let n = 0;
   return `
-  <a class="btn secondary back" href="#course/${c.id}">← ${esc(c.title)}圖卡總目錄</a>
+  <div class="chap-actions">
+    <a class="btn secondary" href="#course/${c.id}" title="回到${esc(c.title)}圖卡總目錄">← 回上一層</a>
+    ${chapHasExams(c, ch.no) ? `<a class="btn" href="#examzone/${c.id}/${esc(ch.no)}" title="到學習試題作答這一章">學習試題 →</a>` : ''}
+  </div>
   <div class="chap-head">
     <div class="chap-title">
       <span class="eyebrow">${esc(c.title)} · ${chapLabel(ch)}</span>
       <h2>${esc(ch.title)}${ch.subtitle ? ` <small>${esc(ch.subtitle)}</small>` : ''}</h2>
       <p class="dc-meta">${ch.cards.length} 張圖卡${ch.date ? ' · 上課日期 ' + esc(ch.date) : ''}　點圖可看大圖</p>
     </div>
-    ${chapHasExams(c, ch.no) ? `<a class="btn" href="#examzone/${c.id}/${esc(ch.no)}">學習試題：做這章的試題 →</a>` : ''}
   </div>
   ${ch.groups.map(g => `
   <section class="cgrp">
