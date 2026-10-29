@@ -183,8 +183,9 @@ function examsAdminHtml() {
   const label = i => f.ch ? (i.sub || f.ch) : (i.sub ? `${i.chapter} - ${i.sub}` : i.chapter);
   const total = groups.reduce((n, g) => n + g[1].length, 0);
   return `
+  ${adminCoursePicker(list, c.id, x => examGroups(x.id).reduce((n, g) => n + g[1].length, 0))}
   <div class="exnav">
-    ${adminCoursePicker(list, c.id, 'ex-course', `<a class="btn exnav-add" href="#examedit/new/${c.id}" data-new-cat="${esc(f.cat === OTHER_CATEGORY ? '' : f.cat)}" title="把題目整份貼上，網站會自動拆題、批改、統計">＋ 新增試題</a>`)}
+    ${adminCourseTop(c, `<a class="btn exnav-add" href="#examedit/new/${c.id}" data-new-cat="${esc(f.cat === OTHER_CATEGORY ? '' : f.cat)}" title="把題目整份貼上，網站會自動拆題、批改、統計">＋ 新增試題</a>`)}
     ${groups.length ? `
     <div class="exnav-cats" role="tablist" aria-label="分類">${groups.map(([name, r]) => `<button type="button" role="tab" class="ex-cat" data-ex-cat="${esc(name)}" aria-selected="${name === f.cat}">${esc(name)}<small>${r.length}</small></button>`).join('<span class="ex-sep" aria-hidden="true">｜</span>')}</div>
     <div class="exnav-chaps" aria-label="章節">

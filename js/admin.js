@@ -200,30 +200,33 @@ function setAdminCourse(id) {
   if (c) adminLastInSem[c.semesterCode] = c.id;
   try { localStorage.setItem(ADMIN_COURSE_KEY, String(pagesCourse)); } catch {}
 }
-function adminCoursePicker(list, curId, selectId, actionHtml) {
+// 後台科目選擇：與前台「學習試題」同一套（年級分頁 → 上／下學期｜科目按鈕；手機改下拉選單）
+// 回傳選單 HTML；科目標題列另由 adminCourseTop() 產生，放在面板裡
+function adminCoursePicker(list, curId, count) {
   const cur = list.find(x => x.id === curId) || list[0];
   setAdminCourse(cur.id);
   const order = code => getSemester(code)?.sortOrder ?? 0;
   const semCodes = [...new Set(list.map(x => x.semesterCode))].sort((a, b) => order(a) - order(b) || a.localeCompare(b));
-  const years = [...new Set(semCodes.map(yearOf))].sort((a, b) => a - b);
+  const years = new Set(semCodes.map(yearOf));
   const curYear = yearOf(cur.semesterCode);
   const semsInYear = semCodes.filter(s => yearOf(s) === curYear);
-  const subjects = list.filter(x => x.semesterCode === cur.semesterCode);
-  const semName = code => { const m = /s(\d)$/.exec(code || ''); return m ? (m[1] === '1' ? '上學期' : '下學期') : semesterLabel(code); };
-  const lvl = (name, attr, opts, cls) => `
-      <label class="apick${cls ? ' ' + cls : ''}" title="切換${name}"><span class="sr-only">${name}</span>
-        <select ${attr}${opts.length < 2 && !cls ? ' disabled' : ''}>${opts.join('')}</select></label>`;
+  const half = code => /s2$/.test(code || '') ? '下學期' : '上學期';
+  const n = x => count ? count(x) : 0;
+  const chip = x => `<button type="button" class="subj-chip${count && !n(x) ? ' none' : ''}" data-apick-c="${x.id}" aria-pressed="${x.id === cur.id}">${esc(x.title)}${count ? `<small>${n(x)}</small>` : ''}</button>`;
   return `
-    <div class="exnav-top">
-      <div class="apick-path" role="group" aria-label="選擇科目">
-        ${lvl('年級', 'data-apick-year', years.map(y => `<option value="${y}" ${y === curYear ? 'selected' : ''}>${YEAR_NAMES[y - 1] || y + ' 年級'}</option>`))}
-        <span class="apick-sep" aria-hidden="true">›</span>
-        ${lvl('學期', 'data-apick-sem', semsInYear.map(s => `<option value="${esc(s)}" ${s === cur.semesterCode ? 'selected' : ''}>${esc(semName(s))}</option>`))}
-        <span class="apick-sep" aria-hidden="true">›</span>
-        ${lvl('科目', `id="${selectId}" data-apick-course`, subjects.map(x => `<option value="${x.id}" ${x.id === cur.id ? 'selected' : ''}>${esc(x.title)}</option>`), 'exnav-course')}
-      </div>
-      ${actionHtml}
-    </div>`;
+  <div class="year-tabs" role="tablist" aria-label="年級">
+    ${YEAR_NAMES.map((name, i) => { const y = i + 1, open = years.has(y);
+      return `<button type="button" role="tab" class="year-tab" data-apick-y="${y}" aria-selected="${y === curYear}" ${open ? '' : 'disabled'}>${name}${open ? '' : '<small>尚無科目</small>'}</button>`; }).join('')}
+  </div>
+  <div class="subj-rows">
+    <div class="subj-chips-wrap">${semsInYear.map(code => `<div class="subj-row"><span class="subj-sem">${half(code)}</span>${list.filter(x => x.semesterCode === code).map(chip).join('')}</div>`).join('')}</div>
+    <label class="subj-select-wrap"><span class="sr-only">科目</span>
+      <select class="subj-select" data-apick-course>${semsInYear.map(code => `<optgroup label="${half(code)}">${list.filter(x => x.semesterCode === code).map(x => `<option value="${x.id}" ${x.id === cur.id ? 'selected' : ''}>${esc(x.title)}${count ? `（${n(x)}）` : ''}</option>`).join('')}</optgroup>`).join('')}</select></label>
+  </div>`;
+}
+// 面板標題列：科目名稱（＋執醫考科）＋右側動作按鈕
+function adminCourseTop(c, actionHtml) {
+  return `<div class="exnav-top"><h3 class="exnav-title">${esc(c.title)}${isExamSubject(c) ? ' <span class="exam-tag">執醫考科</span>' : ''}</h3>${actionHtml}</div>`;
 }
 // 分層選單的切換（講義管理、試題管理都會呼叫）
 function bindAdminPicker() {
@@ -239,8 +242,8 @@ function bindAdminPicker() {
   };
   const semsOf = y => [...new Set(list.map(x => x.semesterCode))].filter(s => yearOf(s) === y)
     .sort((a, b) => (getSemester(a)?.sortOrder ?? 0) - (getSemester(b)?.sortOrder ?? 0) || a.localeCompare(b));
-  document.querySelectorAll('[data-apick-year]').forEach(sel => sel.onchange = () => { setAdminCourse(firstIn(semsOf(Number(sel.value)))); render(); });
-  document.querySelectorAll('[data-apick-sem]').forEach(sel => sel.onchange = () => { setAdminCourse(firstIn([sel.value])); render(); });
+  document.querySelectorAll('[data-apick-y]').forEach(b => b.onclick = () => { setAdminCourse(firstIn(semsOf(Number(b.dataset.apickY)))); render(); });
+  document.querySelectorAll('[data-apick-c]').forEach(b => b.onclick = () => { setAdminCourse(Number(b.dataset.apickC)); render(); });
   document.querySelectorAll('[data-apick-course]').forEach(sel => sel.onchange = () => { setAdminCourse(sel.value); render(); });
 }
 
@@ -251,8 +254,9 @@ function pagesAdminHtml() {
   const c = getCourse(pagesCourse);
   const rows = pagesOf(pagesCourse);
   return `
+  ${adminCoursePicker(list, c.id, x => pagesOf(x.id).length)}
   <div class="exnav">
-    ${adminCoursePicker(list, c.id, 'pg-course', `<a class="btn exnav-add" href="#editor/new/${c.id}" title="像 Word 一樣直接打字、插圖、做表格">✏️ 寫新講義</a>`)}
+    ${adminCourseTop(c, `<a class="btn exnav-add" href="#editor/new/${c.id}" title="像 Word 一樣直接打字、插圖、做表格">✏️ 寫新講義</a>`)}
     <details class="exnav-more">
       <summary>或：上傳做好的講義網頁檔（.html）</summary>
       <form id="pageform">
