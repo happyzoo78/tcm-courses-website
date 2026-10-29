@@ -316,25 +316,34 @@ function subjChipsHtml(sems, curId, count, attr) {
 
 /* 首頁、關於我們的底圖（原創向量圖，顏色跟著深淺色主題）：
    八卦太極環、懸壺（葫蘆）、銀針三枚、藥碾、人參（掌狀複葉＋紅果） */
-// 科目卡封面的淡淡中醫線條圖（依科目輪流：八卦、懸壺、草藥、銀針），只當底紋，不搶浮水印大字
+// 科目卡封面底圖：原創水墨山水（遠山、霧、朱紅日、枝椏、飛鳥），依科目左右翻轉、換日的位置，只當淡淡的底
 const COVER_ART = (() => {
-  const st = 'fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"';
-  const tri = [[1,1,1],[1,1,0],[1,0,1],[1,0,0],[0,0,0],[0,0,1],[0,1,0],[0,1,1]];
-  const bagua = `<g transform="translate(96 54)" ${st} stroke-width="1.2"><circle r="44"/><circle r="30" opacity=".7"/>
-    <g stroke-width="2.4">${tri.map((t, i) => `<g transform="rotate(${i * 45}) translate(0 -37)">${t.map((y, j) => y ? `<line x1="-6" y1="${j * 3.6 - 3.6}" x2="6" y2="${j * 3.6 - 3.6}"/>` : `<line x1="-6" y1="${j * 3.6 - 3.6}" x2="-1.6" y2="${j * 3.6 - 3.6}"/><line x1="1.6" y1="${j * 3.6 - 3.6}" x2="6" y2="${j * 3.6 - 3.6}"/>`).join('')}</g>`).join('')}</g>
-    <path d="M0 -14 A14 14 0 0 1 0 14 A7 7 0 0 1 0 0 A7 7 0 0 0 0 -14 Z" fill="currentColor" stroke="none" opacity=".6"/><circle r="14"/></g>`;
-  const gourd = `<g transform="translate(92 0)" ${st} stroke-width="1.3"><line x1="0" y1="0" x2="0" y2="26"/>
-    <path d="M0 26 C6 26 9 31 9 36 C9 41 5 44 4 46 C14 49 20 57 20 66 C20 78 11 84 0 84 C-11 84 -20 78 -20 66 C-20 57 -14 49 -4 46 C-5 44 -9 41 -9 36 C-9 31 -6 26 0 26 Z"/>
-    <path d="M-5 46 Q0 48 5 46" stroke-width="2"/><path d="M-3 86 C-5 96 -3 104 -1 108 M3 86 C5 96 3 104 1 108"/></g>`;
-  const leaf = 'M0 0 C5 -8 5 -21 0 -29 C-5 -21 -5 -8 0 0 Z';
-  const palm = a => `<g transform="${a}"><path d="${leaf}"/><path d="${leaf}" transform="rotate(-38) scale(.8)"/><path d="${leaf}" transform="rotate(38) scale(.8)"/><path d="${leaf}" transform="rotate(-74) scale(.55)"/><path d="${leaf}" transform="rotate(74) scale(.55)"/></g>`;
-  const herb = `<g ${st} stroke-width="1.2"><path d="M70 150 C76 110 84 80 100 46"/><path d="M84 96 C70 86 62 82 50 84"/>
-    ${palm('translate(100 46) rotate(12)')}${palm('translate(50 84) rotate(-60) scale(.8)')}
-    <g fill="currentColor" stroke="none" opacity=".7"><circle cx="104" cy="16" r="3"/><circle cx="110" cy="20" r="3"/><circle cx="99" cy="22" r="3"/></g></g>`;
-  const needle = n => `<g transform="translate(${n[0]} ${n[1]}) rotate(${n[2]})" ${st} stroke-width="1.1"><line x1="0" y1="0" x2="0" y2="78"/><rect x="-2.4" y="-22" width="4.8" height="22" rx="1.8"/><line x1="-2.4" y1="-16" x2="2.4" y2="-13"/><line x1="-2.4" y1="-9" x2="2.4" y2="-6"/></g>`;
-  const needles = [[78, 22, 28], [92, 24, 20], [106, 28, 12]].map(needle).join('');
-  const arts = [bagua, gourd, herb, needles];
-  return i => `<svg class="cover-art" viewBox="0 0 140 160" preserveAspectRatio="xMaxYMin meet" aria-hidden="true">${arts[((i % arts.length) + arts.length) % arts.length]}</svg>`;
+  const mtn = (d, op, id) => `<path d="${d}" fill="url(#${id})" opacity="${op}"/>`;
+  return i => {
+    const k = ((i % 4) + 4) % 4, flip = k % 2 === 1, sunX = [150, 58, 132, 70][k], sunY = [52, 44, 70, 60][k];
+    const u = `ink${k}`;
+    return `<svg class="cover-art" viewBox="0 0 200 240" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+  <defs>
+    <linearGradient id="${u}a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--ink-wash)" stop-opacity=".85"/><stop offset=".55" stop-color="var(--ink-wash)" stop-opacity=".35"/><stop offset="1" stop-color="var(--ink-wash)" stop-opacity="0"/></linearGradient>
+    <linearGradient id="${u}b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--ink-wash)" stop-opacity=".55"/><stop offset="1" stop-color="var(--ink-wash)" stop-opacity="0"/></linearGradient>
+    <filter id="${u}m" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="1.4"/></filter>
+    <radialGradient id="${u}s"><stop offset="0" stop-color="#c4553f" stop-opacity=".75"/><stop offset=".7" stop-color="#c4553f" stop-opacity=".55"/><stop offset="1" stop-color="#c4553f" stop-opacity="0"/></radialGradient>
+  </defs>
+  <circle cx="${sunX}" cy="${sunY}" r="18" fill="url(#${u}s)"/>
+  <g transform="${flip ? 'translate(200 0) scale(-1 1)' : ''}">
+    <g filter="url(#${u}m)">
+      ${mtn('M-10 240 L-10 150 C10 140 22 118 38 112 C50 108 56 128 70 132 C86 136 96 104 112 98 C126 94 134 120 150 126 C166 132 180 116 210 120 L210 240 Z', '.45', u + 'b')}
+      ${mtn('M-10 240 L-10 176 C14 172 30 150 48 146 C62 143 70 164 86 170 C104 176 118 150 136 146 C150 143 160 166 176 170 C190 173 200 164 210 166 L210 240 Z', '.75', u + 'a')}
+    </g>
+    <path d="M30 147 C34 160 33 175 36 190 M134 147 C130 162 132 178 128 196" fill="none" stroke="var(--ink-wash)" stroke-width=".6" opacity=".35"/>
+    <g fill="none" stroke="var(--ink-wash)" stroke-linecap="round" opacity=".7">
+      <path d="M210 70 C186 74 170 82 152 98" stroke-width="2.2"/><path d="M180 77 C176 66 178 58 172 50" stroke-width="1.2"/><path d="M164 88 C156 84 148 86 140 82" stroke-width="1.1"/><path d="M152 98 C146 104 142 104 136 108" stroke-width=".9"/>
+    </g>
+    <g fill="#c4553f" opacity=".45"><circle cx="172" cy="50" r="2.2"/><circle cx="141" cy="82" r="2"/><circle cx="160" cy="92" r="1.6"/><circle cx="182" cy="62" r="1.8"/></g>
+    <g fill="none" stroke="var(--ink-wash)" stroke-width=".9" stroke-linecap="round" opacity=".55"><path d="M70 92 q4 -4 8 0 q4 -4 8 0"/><path d="M92 82 q3 -3 6 0 q3 -3 6 0"/></g>
+  </g>
+</svg>`;
+  };
 })();
 const HERO_ART = `<svg class="hero-art" viewBox="0 0 640 300" preserveAspectRatio="xMaxYMax slice" aria-hidden="true">
   <defs>
