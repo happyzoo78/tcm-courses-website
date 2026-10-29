@@ -326,10 +326,15 @@ details.pw-login[open] summary { margin-bottom: 10px; }
 /* 成員管理 */
 .role { display: inline-block; padding: 0 10px; border-radius: var(--r-s); font-size: 13px; margin-left: 6px; vertical-align: 2px; background: var(--accent-soft); color: var(--accent-soft-ink); }
 .role.off { background: transparent; color: var(--red); border: 1px solid var(--red); }
-.member-form { display: grid; grid-template-columns: 1.6fr 1.2fr 1.4fr 1fr auto; gap: 10px; align-items: end; }
+.member-form { display: grid; grid-template-columns: 1.4fr 1fr 1fr; grid-template-areas: "email name role" "pw mail mail" "submit submit submit"; gap: 14px 14px; align-items: start; margin-top: 14px; }
+.mf-email { grid-area: email; } .mf-name { grid-area: name; } .mf-role { grid-area: role; } .mf-pw { grid-area: pw; }
+.mf-mail { grid-area: mail; align-self: start; margin-top: 38px; }
+.mf-submit { grid-area: submit; padding-top: 12px; border-top: 1px solid var(--line); }
+.mf-submit .btn { min-width: 160px; }
+.mf-hint { display: block; margin-top: 5px; font-size: 13px; line-height: 1.5; color: var(--muted); }
 .member-form .field { margin: 0; }
 .row-actions select { width: auto; padding: 8px 10px; }
-@media (max-width: 720px) { .member-form { grid-template-columns: 1fr; } }
+@media (max-width: 720px) { .member-form { grid-template-columns: 1fr; grid-template-areas: "email" "name" "role" "pw" "mail" "submit"; } .mf-mail { margin-top: 0; } .mf-submit .btn { width: 100%; } }
 
 footer {
   max-width: 1120px; margin: 0 auto; padding: 22px;
@@ -925,17 +930,17 @@ h2.section .more-btn { margin-left: auto; align-self: center; }
 .pw-wrap input { width: 100%; padding-right: 64px; }
 .pw-eye { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); min-height: 34px; padding: 0 10px; border: 1px solid var(--line); border-radius: var(--r-s); background: var(--surface-2); color: var(--muted); font: inherit; font-size: 14px; cursor: pointer; }
 .pw-eye:hover { color: var(--ink); border-color: var(--accent); }
-.pw-gen { display: flex; gap: 6px; }
+.pw-gen { display: flex; gap: 6px; align-items: stretch; }
+.pw-gen .btn { padding-top: 0; padding-bottom: 0; }
 .pw-gen input { flex: 1; min-width: 0; }
 .pw-gen .btn { flex: none; }
-@media (max-width: 1000px) and (min-width: 721px) { .member-form { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 1000px) and (min-width: 721px) { .member-form { grid-template-columns: 1fr 1fr; grid-template-areas: "email name" "role pw" "mail mail" "submit submit"; } .mf-mail { margin-top: 0; } }
 
 /* 登入頁：忘記密碼 */
 details.forgot { margin-top: 10px; }
 details.forgot > summary { cursor: pointer; color: var(--accent); font-size: 14.5px; }
-.m-mail { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); align-self: center; }
+.m-mail { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); }
 .m-mail input { width: auto; }
-.m-mail { grid-column: 1 / -1; }
 
 /* 第一次登入：使用須知 */
 .welcome { max-width: 720px; margin: 0 auto; }

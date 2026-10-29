@@ -106,17 +106,18 @@ function membersHtml() {
   </div>` : `<div class="notice">要顯示「上線狀態」，需要先在資料庫加一個欄位，請照 Claude 給的步驟操作一次。</div>`}
   <div class="panel prose" style="margin:6px 0 16px">
     <h3 style="margin-top:0">加入新成員</h3>
-    <p class="meta-label" style="margin-top:0">請同學提供他要用來登入的 Email。Gmail 可以直接按「使用 Google 帳號登入」；沒有 Google 帳號、或人在大陸不能用 Google 的同學，請順便設一組臨時密碼。</p>
+    <p class="meta-label" style="margin-top:0">請同學提供登入用的 Email。用 Gmail 的同學加入後可直接按「使用 Google 帳號登入」。</p>
     <form id="memberform" class="member-form">
-      <div class="field"><label for="m-email">Email</label><input id="m-email" name="email" type="email" required placeholder="例如 student@gmail.com"></div>
-      <div class="field"><label for="m-name">名稱（選填）</label><input id="m-name" name="displayName" maxlength="100" placeholder="例如 王小明"></div>
-      <div class="field"><label for="m-pw">臨時密碼（選填）</label><div class="pw-gen"><input id="m-pw" name="password" minlength="12" maxlength="128" autocomplete="off" placeholder="至少 12 字"><button type="button" class="btn secondary" id="m-pw-gen">產生</button></div></div>
-      ${membersMeta.mailEnabled ? '<label class="m-mail"><input type="checkbox" name="sendMail" checked> 加入後寄「設定密碼」的信給對方</label>' : ''}
-      <div class="field"><label for="m-role">權限</label><select id="m-role" name="role">${roleOptions('viewer')}</select></div>
-      <button class="btn" type="submit">加入名單</button>
+      <div class="field mf-email"><label for="m-email">Email</label><input id="m-email" name="email" type="email" required placeholder="例如 student@gmail.com"></div>
+      <div class="field mf-name"><label for="m-name">名稱（選填）</label><input id="m-name" name="displayName" maxlength="100" placeholder="例如 王小明"></div>
+      <div class="field mf-role"><label for="m-role">權限</label><select id="m-role" name="role">${roleOptions('viewer')}</select>
+        <span class="mf-hint">一般會員：只能看內容／編輯者：可進後台新增、修改，不能刪除</span></div>
+      <div class="field mf-pw"><label for="m-pw">臨時密碼（選填）</label><div class="pw-gen"><input id="m-pw" name="password" minlength="12" maxlength="128" autocomplete="off" placeholder="至少 12 字"><button type="button" class="btn secondary" id="m-pw-gen">產生</button></div>
+        <span class="mf-hint">沒有 Google 帳號、或在大陸不能用 Google 的同學才需要</span></div>
+      ${membersMeta.mailEnabled ? '<label class="m-mail mf-mail"><input type="checkbox" name="sendMail" checked> 加入後寄「設定密碼」的信給對方</label>' : ''}
+      <div class="mf-submit"><button class="btn" type="submit">加入名單</button></div>
     </form>
     <div id="memberformmsg"></div>
-    <p class="meta-label">一般會員：只能看內容。編輯者：可以進後台新增、修改，但不能刪除。</p>
   </div>
   <div class="adminlist">
     ${[...members].sort((a, b) => (seenInfo(b).online - seenInfo(a).online) || String(b.lastSeenAt || '').localeCompare(String(a.lastSeenAt || ''))).map(m => {
