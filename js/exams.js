@@ -614,7 +614,8 @@ function examCardsLink(examId) {
   if (!c) return '';
   const no = examChapNo(shortExamTitle(e, c));
   const ch = no && (deckOf(c.id)?.chapters || []).find(x => x.no === no);
-  return ch ? `<a class="btn secondary" href="#cards/${c.id}/${esc(ch.no)}" title="第 ${esc(ch.no)} 章 ${esc(ch.title)}：${ch.cards.length} 張圖卡">看這章的圖卡 →</a>` : '';
+  // 另開分頁：作答、看成績的頁面留著，不會突然跳走
+  return ch ? `<a class="btn secondary" href="#cards/${c.id}/${esc(ch.no)}" target="_blank" rel="noopener" title="另開分頁：第 ${esc(ch.no)} 章 ${esc(ch.title)}，${ch.cards.length} 張圖卡">看這章的圖卡 ↗</a>` : '';
 }
 
 /* ---------- 成績頁 #attempt/編號 ---------- */
