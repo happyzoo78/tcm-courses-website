@@ -8,7 +8,9 @@
 <title>作業專區｜2026福建中醫台灣班網站</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+<!-- Google 字體不阻擋畫面：大陸連不到 Google 時，直接用電腦／手機內建宋體顯示 -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700;900&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700;900&display=swap"></noscript>
 <script>
   /* 沿用網站的深淺色設定（同一個網站會共用這個選擇） */
   (function () { try { var t = localStorage.getItem('tcm-theme'); if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t; } catch (e) {} })();
@@ -40,7 +42,7 @@ html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-t
 body { margin: 0; background: var(--bg); color: var(--ink);
   font-family: "PingFang TC", "PingFang SC", "Microsoft JhengHei", "Microsoft YaHei", "Noto Sans TC", "Noto Sans SC", sans-serif;
   font-size: 17px; line-height: 1.85; letter-spacing: .02em; }
-h1, h2, .logo, .doc h3 { font-family: "Noto Serif TC", "Songti TC", "Songti SC", serif; letter-spacing: .03em; }
+h1, h2, .logo, .doc h3 { font-family: "Noto Serif TC", "Noto Serif CJK TC", "Source Han Serif TC", "Songti TC", "STSong", "Songti SC", "SimSun", "PMingLiU", serif; letter-spacing: .03em; }
 a { color: var(--accent); }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
 button { font: inherit; color: inherit; cursor: pointer; }
@@ -117,7 +119,7 @@ main, .doc { min-width: 0; }
 .info dd { margin: 0; }
 
 /* 教師原話 */
-.quote { margin: 12px 0; padding: 4px 22px; background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--red); border-radius: 6px; color: var(--ink); font-family: "Noto Serif TC", "Songti SC", serif; font-size: 18px; }
+.quote { margin: 12px 0; padding: 4px 22px; background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--red); border-radius: 6px; color: var(--ink); font-family: "Noto Serif TC", "Noto Serif CJK TC", "Source Han Serif TC", "Songti TC", "STSong", "Songti SC", "SimSun", "PMingLiU", serif; font-size: 18px; }
 .quote p { margin: 12px 0; }
 
 /* 填空題表格：題號欄做成圓形編號 */
@@ -361,7 +363,7 @@ toTop.onclick = () => scrollTo({ top: 0 });
 /* 作業專區首頁固定顯示繁體：科目選單與作業清單來自共用的 menu.js（簡體原文），載入後自動轉成繁體字形。
    繁簡切換按鈕只放在各作業頁裡。只轉字形（OpenCC cn→tw），不改用詞。 */
 (function () {
-  const SRC = 'https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/cn2t.js';
+  const SRC = '/content/homework/assets/vendor/opencc-cn2t-1.0.5.js';
   let conv = null;
   const roots = () => [document.getElementById('hw-menu'), document.querySelector('.layout')].filter(Boolean);
   function walk(only) {

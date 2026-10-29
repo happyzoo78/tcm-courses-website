@@ -9,7 +9,9 @@
 <!-- 標題用的襯線字體（只載入粗體，內文用系統字體，讀起來更清晰、載入更快） -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+<!-- Google 字體不阻擋畫面：大陸連不到 Google 時，直接用電腦／手機內建宋體顯示 -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700;900&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@700;900&display=swap"></noscript>
 
 <!-- 先套用深淺色設定，避免開頁時閃一下 -->
 <script>

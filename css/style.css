@@ -66,7 +66,7 @@ body {
   transition: background-color .2s, color .2s;
 }
 h1, h2, h3, .logo, .serif {
-  font-family: "Noto Serif TC", "Songti TC", "PMingLiU", serif;
+  font-family: "Noto Serif TC", "Noto Serif CJK TC", "Source Han Serif TC", "Songti TC", "STSong", "Songti SC", "SimSun", "PMingLiU", serif;
   letter-spacing: .03em;
 }
 a { color: inherit; text-decoration: none; }
@@ -127,7 +127,7 @@ main { max-width: 1120px; margin: 0 auto; padding: 32px 22px 40px; min-height: 6
 .hero::after {
   content: "台灣 · 福建 · 知識連結";
   position: absolute; right: 26px; bottom: 6px;
-  font-family: "Noto Serif TC", serif; font-size: 34px;
+  font-family: "Noto Serif TC", "Noto Serif CJK TC", "Source Han Serif TC", "Songti TC", "STSong", "Songti SC", "SimSun", "PMingLiU", serif; font-size: 34px;
   color: var(--gold); opacity: .13; letter-spacing: 12px;
   pointer-events: none;
 }
@@ -168,7 +168,7 @@ h2.section small { font-family: inherit; font-size: 14px; font-weight: normal; c
 }
 .cover .taiji { position: absolute; width: 96px; height: 96px; opacity: .22; }
 .cover span {
-  position: relative; font-family: "Noto Serif TC", serif;
+  position: relative; font-family: "Noto Serif TC", "Noto Serif CJK TC", "Source Han Serif TC", "Songti TC", "STSong", "Songti SC", "SimSun", "PMingLiU", serif;
   font-size: 21px; font-weight: 900; padding: 8px 12px;
   background: var(--cover-chip); border: 1px solid var(--line); border-radius: var(--r-s);
 }
@@ -644,7 +644,7 @@ fieldset.owners .check small { color: var(--muted); }
 .exnav-top { display: flex; align-items: center; gap: 12px; }
 .exnav-course { position: relative; flex: 0 1 auto; min-width: 0; }
 .exnav-course::after { content: "▾"; position: absolute; right: 2px; top: 50%; transform: translateY(-50%); color: var(--accent); pointer-events: none; }
-.exnav-course select { appearance: none; -webkit-appearance: none; width: auto; max-width: 100%; padding: 4px 24px 4px 0; border: 0; border-bottom: 1px dashed var(--line); border-radius: 0; background: transparent; font-family: "Noto Serif TC", serif; font-size: 20px; font-weight: 700; color: var(--ink); cursor: pointer; text-overflow: ellipsis; }
+.exnav-course select { appearance: none; -webkit-appearance: none; width: auto; max-width: 100%; padding: 4px 24px 4px 0; border: 0; border-bottom: 1px dashed var(--line); border-radius: 0; background: transparent; font-family: "Noto Serif TC", "Noto Serif CJK TC", "Source Han Serif TC", "Songti TC", "STSong", "Songti SC", "SimSun", "PMingLiU", serif; font-size: 20px; font-weight: 700; color: var(--ink); cursor: pointer; text-overflow: ellipsis; }
 .exnav-course select:focus { border-bottom-color: var(--accent); outline: none; }
 .exnav-add { flex: none; padding: 8px 14px; font-size: 15px; }
 .exnav-cats { display: flex; flex-wrap: wrap; align-items: center; margin-top: 12px; }
@@ -709,7 +709,7 @@ fieldset.owners .check small { color: var(--muted); }
 /* 學期管理：依年級分卡片 */
 .sem-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin-top: 12px; }
 .sem-card { padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--r-l); background: var(--surface); }
-.sem-card-title { display: flex; align-items: baseline; gap: 8px; font-family: "Noto Serif TC", serif; font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+.sem-card-title { display: flex; align-items: baseline; gap: 8px; font-family: "Noto Serif TC", "Noto Serif CJK TC", "Source Han Serif TC", "Songti TC", "STSong", "Songti SC", "SimSun", "PMingLiU", serif; font-size: 18px; font-weight: 700; margin-bottom: 8px; }
 .sem-card-title small, .sem-line small { font-family: inherit; font-size: 13px; font-weight: 400; color: var(--muted); margin-left: 6px; }
 .sem-line { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 0; border-top: 1px solid var(--line); }
 .admin-panel-gap { margin-top: 14px; }
@@ -765,7 +765,7 @@ fieldset.owners .check small { color: var(--muted); }
 .entry:hover { border-color: var(--accent); transform: translateY(-2px); }
 .entry-ico { grid-row: 1 / 4; width: 48px; height: 48px; border-radius: var(--r-l); display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-soft-ink); }
 .entry-ico svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-.entry-name { font-family: "Noto Serif TC", serif; font-size: 19px; font-weight: 700; }
+.entry-name { font-family: "Noto Serif TC", "Noto Serif CJK TC", "Source Han Serif TC", "Songti TC", "STSong", "Songti SC", "SimSun", "PMingLiU", serif; font-size: 19px; font-weight: 700; }
 .entry-desc { font-size: 14.5px; color: var(--muted); }
 .entry-count { font-size: 13.5px; color: var(--accent); }
 @media (max-width: 960px) { .entry-grid { grid-template-columns: 1fr; } }
@@ -775,7 +775,7 @@ fieldset.owners .check small { color: var(--muted); }
 .shelves { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .shelf { padding: 16px 18px; border: 1px solid var(--line); border-radius: var(--r-l); background: var(--surface); display: flex; flex-direction: column; }
 .shelf-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 10px; }
-.shelf-head h4 { margin: 0; font-family: "Noto Serif TC", serif; font-size: 19px; display: flex; align-items: center; gap: 8px; }
+.shelf-head h4 { margin: 0; font-family: "Noto Serif TC", "Noto Serif CJK TC", "Source Han Serif TC", "Songti TC", "STSong", "Songti SC", "SimSun", "PMingLiU", serif; font-size: 19px; display: flex; align-items: center; gap: 8px; }
 .shelf-meta { font-size: 13.5px; color: var(--muted); }
 .shelf-list { display: grid; gap: 8px; }
 .mini-card { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--r-m); background: var(--bg); color: var(--ink); text-decoration: none; }
@@ -833,7 +833,7 @@ fieldset.owners .check small { color: var(--muted); }
 .sem-carousel .shelves[data-n="4"] .shelf { flex-basis: calc((100% - 42px) / 4); }
 @media (max-width: 1000px) { .sem-carousel .shelf, .sem-carousel .shelves[data-n="4"] .shelf { flex-basis: calc((100% - 14px) / 2); } }
 @media (max-width: 720px) { .sem-carousel .shelf, .sem-carousel .shelves[data-n="4"] .shelf { flex-basis: 100%; } }
-h2.section small.motto { font-family: "Noto Serif TC", serif; letter-spacing: .12em; color: var(--gold); }
+h2.section small.motto { font-family: "Noto Serif TC", "Noto Serif CJK TC", "Source Han Serif TC", "Songti TC", "STSong", "Songti SC", "SimSun", "PMingLiU", serif; letter-spacing: .12em; color: var(--gold); }
 
 /* 科目選擇：電腦用按鈕列，手機用下拉選單 */
 .subj-chips-wrap { display: flex; flex-direction: column; gap: 8px; }

@@ -248,10 +248,10 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:"PingFang TC","M
 .top a{color:var(--accent);text-decoration:none;font-weight:600}.top .site{color:var(--muted)}
 main{max-width:860px;margin:0 auto;padding:28px 20px 40px}
 .kicker{margin:0;color:var(--accent);font-size:14px;letter-spacing:2px}
-h1{font-family:"Noto Serif TC","Songti TC",serif;font-size:30px;line-height:1.4;margin:6px 0 4px}
+h1{font-family:"Noto Serif TC", "Noto Serif CJK TC", "Source Han Serif TC", "Songti TC", "STSong", "Songti SC", "SimSun", "PMingLiU", serif;font-size:30px;line-height:1.4;margin:6px 0 4px}
 .meta{margin:0 0 22px;color:var(--muted);font-size:14px}
 .ql-content{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px 26px;overflow-wrap:anywhere}
-.ql-content h1,.ql-content h2,.ql-content h3{font-family:"Noto Serif TC","Songti TC",serif;line-height:1.45;margin:1.3em 0 .5em}
+.ql-content h1,.ql-content h2,.ql-content h3{font-family:"Noto Serif TC", "Noto Serif CJK TC", "Source Han Serif TC", "Songti TC", "STSong", "Songti SC", "SimSun", "PMingLiU", serif;line-height:1.45;margin:1.3em 0 .5em}
 .ql-content h1{font-size:26px;border-bottom:2px solid var(--line);padding-bottom:4px}.ql-content h2{font-size:22px;color:var(--accent)}.ql-content h3{font-size:19px}
 .ql-content>:first-child{margin-top:0}.ql-content p{margin:.5em 0}
 .ql-content blockquote{margin:1em 0;padding:8px 16px;border-left:4px solid var(--accent);background:var(--surface-2);border-radius:0 8px 8px 0}
