@@ -447,7 +447,7 @@ function adminPage() {
   <div class="notice">在這裡新增、修改或刪除的內容，會<b>立即儲存到雲端資料庫</b>，所有成員都會看到。</div>
   ${flash}
   <div class="admin-tabs">
-    ${Object.keys(tabs).map(t => `${t === 'members' && Object.keys(tabs).length > 1 ? '<span class="admin-tab-sep" aria-hidden="true">｜</span>' : ''}<button type="button" class="btn ${adminType === t ? '' : 'secondary'}" data-admin-type="${t}" aria-pressed="${adminType === t}">${tabs[t]}管理</button>`).join('')}
+    ${Object.keys(tabs).map(t => `${t === 'members' && Object.keys(tabs).length > 1 ? '<span class="admin-tab-sep" aria-hidden="true">｜</span>' : ''}<button type="button" class="admin-tab" data-admin-type="${t}" aria-pressed="${adminType === t}">${tabs[t]}管理</button>`).join('')}
   </div>
   ${body}`;
 }

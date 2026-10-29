@@ -260,7 +260,11 @@ input:focus, textarea:focus, select:focus { border-color: var(--accent); }
   margin: 16px 0; padding: 12px 18px; font-size: 15px;
   background: var(--surface); border-left: 4px solid var(--gold); border-radius: var(--r-s);
 }
-.admin-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+/* 後台分頁（最上層）：文字＋底線，與下方的年級分頁、科目按鈕分出層級 */
+.admin-tabs { display: flex; align-items: flex-end; gap: 4px 24px; flex-wrap: wrap; margin-bottom: 20px; border-bottom: 1px solid var(--line); }
+.admin-tab { background: none; border: 0; border-bottom: 3px solid transparent; margin-bottom: -1px; padding: 8px 2px 10px; font: inherit; font-size: 17px; font-weight: 600; color: var(--muted); cursor: pointer; white-space: nowrap; }
+.admin-tab:hover { color: var(--ink); }
+.admin-tab[aria-pressed="true"] { color: var(--ink); font-weight: 700; border-bottom-color: var(--accent); }
 .adminlist { display: grid; gap: 8px; margin-top: 16px; }
 .adminrow {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
@@ -636,7 +640,8 @@ fieldset.owners .check small { color: var(--muted); }
   /* 後台分頁按鈕：一排橫向滑動，不再佔三行 */
   .admin-tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -16px 12px; padding: 0 16px 2px; }
   .admin-tabs::-webkit-scrollbar { display: none; }
-  .admin-tabs .btn { flex: none; padding: 8px 14px; font-size: 15px; white-space: nowrap; }
+  .admin-tabs { gap: 18px; }
+  .admin-tab { flex: none; font-size: 16px; }
   .notice { margin: 10px 0; padding: 8px 12px; font-size: 13.5px; }
   /* 考卷列：按鈕一排四等分、較矮 */
   .exam-adminlist .adminrow { padding: 10px 12px; gap: 8px; }
