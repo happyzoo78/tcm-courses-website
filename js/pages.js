@@ -69,8 +69,8 @@ function recentUpdates(limit) {
     : u);
 }
 
-// 首頁主角：依年級顯示各科圖卡（每科最多 4 張，其餘到書架裡看）
-// 首頁各科圖卡：輪播以「學期」為一頁，每頁列出該學期所有書架（每架最多 3 張最新圖卡）
+// 首頁主角：依年級顯示學習圖卡（每科最多 4 張，其餘到書架裡看）
+// 首頁學習圖卡：輪播以「學期」為一頁，每頁列出該學期所有書架（每架最多 3 張最新圖卡）
 function shelfCardsHtml() {
   const sems = visibleSemesters().filter(s => coursesIn(s.code).length).sort((a, b) => a.sortOrder - b.sortOrder);
   if (!sems.length) return '<p class="empty-note">目前沒有開放的書架。</p>';
@@ -131,7 +131,7 @@ function homePage() {
     </div>
   </section>
 
-  <h2 class="section">各科圖卡 <small class="motto">博觀約取，厚積薄發</small><a class="more-btn" href="#courses" title="全部書架" aria-label="全部書架">More<span class="arr" aria-hidden="true">›</span></a></h2>
+  <h2 class="section">學習圖卡 <small class="motto">博觀約取，厚積薄發</small><a class="more-btn" href="#courses" title="全部書架" aria-label="全部書架">More<span class="arr" aria-hidden="true">›</span></a></h2>
   ${shelfCardsHtml()}
 
   <h2 class="section">最新更新 <small class="motto">日新又新，學無止境</small></h2>

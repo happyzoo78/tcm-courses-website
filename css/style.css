@@ -772,7 +772,7 @@ fieldset.owners .check small { color: var(--muted); }
 @media (max-width: 960px) { .entry-grid { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { .entry { transition: none; } .entry:hover { transform: none; } }
 
-/* 首頁：各科圖卡（每個書架一塊，兩欄；每架最多 4 張小卡） */
+/* 首頁：學習圖卡（每個書架一塊，兩欄；每架最多 4 張小卡） */
 .shelves { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .shelf { padding: 16px 18px; border: 1px solid var(--line); border-radius: var(--r-l); background: var(--surface); display: flex; flex-direction: column; }
 .shelf-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 10px; }
