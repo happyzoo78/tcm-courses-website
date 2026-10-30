@@ -1178,4 +1178,4 @@ h2.section + .year-tabs ~ .sem-title, h2.section + .year-tabs ~ .cards { margin-
 .chap-note { margin: 4px 0 22px; }
 h2.section > .exam-tag { align-self: center; vertical-align: 0; }   /* 大標裡的「執醫考科」與大字垂直置中（小字仍齊底） */
 /* 小標（首頁圖卡架、科目卡）裡的執醫考科縮小，不比標題搶眼；大標裡維持原大小 */
-.shelf-head .exam-tag, .course h3 .exam-tag, .exnav-title .exam-tag { font-size: 11px; padding: 0 6px; line-height: 1.7; letter-spacing: .04em; vertical-align: 2px; }
+.shelf-head .exam-tag, .course h3 .exam-tag, .exnav-title .exam-tag { font-size: 11px; padding: 0 6px; line-height: 1.7; letter-spacing: .04em; vertical-align: 2px; position: relative; top: 1px; }   /* 宋體字形在字框裡偏低，標籤下移 1px 與字的實際筆畫置中 */
