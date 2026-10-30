@@ -229,6 +229,7 @@ function coursePage() {
   ${deck ? `
   <h3 class="sec-title sec-rule">各章節圖卡 <small>${deck.chapters.length} 章 · ${deckCardCount(c.id)} 張</small></h3>
   <div class="note-box deck-note"><span class="note-lab">使用方式</span>選一章點<strong>「看圖卡」</strong>進入該章的圖卡，點圖可看大圖；看完圖卡，頁面最下方有<strong>「做這章的試題 ›」</strong>，直接到學習試題作答。</div>
+  <div class="note-box deck-note"><span class="note-lab">提醒</span>圖卡由 AI 協助製作，難免會有錯字或疏漏。複習時請<strong>搭配上課 PPT 和課本一起對照</strong>，不要只看圖卡。<br>發現錯誤時，請<strong>在班群告知是哪一張圖卡、哪裡有錯</strong>（例如「第 02 章 02-08 第③區」），科目負責人會盡快安排修正。謝謝大家的配合！</div>
   ${deckChaptersHtml(c, deck)}` : ''}
   ${items.length ? `
   <h3 class="sec-title sec-rule">${deck ? '其他圖卡' : '圖卡'}<a class="more-btn sec-link" href="#items/${c.id}">搜尋圖卡<span class="arr" aria-hidden="true">›</span></a></h3>
