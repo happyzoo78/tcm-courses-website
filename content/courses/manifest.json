@@ -7,6 +7,12 @@
       "course": "tcm-basic-theory",
       "courseTitle": "中醫基礎理論",
       "path": "/content/courses/2026_y1s1/tcm-basic-theory/cards/cards.json"
+    },
+    {
+      "semester": "2026_y1s1",
+      "course": "histology-embryology",
+      "courseTitle": "組織學與胚胎學",
+      "path": "/content/courses/2026_y1s1/histology-embryology/cards/cards.json"
     }
   ],
   "examCategories": [
