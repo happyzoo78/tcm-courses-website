@@ -114,9 +114,11 @@ const matchCourseFile = (list, courseId) => {
 };
 const syllabusOf = courseId => matchCourseFile(syllabi, courseId);
 // 這個科目可用的分類（全站共用＋該科自訂），依顯示順序
+// 分類表的 scope："bank"＝只用在執醫考試題庫，沒寫＝一般科目
 function examCatsOf(courseId) {
   const extra = (syllabusOf(courseId)?.categories || []).filter(x => x && x.code && x.name);
-  return [...examCatRegistry.filter(x => !extra.some(y => y.code === x.code)), ...extra];
+  const bank = isBankCourse(getCourse(courseId));
+  return [...examCatRegistry.filter(x => (x.scope === 'bank') === bank && !extra.some(y => y.code === x.code)), ...extra];
 }
 // 把資料庫裡的分類名稱（含舊名稱）對到標準分類；對不到就回傳 null
 function examCatDef(courseId, name) {
@@ -316,24 +318,32 @@ function readHash() {
    ========================================================= */
 const YEAR_NAMES = ['一年級', '二年級', '三年級', '四年級', '五年級'];
 let siteYear = 0;   // 目前選的年級，各頁共用；0＝自動選最新的
-const yearOf = code => Number((/_y(\d)s/.exec(code || '') || [])[1]) || 0;
+// 執醫考試題庫：不屬於任何學期的獨立題庫，資料庫裡是一個特別的「學期」zy_bank，在年級分頁裡當第 6 個分頁（只在學習試題、後台出現）
+const BANK_SEM = 'zy_bank', BANK_YEAR = 6, BANK_NAME = '執醫考試題庫';
+const yearOf = code => code === BANK_SEM ? BANK_YEAR : Number((/_y(\d)s/.exec(code || '') || [])[1]) || 0;
+const isBankCourse = c => !!c && c.semesterCode === BANK_SEM;
+const latestRegularYear = years => Math.max(0, ...[...years].filter(y => y !== BANK_YEAR)) || Math.max(0, ...years);
 // 學期短名稱：2026_y1s1 → 2026 一上
 function shortSemLabel(code) {
   const m = /^(\d{4})_y(\d)s(\d)$/.exec(code || '');
+  if (code === BANK_SEM) return BANK_NAME;
   return m ? `${m[1]} ${'一二三四五'[m[2] - 1] || m[2]}${m[3] === '1' ? '上' : '下'}` : semesterLabel(code);
 }
 // 年級分頁；openYears＝可以點的年級（前台：同學看得到的年級）
 // sub(y)：有給時每個年級都可以點，小字改顯示 sub(y) 的內容（後台用，例如「0 張圖卡」）
-function yearTabsHtml(openYears, sub) {
+// bank：多一個「執醫考試題庫」分頁（學習試題、後台用）
+function yearTabsHtml(openYears, sub, bank = false) {
   if (sub) {
     // 還沒選過年級時，停在有資料的最新年級（都沒有就一年級）
-    if (!siteYear) siteYear = openYears.size ? Math.max(...openYears) : 1;
-    openYears = new Set([1, 2, 3, 4, 5]);
+    if (!siteYear) siteYear = openYears.size ? latestRegularYear(openYears) || 1 : 1;
+    openYears = new Set([1, 2, 3, 4, 5, ...(bank ? [BANK_YEAR] : [])]);
   }
-  if (!openYears.has(siteYear)) siteYear = Math.max(0, ...openYears);
+  if (!bank) openYears = new Set([...openYears].filter(y => y !== BANK_YEAR));
+  if (!openYears.has(siteYear)) siteYear = latestRegularYear(openYears);
+  const names = bank ? [...YEAR_NAMES, BANK_NAME] : YEAR_NAMES;
   return `
   <div class="year-tabs" role="tablist" aria-label="年級">
-    ${YEAR_NAMES.map((n, i) => {
+    ${names.map((n, i) => {
       const y = i + 1, open = openYears.has(y);
       const note = sub ? sub(y) : (open ? '' : '尚未開放');
       return `<button type="button" role="tab" class="year-tab" data-site-year="${y}" aria-selected="${y === siteYear}" ${open ? '' : 'disabled title="同學目前看不到這個年級（可到後台「學期管理」打開）"'}>${n}${note ? `<small>${esc(note)}</small>` : ''}</button>`;
@@ -347,14 +357,14 @@ function subjChipsHtml(sems, curId, count, attr) {
   const rows = sems.map(sm => {
     const list = coursesIn(sm.code);
     if (!list.length) return '';
-    return `<div class="subj-row"><span class="subj-sem">${/s2$/.test(sm.code) ? '下學期' : '上學期'}</span>
+    return `<div class="subj-row"><span class="subj-sem">${sm.code === BANK_SEM ? '考科' : /s2$/.test(sm.code) ? '下學期' : '上學期'}</span>
       ${list.map(x => `<button type="button" class="subj-chip${count(x) ? '' : ' none'}" ${attr}="${x.id}" aria-pressed="${x.id === curId}">${esc(x.title)}<small>${count(x)}</small></button>`).join('')}</div>`;
   }).join('');
   // 手機：改用下拉選單（系統原生，好點、不會被切掉）
   const select = `<label class="subj-select-wrap"><span class="sr-only">科目</span>
     <select class="subj-select" data-subj-select="${attr}">${sems.map(sm => {
       const list = coursesIn(sm.code);
-      return list.length ? `<optgroup label="${/s2$/.test(sm.code) ? '下學期' : '上學期'}">${list.map(x => `<option value="${x.id}" ${x.id === curId ? 'selected' : ''}>${esc(x.title)}（${count(x)}）</option>`).join('')}</optgroup>` : '';
+      return list.length ? `<optgroup label="${sm.code === BANK_SEM ? '考科' : /s2$/.test(sm.code) ? '下學期' : '上學期'}">${list.map(x => `<option value="${x.id}" ${x.id === curId ? 'selected' : ''}>${esc(x.title)}（${count(x)}）</option>`).join('')}</optgroup>` : '';
     }).join('')}</select></label>`;
   return `<div class="subj-chips-wrap">${rows}</div>${select}`;
 }

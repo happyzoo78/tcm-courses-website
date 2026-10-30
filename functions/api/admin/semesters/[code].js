@@ -8,7 +8,7 @@ export async function onRequestPut({ request, env, params }) {
   if (auth.error) return auth.error;
 
   const code = String(params.code || "");
-  const sem = /^\d{4}_y\ds\d$/.test(code) && await env.DB.prepare("SELECT code, label FROM semesters WHERE code = ?").bind(code).first();
+  const sem = (/^\d{4}_y\ds\d$/.test(code) || code === "zy_bank") && await env.DB.prepare("SELECT code, label FROM semesters WHERE code = ?").bind(code).first();
   if (!sem) return jsonResponse({ error: "找不到這個學期" }, 404);
 
   const parsed = await readJson(request);

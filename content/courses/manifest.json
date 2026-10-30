@@ -1,5 +1,5 @@
 {
-  "說明": "Claude 代為上傳到 content/courses/ 的清單。files＝網頁（semester、course、title、path、description、updated）；decks＝依章節圖卡集；syllabi＝各科章節表（試題、圖卡共用的標準章號與章名）；examCategories＝全站試題分類（code 代碼、name 顯示名稱、aliases 舊名稱、note 分類說明；各科可在章節表 categories 增加自己的分類、categoryNotes 改寫說明）。",
+  "說明": "Claude 代為上傳到 content/courses/ 的清單。files＝網頁（semester、course、title、path、description、updated）；decks＝依章節圖卡集；syllabi＝各科章節表（試題、圖卡共用的標準章號與章名）；examCategories＝全站試題分類（code 代碼、name 顯示名稱、aliases 舊名稱、note 分類說明；各科可在章節表 categories 增加自己的分類、categoryNotes 改寫說明）。 scope 為 bank 的分類只用在執醫考試題庫（特別學期 zy_bank）。",
   "files": [],
   "decks": [
     {
@@ -35,6 +35,24 @@
         "全章試題"
       ],
       "note": "每章的<strong>完整題庫</strong>：可先分節練習，再用「全題」做整章檢測。"
+    },
+    {
+      "code": "past",
+      "name": "歷年真題",
+      "scope": "bank",
+      "note": "<strong>執業醫師資格考試歷年真題</strong>，依年份整理，熟悉實際命題方式與難度。"
+    },
+    {
+      "code": "mock",
+      "name": "模擬試卷",
+      "scope": "bank",
+      "note": "依執醫考試題型與比重編排的<strong>整份模擬卷</strong>，可計時作答、檢驗整體實力。"
+    },
+    {
+      "code": "drill",
+      "name": "考點練習",
+      "scope": "bank",
+      "note": "依<strong>執醫考試大綱考點</strong>分類的練習題，針對弱點反覆加強。"
     }
   ],
   "syllabi": [

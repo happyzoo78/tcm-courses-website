@@ -248,14 +248,15 @@ function adminCoursePicker(list, curId, count) {
   const order = code => getSemester(code)?.sortOrder ?? 0;
   const semCodes = [...new Set(list.map(x => x.semesterCode))].sort((a, b) => order(a) - order(b) || a.localeCompare(b));
   const years = new Set(semCodes.map(yearOf));
+  const names = years.has(BANK_YEAR) ? [...YEAR_NAMES, BANK_NAME] : YEAR_NAMES;
   const curYear = yearOf(cur.semesterCode);
   const semsInYear = semCodes.filter(s => yearOf(s) === curYear);
-  const half = code => /s2$/.test(code || '') ? '下學期' : '上學期';
+  const half = code => code === BANK_SEM ? '考科' : /s2$/.test(code || '') ? '下學期' : '上學期';
   const n = x => count ? count(x) : 0;
   const chip = x => `<button type="button" class="subj-chip${count && !n(x) ? ' none' : ''}" data-apick-c="${x.id}" aria-pressed="${x.id === cur.id}">${esc(x.title)}${count ? `<small>${n(x)}</small>` : ''}</button>`;
   return `
   <div class="year-tabs" role="tablist" aria-label="年級">
-    ${YEAR_NAMES.map((name, i) => { const y = i + 1, open = years.has(y);
+    ${names.map((name, i) => { const y = i + 1, open = years.has(y);
       return `<button type="button" role="tab" class="year-tab" data-apick-y="${y}" aria-selected="${y === curYear}" ${open ? '' : 'disabled'}>${name}${open ? '' : '<small>尚無科目</small>'}</button>`; }).join('')}
   </div>
   <div class="subj-rows">
@@ -356,15 +357,15 @@ function semestersAdminHtml() {
   return `
   <div class="note-box"><span class="note-lab">開關說明</span>開關決定<strong>同學看不看得到</strong>該學期的科目、圖卡和試題：綠色＝同學看得到，灰色＝只有管理者看得到。<strong>新學期開始時把它打開</strong>即可。</div>
   <div class="sem-grid">
-    ${YEAR_NAMES.map((n, i) => {
+    ${[...YEAR_NAMES, BANK_NAME].map((n, i) => {
       const list = sems.filter(s => yearOf(s.code) === i + 1);
       if (!list.length) return '';
       return `
       <div class="sem-card">
-        <div class="sem-card-title">${n}<small>${esc(list[0].code.slice(0, 4))}</small></div>
+        <div class="sem-card-title">${n}<small>${list[0].code === BANK_SEM ? '不分年級' : esc(list[0].code.slice(0, 4))}</small></div>
         ${list.map(s => `
         <div class="sem-line">
-          <span>${/s1$/.test(s.code) ? '上學期' : '下學期'}<small>${coursesIn(s.code).length} 科</small></span>
+          <span>${s.code === BANK_SEM ? '題庫' : /s1$/.test(s.code) ? '上學期' : '下學期'}<small>${coursesIn(s.code).length} 科</small></span>
           <button type="button" class="sem-switch" role="switch" aria-checked="${!!s.visible}" data-sem="${esc(s.code)}" data-to="${s.visible ? '0' : '1'}" aria-label="${esc(s.label)}：同學${s.visible ? '看得到' : '看不到'}" title="${s.visible ? '按一下：對同學隱藏' : '按一下：讓同學看得到'}">
             <span class="sem-state">${s.visible ? '同學看得到' : '同學看不到'}</span><span class="sw" aria-hidden="true"><span class="sw-knob"></span></span>
           </button>
@@ -453,7 +454,7 @@ function adminPage() {
     // 後台：每個年級都能點，小字顯示實際數量（不用「尚未開課」，避免誤會成學校課表）
     const withData = new Set(rows.map(i => yearOf(semOf(i))).filter(Boolean));
     const unit = adminType === 'courses' ? ' 科' : ' 張圖卡';
-    tabs = yearTabsHtml(withData, y => rows.filter(i => yearOf(semOf(i)) === y).length + unit);
+    tabs = yearTabsHtml(withData, y => rows.filter(i => yearOf(semOf(i)) === y).length + unit, adminType === 'courses');
     list = rows.filter(i => yearOf(semOf(i)) === siteYear);
   }
   // 列表依層級分框：科目依學期分組、圖卡依科目分組（與成員名單同一種框）
@@ -469,7 +470,7 @@ function adminPage() {
         </div>
         ${isCourses && ownerOpen === i.id ? ownerPanelHtml(i) : ''}
       </div>`;
-  const half = code => /s2$/.test(code || '') ? '下學期' : '上學期';
+  const half = code => code === BANK_SEM ? BANK_NAME : /s2$/.test(code || '') ? '下學期' : '上學期';
   const groups = [];
   if (isCourses) {
     for (const code of [...new Set(list.map(i => i.semesterCode))].sort()) {
@@ -483,7 +484,7 @@ function adminPage() {
     }
     groups.sort((x, y) => (getCourse(x[3][0].courseId)?.semesterCode || '').localeCompare(getCourse(y[3][0].courseId)?.semesterCode || ''));
   }
-  const yearName = YEAR_NAMES[siteYear - 1] || '';
+  const yearName = siteYear === BANK_YEAR ? BANK_NAME : YEAR_NAMES[siteYear - 1] || '';
   body = `
   ${tabs}
   <div class="list-head">
@@ -517,7 +518,7 @@ function editorHtml(i) {
   const isCourse = adminType === 'courses';
   const courseFields = `
     <div class="field"><label for="f-sem">學期</label>
-      <select id="f-sem" name="semesterCode">${[...data.semesters].sort((a, b) => a.sortOrder - b.sortOrder).map(s => `<option value="${esc(s.code)}" ${(i.semesterCode || visibleSemesters()[0]?.code) === s.code ? 'selected' : ''}>${esc(s.label)}</option>`).join('')}</select></div>
+      <select id="f-sem" name="semesterCode">${[...data.semesters].sort((a, b) => a.sortOrder - b.sortOrder).map(s => `<option value="${esc(s.code)}" ${(i.semesterCode || (siteYear === BANK_YEAR ? BANK_SEM : visibleSemesters().find(x => x.code !== BANK_SEM)?.code)) === s.code ? 'selected' : ''}>${esc(s.label)}</option>`).join('')}</select></div>
     <div class="field"><label for="f-slug">英文代碼（小寫英文與連字號，例如 medical-biology）</label><input id="f-slug" name="slug" maxlength="60" pattern="[a-z0-9]+(-[a-z0-9]+)*" value="${esc(i.slug || '')}"></div>
     ${admin.canManageMembers ? `<fieldset class="field owners"><legend>科目負責人（可上傳、修改、刪除這個科目的講義與試題）</legend>
       ${members ? members.filter(m => m.status === 'active' && m.role !== 'owner').map(m => `<label class="check"><input type="checkbox" name="owner" value="${m.id}" ${(i.owners || []).some(o => o.id === m.id) ? 'checked' : ''}> ${esc(m.displayName)} <small>${esc(m.email)}</small></label>`).join('') || '<p class="meta-label">名單上還沒有其他成員。</p>' : '<p class="meta-label">成員名單載入中…</p>'}

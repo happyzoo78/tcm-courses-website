@@ -23,7 +23,7 @@ function courseCard(c) {
 
 // 依年級分頁顯示科目卡（只顯示開放中的學期），資料再多頁面也不會無限變長
 function yearCoursesHtml() {
-  const sems = visibleSemesters().filter(s => coursesIn(s.code).length);
+  const sems = visibleSemesters().filter(s => s.code !== BANK_SEM && coursesIn(s.code).length);
   if (!sems.length) return '<p class="empty-note">目前沒有開放的科目。</p>';
   const tabs = yearTabsHtml(new Set(sems.map(s => yearOf(s.code))));
   return tabs + semestersOfYear(sems, siteYear).map(s => `
@@ -73,7 +73,7 @@ function recentUpdates(limit) {
 // 首頁主角：依年級顯示學習圖卡（每科最多 4 張，其餘到科目頁看）
 // 首頁學習圖卡：輪播以「學期」為一頁，每頁列出該學期所有科目（每科最多 3 張最新圖卡）
 function shelfCardsHtml() {
-  const sems = visibleSemesters().filter(s => coursesIn(s.code).length).sort((a, b) => a.sortOrder - b.sortOrder);
+  const sems = visibleSemesters().filter(s => s.code !== BANK_SEM && coursesIn(s.code).length).sort((a, b) => a.sortOrder - b.sortOrder);
   if (!sems.length) return '<p class="empty-note">目前沒有開放的科目。</p>';
   const shelf = c => {
     // 依章節的圖卡集排前面（新的章在前），再接單張圖卡
@@ -118,10 +118,11 @@ function shelfCardsHtml() {
 
 function homePage() {
   const open = new Set(visibleSemesters().map(s => s.code));
-  const shown = data.courses.filter(c => open.has(c.semesterCode));
+  const shown = data.courses.filter(c => open.has(c.semesterCode) && !isBankCourse(c));
+  const bankShown = data.courses.filter(c => open.has(c.semesterCode) && isBankCourse(c));
   const sum = f => shown.reduce((n, c) => n + f(c.id).length, 0);
   const totalPages = sum(pagesOf) + sum(filesOf);
-  const totalExams = sum(publishedExamsOf);
+  const totalExams = sum(publishedExamsOf) + bankShown.reduce((n, c) => n + publishedExamsOf(c.id).length, 0);
   const totalCards = sum(itemsOf) + shown.reduce((n, c) => n + deckCardCount(c.id), 0);
   const updates = recentUpdates(5);
   return `
@@ -178,8 +179,8 @@ function examZonePage() {
     routeParts = ['examzone'];
     history.replaceState(null, '', '#examzone');
   }
-  const sems = visibleSemesters();
-  const tabs = yearTabsHtml(new Set(sems.map(s => yearOf(s.code))));
+  const sems = visibleSemesters().filter(s => s.code !== BANK_SEM || coursesIn(s.code).length);
+  const tabs = yearTabsHtml(new Set(sems.map(s => yearOf(s.code))), null, true);
   const inYear = semestersOfYear(sems, siteYear);
   const courses = inYear.flatMap(sm => coursesIn(sm.code));
   const count = c => examsOf(c.id).length;
@@ -190,7 +191,7 @@ function examZonePage() {
   <div class="subj-rows">${subjChipsHtml(inYear, c.id, count, 'data-zone-course')}</div>
   <div class="exnav">
     <div class="exnav-top">
-      <h3 class="exnav-title"><a class="link" href="#course/${c.id}">${esc(c.title)}</a>${isExamSubject(c) ? ' <span class="exam-tag">執醫考科</span>' : ''}</h3>
+      <h3 class="exnav-title">${isBankCourse(c) ? esc(c.title) : `<a class="link" href="#course/${c.id}">${esc(c.title)}</a>`}${isExamSubject(c) ? ' <span class="exam-tag">執醫考科</span>' : ''}</h3>
       ${canEditCourseUI(c.id) ? `<a class="more-btn sec-link" href="#admin/exams/${c.id}">管理試題<span class="arr" aria-hidden="true">›</span></a>` : ''}
     </div>
     ${examBrowserHtml(c)}
