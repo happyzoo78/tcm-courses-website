@@ -481,7 +481,7 @@ fieldset.owners .check small { color: var(--muted); }
 .adminrow > div:first-child { min-width: 0; overflow-wrap: anywhere; }
 
 /* 中醫執業醫師考科標籤 */
-.exam-tag { display: inline-block; margin-left: 6px; padding: 1px 9px; border: 0; border-radius: var(--r-s); background: #9e3b2c; color: #fff8ee; font-size: 13px; font-family: inherit; font-weight: 700; letter-spacing: .06em; vertical-align: 3px; white-space: nowrap; }   /* 執醫考科：實心朱紅＋米白粗字（與 logo 印章同色，固定不隨深色模式變；擁有者 10-30 16:43） */
+.exam-tag { display: inline-block; margin-left: 6px; padding: 0 6px; border: 0; border-radius: var(--r-s); background: #9e3b2c; color: #fff8ee; font-size: 11px; font-weight: 700; line-height: 1.7; letter-spacing: .04em; vertical-align: 2px; white-space: nowrap; position: relative; top: 1px; }   /* 執醫考科：實心朱紅＋米白粗字（與 logo 印章同色，固定不隨深色模式變；擁有者 10-30 16:43） */
 
 /* 我的帳號 */
 .account { max-width: 560px; }
@@ -1178,5 +1178,5 @@ h2.section + .year-tabs ~ .sem-title, h2.section + .year-tabs ~ .cards { margin-
 .chap-note { margin: 4px 0 22px; }
 h2.section > .exam-tag { align-self: center; vertical-align: 0; }   /* 大標裡的「執醫考科」與大字垂直置中（小字仍齊底） */
 /* 小標（首頁圖卡架、科目卡）裡的執醫考科縮小，不比標題搶眼；大標裡維持原大小 */
-.shelf-head .exam-tag, .course h3 .exam-tag, .exnav-title .exam-tag { font-size: 11px; padding: 0 6px; line-height: 1.7; letter-spacing: .04em; vertical-align: 2px; position: relative; top: 1px; }   /* 宋體字形在字框裡偏低，標籤下移 1px 與字的實際筆畫置中 */
+/* 執醫考科全站同一尺寸（11px 黑體粗字、實心朱紅），大標小標都一樣（擁有者 10-30 16:52：統一設計元素）；下移 1px 對齊宋體筆畫 */
 .exam-tag { font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "Heiti TC", system-ui, sans-serif; }   /* 執醫考科用黑體（擁有者 10-30 16:50） */
