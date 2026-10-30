@@ -1163,3 +1163,12 @@ h2.section + .year-tabs ~ .sem-title, h2.section + .year-tabs ~ .cards { margin-
 .sub-block { margin: 0 14px; }
 .sub-block > .sec-title.sec-rule:first-child, .sub-block > .cgrp:first-child { margin-top: 8px; }
 @media (max-width: 720px) { .sub-block { margin: 0 8px; } }
+/* 章節圖卡頁依全站規範（擁有者 10-30 16:26）：章名用頁面大標（主副標細直條、整條分隔線）；
+   下面整組內縮；分組標題是第二層：底線改淡金色，分組之間虛線 */
+.chap-meta { margin: 0 0 22px; font-size: 14px; color: var(--muted); }
+.sub-block .cgrp-head { border-bottom-color: color-mix(in srgb, var(--gold) 30%, transparent); }
+.sub-block > .sec-title.sec-rule { border-bottom-color: color-mix(in srgb, var(--gold) 30%, transparent); }
+.cgrp-head { align-items: baseline; }
+.cgrp-name { font-size: 19px; }
+.cgrp-count { font-size: 14px; color: var(--muted); }
+.cgrp-count::before { content: ""; display: inline-block; width: 2px; height: 16px; margin-right: 10px; vertical-align: -3px; border-radius: 1px; background: color-mix(in srgb, var(--gold) 32%, transparent); }

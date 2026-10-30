@@ -436,17 +436,12 @@ function cardsPage() {
   const ch = d.chapters[i], prev = d.chapters[i - 1], next = d.chapters[i + 1];
   let n = 0;
   return `
-  <div class="chap-head">
-    <div class="chap-title">
-      <span class="eyebrow">${esc(c.title)} · ${chapLabel(ch)}</span>
-      <h2>${esc(ch.title)}${ch.subtitle ? ` <small>${esc(ch.subtitle)}</small>` : ''}</h2>
-      <p class="dc-meta">${ch.cards.length} 張圖卡${ch.date ? ' · 上課日期 ' + esc(ch.date) : ''} · 點圖可看大圖</p>
-    </div>
-  </div>
+  <h2 class="section chap-h2">${chapLabel(ch)}　${esc(ch.title)}${ch.subtitle ? ` <small>${esc(ch.subtitle)}</small>` : ''}</h2>
   <div class="sub-block">
+  <p class="chap-meta">${ch.cards.length} 張圖卡${ch.date ? ' · 上課日期 ' + esc(ch.date) : ''} · 點圖可看大圖</p>
   ${ch.groups.map(g => `
   <section class="cgrp">
-    <div class="cgrp-head"><span class="cgrp-name">${esc(g.name)}</span><span class="cgrp-count">${g.cards.length} 張</span>${g.note ? `<span class="cgrp-note">${esc(g.note)}</span>` : ''}</div>
+    <div class="cgrp-head"><span class="cgrp-name">${esc(g.name)}</span><span class="cgrp-count">${g.cards.length} 張${g.note ? `　${esc(g.note)}` : ''}</span></div>
     <div class="cgrid">${g.cards.map(x => `
       <button type="button" class="ccard" data-card="${n++}">
         <span class="cc-thumb"><img src="${esc(x.thumb)}" alt="" loading="lazy"></span>
