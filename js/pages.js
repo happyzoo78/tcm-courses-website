@@ -228,8 +228,7 @@ function coursePage() {
   </div>` : ''}
   ${deck ? `
   <h3 class="sec-title sec-rule">各章節圖卡 <small>${deck.chapters.length} 章 · ${deckCardCount(c.id)} 張</small></h3>
-  <div class="note-box deck-note"><span class="note-lab">使用方式</span>選一章點<strong>「看圖卡」</strong>進入該章的圖卡，點圖可看大圖；看完圖卡，頁面最下方有<strong>「做這章的試題 ›」</strong>，直接到學習試題作答。</div>
-  ${CARD_AI_NOTE}
+  <div class="note-box deck-note"><div class="note-part"><span class="note-lab">使用方式</span>選一章點<strong>「看圖卡」</strong>進入該章的圖卡，點圖可看大圖；看完圖卡，頁面最下方有<strong>「做這章的試題 ›」</strong>，直接到學習試題作答。</div>${CARD_AI_NOTE}</div>
   ${deckChaptersHtml(c, deck)}` : ''}
   ${items.length ? `
   <h3 class="sec-title sec-rule">${deck ? '其他圖卡' : '圖卡'}<a class="more-btn sec-link" href="#items/${c.id}">搜尋圖卡<span class="arr" aria-hidden="true">›</span></a></h3>
@@ -403,8 +402,8 @@ function welcomePage() {
    圖卡集（依章節）：#cards/科目 → 總目錄；#cards/科目/章號 → 章節圖卡；點縮圖看大圖
    圖檔與清單放在 content/courses/{學期}/{科目}/cards/（cards.json），由 manifest.json 的 decks 登記
    ========================================================= */
-// 圖卡提醒（總目錄與各章節頁共用）
-const CARD_AI_NOTE = `<div class="note-box card-ai-note"><span class="note-lab">提醒</span>圖卡由 AI 協助製作，難免會有錯字或疏漏。複習時請<strong>搭配上課 PPT 和課本一起對照</strong>，不要只看圖卡。<br>發現錯誤時，請<strong>在班群告知是哪一張圖卡、哪裡有錯</strong>（例如「第 02 章 02-08 第③區」），科目負責人會盡快安排修正。謝謝大家的配合！</div>`;
+// 圖卡提醒（總目錄與各章節頁共用）：放在「使用方式」同一個框裡，用虛線分開
+const CARD_AI_NOTE = `<div class="note-part"><span class="note-lab">提醒</span>圖卡由 AI 協助製作，難免會有錯字或疏漏。複習時請<strong>搭配上課 PPT 和課本一起對照</strong>，不要只看圖卡。<br>發現錯誤時，請<strong>在班群告知是哪一張圖卡、哪裡有錯</strong>（例如「第 02 章 02-08 第③區」），科目負責人會盡快安排修正。謝謝大家的配合！</div>`;
 const CARD_TAG_KIND = { '總複習': 'sum', '老師強調': 'hot', '易混淆': 'mix', '自我檢測': 'quiz', '補充': 'ext' };
 const cardTagsHtml = tags => (tags || []).map(t => `<span class="ctag ${CARD_TAG_KIND[t] || ''}">${esc(t)}</span>`).join('');
 const chapLabel = ch => `第 ${esc(ch.no)} 章`;
@@ -442,8 +441,7 @@ function cardsPage() {
   return `
   <h2 class="section chap-h2">${chapLabel(ch)}　${esc(ch.title)}${ch.subtitle ? ` <small>${esc(ch.subtitle)}</small>` : ''}</h2>
   <div class="sub-block">
-  <div class="note-box chap-note"><span class="note-lab">使用方式</span>本章共 <strong>${ch.cards.length} 張圖卡</strong>，分 ${ch.groups.length} 組${ch.date ? `（上課日期 ${esc(ch.date)}）` : ''}。點縮圖可<strong>看大圖</strong>，大圖可左右滑動換張、點圖放大；${chapHasExams(c, ch.no) ? '看完後，頁面最下方可<strong>直接做這章的試題</strong>。' : '建議依分組順序閱讀。'}</div>
-  ${CARD_AI_NOTE}
+  <div class="note-box chap-note"><div class="note-part"><span class="note-lab">使用方式</span>本章共 <strong>${ch.cards.length} 張圖卡</strong>，分 ${ch.groups.length} 組${ch.date ? `（上課日期 ${esc(ch.date)}）` : ''}。點縮圖可<strong>看大圖</strong>，大圖可左右滑動換張、點圖放大；${chapHasExams(c, ch.no) ? '看完後，頁面最下方可<strong>直接做這章的試題</strong>。' : '建議依分組順序閱讀。'}</div>${CARD_AI_NOTE}</div>
   ${ch.groups.map(g => `
   <section class="cgrp">
     <div class="cgrp-head"><span class="cgrp-name">${esc(g.name)}</span><span class="cgrp-count">${g.cards.length} 張${g.note ? `　${esc(g.note)}` : ''}</span></div>
