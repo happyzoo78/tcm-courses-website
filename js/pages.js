@@ -214,6 +214,7 @@ function coursePage() {
   const pages = [...list, ...filesOf(c.id).map(f => ({ url: f.path, title: f.title, description: f.description || '', updatedAt: f.updated, updatedBy: '', file: true }))];
   return `
   <h2 class="section">${esc(c.title)} · 圖卡總目錄${isExamSubject(c) ? ' <span class="exam-tag">執醫考科</span>' : ''} <small>${esc(semesterLabel(c.semesterCode))}${c.owners?.length ? `　負責人：${c.owners.map(o => esc(o.name)).join('、')}` : ''}</small></h2>
+  <div class="sub-block">
   ${pages.length ? `
   <h3 class="sec-title">講義</h3>
   <div class="pagelist">
@@ -232,7 +233,8 @@ function coursePage() {
   <h3 class="sec-title sec-rule">${deck ? '其他圖卡' : '圖卡'}<a class="more-btn sec-link" href="#items/${c.id}">搜尋圖卡<span class="arr" aria-hidden="true">›</span></a></h3>
   <div class="itemgrid">${items.map(i => itemCard(i, 'item')).join('')}</div>` : ''}
   ${!deck && !items.length ? '<p class="empty-note">這個科目還沒有圖卡。</p>' : ''}
-  ${courseExamJumpHtml(c)}`;
+  ${courseExamJumpHtml(c)}
+  </div>`;
 }
 
 // 科目頁最下方：試題只放連結（點了到「學習試題」並選好這一科；管理試題在學習試題頁與後台）
@@ -441,6 +443,7 @@ function cardsPage() {
       <p class="dc-meta">${ch.cards.length} 張圖卡${ch.date ? ' · 上課日期 ' + esc(ch.date) : ''} · 點圖可看大圖</p>
     </div>
   </div>
+  <div class="sub-block">
   ${ch.groups.map(g => `
   <section class="cgrp">
     <div class="cgrp-head"><span class="cgrp-name">${esc(g.name)}</span><span class="cgrp-count">${g.cards.length} 張</span>${g.note ? `<span class="cgrp-note">${esc(g.note)}</span>` : ''}</div>
@@ -458,7 +461,8 @@ function cardsPage() {
   ${prev || next ? `<nav class="chap-pager" aria-label="上一章／下一章">
     ${prev ? `<a class="btn secondary" href="#cards/${c.id}/${esc(prev.no)}">‹ ${chapLabel(prev)} ${esc(prev.title)}</a>` : '<span></span>'}
     ${next ? `<a class="btn secondary" href="#cards/${c.id}/${esc(next.no)}">${chapLabel(next)} ${esc(next.title)} ›</a>` : '<span></span>'}
-  </nav>` : ''}`;
+  </nav>` : ''}
+  </div>`;
 }
 
 // 看大圖（共用）：章節圖卡頁、試題解析的「對照圖卡」都用這個

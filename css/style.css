@@ -1159,3 +1159,7 @@ h2.section + .year-tabs + .subj-rows, h2.section + .year-tabs + .subj-rows + .ex
 /* 學習科目頁：年級分頁下的學期標題與科目卡也一起內縮，與年級分頁左右對齊成一體（擁有者 10-30 16:23） */
 h2.section + .year-tabs ~ .sem-title, h2.section + .year-tabs ~ .cards { margin-left: 14px; margin-right: 14px; }
 @media (max-width: 720px) { h2.section + .year-tabs ~ .sem-title, h2.section + .year-tabs ~ .cards { margin-left: 8px; margin-right: 8px; } }
+/* 大標下面的內容區塊整組內縮（圖卡總目錄、章節圖卡頁），表示是大標底下的一個區塊（擁有者 10-30 16:24） */
+.sub-block { margin: 0 14px; }
+.sub-block > .sec-title.sec-rule:first-child, .sub-block > .cgrp:first-child { margin-top: 8px; }
+@media (max-width: 720px) { .sub-block { margin: 0 8px; } }
