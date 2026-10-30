@@ -13,6 +13,12 @@
       "course": "histology-embryology",
       "courseTitle": "組織學與胚胎學",
       "path": "/content/courses/2026_y1s1/histology-embryology/cards/cards.json"
+    },
+    {
+      "semester": "2026_y1s1",
+      "course": "medical-biology",
+      "courseTitle": "醫學生物學",
+      "path": "/content/courses/2026_y1s1/medical-biology/cards/cards.json"
     }
   ],
   "examCategories": [
