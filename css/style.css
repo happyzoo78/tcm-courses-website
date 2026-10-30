@@ -858,9 +858,9 @@ fieldset.owners .check small { color: var(--muted); }
 /* 首頁：學習圖卡（每個書架一塊，兩欄；每架最多 4 張小卡） */
 .shelves { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 /* 科目卡片（首頁「學習圖卡」）：左下維持原底色，往右上角漸亮成淡金色（2026-10-30 方案 C） */
-:root { --shelf-glow: rgba(184,142,72,.17); }
-:root[data-theme="dark"] { --shelf-glow: rgba(201,169,110,.16); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --shelf-glow: rgba(201,169,110,.16); } }
+:root { --shelf-glow: rgba(138,115,80,.10); }
+:root[data-theme="dark"] { --shelf-glow: rgba(138,115,80,.12); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --shelf-glow: rgba(138,115,80,.12); } }
 .shelf { padding: 16px 18px; border: 1px solid var(--line); border-radius: var(--r-l); background: linear-gradient(to top right, rgba(201,169,110,0) 35%, var(--shelf-glow) 100%), var(--surface); display: flex; flex-direction: column; }
 .shelf-head { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }   /* 科目卡標題列與內容分開 */
 .shelf-head h4 { margin: 0; font-family: "Noto Serif TC", "Noto Serif CJK TC", "Source Han Serif TC", "Songti TC", "STSong", "Songti SC", "SimSun", "PMingLiU", serif; font-size: 19px; display: flex; align-items: center; gap: 8px; }
