@@ -438,7 +438,7 @@ function cardsPage() {
   return `
   <h2 class="section chap-h2">${chapLabel(ch)}　${esc(ch.title)}${ch.subtitle ? ` <small>${esc(ch.subtitle)}</small>` : ''}</h2>
   <div class="sub-block">
-  <p class="chap-meta">${ch.cards.length} 張圖卡${ch.date ? ' · 上課日期 ' + esc(ch.date) : ''} · 點圖可看大圖</p>
+  <div class="note-box chap-note"><span class="note-lab">使用方式</span>本章共 <strong>${ch.cards.length} 張圖卡</strong>，分 ${ch.groups.length} 組${ch.date ? `（上課日期 ${esc(ch.date)}）` : ''}。點縮圖可<strong>看大圖</strong>，大圖可左右滑動換張、點圖放大；${chapHasExams(c, ch.no) ? '看完後，頁面最下方可<strong>直接做這章的試題</strong>。' : '建議依分組順序閱讀。'}</div>
   ${ch.groups.map(g => `
   <section class="cgrp">
     <div class="cgrp-head"><span class="cgrp-name">${esc(g.name)}</span><span class="cgrp-count">${g.cards.length} 張${g.note ? `　${esc(g.note)}` : ''}</span></div>

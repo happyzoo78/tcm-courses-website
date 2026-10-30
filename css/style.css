@@ -1175,3 +1175,4 @@ h2.section + .year-tabs ~ .sem-title, h2.section + .year-tabs ~ .cards { margin-
 /* 聯絡管理員表單、我的帳號面板：大標下的內容物，一樣內縮（擁有者 10-30 16:30） */
 .panel.contact, .panel.account, h2.section + .msg { margin-left: 14px; margin-right: 14px; }
 @media (max-width: 720px) { .panel.contact, .panel.account, h2.section + .msg { margin-left: 8px; margin-right: 8px; } }
+.chap-note { margin: 4px 0 22px; }
