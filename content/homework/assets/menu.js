@@ -137,7 +137,7 @@ const HW_DATA = [
     .logo-sub { display: none !important; }
     html { scroll-padding-top: 120px !important; }
   }
-  .seal { width: 34px; height: 34px; background: #9e3b2c; color: #fff8ee; font-size: 20px; font-weight: 700; line-height: 1; font-family: "Noto Serif TC", "Noto Serif CJK TC", "Source Han Serif TC", "Songti TC", "STSong", "Songti SC", "SimSun", "PMingLiU", serif; box-shadow: inset 0 0 0 1.5px #fff8ee55; }   /* 印章「醫」與主站一致 */
+  .seal { width: 34px; height: 34px; background: #9e3b2c; color: #fff8ee; font-size: 20px; font-weight: 700; line-height: 1; font-family: "Noto Serif TC", "Noto Serif CJK TC", "Source Han Serif TC", "Songti TC", "STSong", "Songti SC", "SimSun", "PMingLiU", serif; }   /* 印章「醫」與主站一致 */
   footer { text-align: center; }   /* 頁尾文字置中（與主站一致） */
   /* 作業專區首頁 */
   /* 年級分頁：文字＋底線（與主站一致） */
