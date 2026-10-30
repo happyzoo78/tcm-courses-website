@@ -1045,7 +1045,7 @@ details.forgot > summary { cursor: pointer; color: var(--accent); font-size: 14.
 .chap-title h2 { margin: 4px 0 2px; font-size: 26px; }
 .chap-title h2 small { font-size: 16px; font-weight: 400; color: var(--muted); margin-left: 6px; }
 
-.cgrp + .cgrp { margin-top: 26px; }
+.cgrp + .cgrp { margin-top: 30px; padding-top: 26px; border-top: 1px dashed color-mix(in srgb, var(--muted) 45%, transparent); }   /* 圖卡分組之間用虛線分開 */
 .cgrp-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
 .cgrp-name { font-size: 18px; font-weight: 700; color: var(--accent); }
 .cgrp-count { font-size: 13px; color: var(--muted); }

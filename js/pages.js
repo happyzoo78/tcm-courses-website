@@ -140,6 +140,7 @@ function homePage() {
   <h2 class="section">學習圖卡 <small class="motto">博觀約取，厚積薄發</small></h2>
   ${shelfCardsHtml()}
 
+  <hr class="block-sep" aria-hidden="true">
   <h2 class="section">最新更新 <small class="motto">日新又新，學無止境</small></h2>
   <div class="upd-list">
     ${updates.map(u => `
@@ -151,6 +152,7 @@ function homePage() {
       </a>`).join('') || '<p class="empty-note">目前沒有更新紀錄。</p>'}
   </div>
 
+  <hr class="block-sep" aria-hidden="true">
   <h2 class="section">使用說明 <small class="motto">按圖索驥，循序漸進</small></h2>
   <div class="panel prose">
     <p><b>瀏覽方式：</b>本站依科目整理，每個科目收著該科的圖卡與試題。上方「學習科目」依年級找科目；「學習試題」集中所有可線上作答的試題；「作業專區」不用登入也能看。</p>
