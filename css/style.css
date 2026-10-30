@@ -167,7 +167,7 @@ h2.section + .year-tabs { margin-left: 14px; margin-right: 14px; box-shadow: ins
 .cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
 .course {
   display: flex; min-height: 210px;
-  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-l);
+  background: linear-gradient(to top right, rgba(201,169,110,0) 35%, var(--shelf-glow) 100%), var(--surface);   /* 與首頁科目卡同一組漸層（方案 C3，顏色在 --shelf-glow） */ border: 1px solid var(--line); border-radius: var(--r-l);
   overflow: hidden; box-shadow: var(--shadow);
   transition: transform .15s, box-shadow .15s;
 }
