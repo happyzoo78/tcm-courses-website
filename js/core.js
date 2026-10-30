@@ -345,56 +345,31 @@ const COVER_ART = (() => {
 </svg>`;
   };
 })();
+// 首頁／關於本站大圖：原創水墨山水（與科目卡封面同一套語言）。左側淡出，不壓到標題文字
 const HERO_ART = `<svg class="hero-art" viewBox="0 0 640 300" preserveAspectRatio="xMaxYMax slice" aria-hidden="true">
   <defs>
-    <radialGradient id="ha-glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="var(--gold)" stop-opacity=".22"/><stop offset="1" stop-color="var(--gold)" stop-opacity="0"/></radialGradient>
-    <g id="ha-leaf"><path d="M0 0 C6 -10 6 -26 0 -36 C-6 -26 -6 -10 0 0 Z"/></g>
-    <g id="ha-palm"><use href="#ha-leaf"/><use href="#ha-leaf" transform="rotate(-38) scale(.8)"/><use href="#ha-leaf" transform="rotate(38) scale(.8)"/><use href="#ha-leaf" transform="rotate(-74) scale(.55)"/><use href="#ha-leaf" transform="rotate(74) scale(.55)"/></g>
+    <linearGradient id="hw-fade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".35" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff"/></linearGradient>
+    <mask id="hw-mask"><rect width="640" height="300" fill="url(#hw-fade)"/></mask>
+    <linearGradient id="hw-m1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--ink-wash)" stop-opacity=".9"/><stop offset=".6" stop-color="var(--ink-wash)" stop-opacity=".35"/><stop offset="1" stop-color="var(--ink-wash)" stop-opacity="0"/></linearGradient>
+    <linearGradient id="hw-m2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--ink-wash)" stop-opacity=".55"/><stop offset="1" stop-color="var(--ink-wash)" stop-opacity="0"/></linearGradient>
+    <linearGradient id="hw-m3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--ink-wash)" stop-opacity=".3"/><stop offset="1" stop-color="var(--ink-wash)" stop-opacity="0"/></linearGradient>
+    <radialGradient id="hw-sun"><stop offset="0" stop-color="#c4553f" stop-opacity=".8"/><stop offset=".7" stop-color="#c4553f" stop-opacity=".6"/><stop offset="1" stop-color="#c4553f" stop-opacity="0"/></radialGradient>
+    <filter id="hw-blur" x="-5%" y="-10%" width="110%" height="120%"><feGaussianBlur stdDeviation="2"/></filter>
   </defs>
-  <!-- 八卦太極環 -->
-  <g transform="translate(450 138)">
-    <circle r="150" fill="url(#ha-glow)"/>
-    <circle r="112" fill="none" stroke="var(--gold)" stroke-opacity=".30" stroke-width="1.2"/>
-    <circle r="92" fill="none" stroke="var(--gold)" stroke-opacity=".22" stroke-width="1"/>
-    <g stroke="var(--gold)" stroke-opacity=".38" stroke-width="3" stroke-linecap="butt">
-      ${[[1,1,1],[1,1,0],[1,0,1],[1,0,0],[0,0,0],[0,0,1],[0,1,0],[0,1,1]].map((t, i) => `<g transform="rotate(${i * 45}) translate(0 -102)">${t.map((y, j) => y ? `<line x1="-9" y1="${j * 5 - 5}" x2="9" y2="${j * 5 - 5}"/>` : `<line x1="-9" y1="${j * 5 - 5}" x2="-2.5" y2="${j * 5 - 5}"/><line x1="2.5" y1="${j * 5 - 5}" x2="9" y2="${j * 5 - 5}"/>`).join('')}</g>`).join('')}
+  <g mask="url(#hw-mask)">
+    <circle cx="470" cy="78" r="30" fill="url(#hw-sun)"/>
+    <g filter="url(#hw-blur)">
+      <path d="M-20 300 L-20 190 C60 186 120 184 170 172 C170 172 200 140 236 132 C262 126 276 152 300 156 C330 160 350 118 382 110 C410 103 428 140 456 146 C486 152 506 120 540 116 C570 112 600 140 660 136 L660 300 Z" fill="url(#hw-m3)"/>
+      <path d="M-20 300 L-20 224 C60 220 120 214 186 206 C186 206 214 176 250 170 C276 166 292 192 318 198 C350 205 372 160 404 152 C430 146 446 182 474 188 C504 194 524 168 556 164 C590 160 620 186 660 182 L660 300 Z" fill="url(#hw-m2)"/>
+      <path d="M-20 300 L-20 256 C80 254 160 250 240 240 C240 240 262 214 292 210 C316 207 330 230 352 236 C380 243 398 206 426 200 C450 195 464 226 490 232 C516 238 536 214 562 210 C590 206 612 226 660 222 L660 300 Z" fill="url(#hw-m1)"/>
     </g>
-    <g transform="rotate(-20)" opacity=".42">
-      <circle r="44" fill="var(--surface)" stroke="var(--ink)" stroke-opacity=".35" stroke-width="1"/>
-      <path d="M0 -44 A44 44 0 0 1 0 44 A22 22 0 0 1 0 0 A22 22 0 0 0 0 -44 Z" fill="var(--accent)"/>
-      <circle cy="-22" r="6" fill="var(--accent)"/>
-      <circle cy="22" r="6" fill="var(--surface)"/>
+    <path d="M300 156 C304 176 302 196 306 214 M404 152 C400 172 404 192 398 214 M556 164 C552 184 556 204 550 224" fill="none" stroke="var(--ink-wash)" stroke-width=".8" opacity=".35"/>
+    <g fill="none" stroke="var(--ink-wash)" stroke-linecap="round" opacity=".75">
+      <path d="M660 22 C620 30 590 44 560 70 C548 80 540 84 528 88" stroke-width="3"/>
+      <path d="M612 34 C606 20 610 10 600 0" stroke-width="1.6"/><path d="M584 52 C572 46 560 48 548 42" stroke-width="1.4"/>
+      <path d="M560 70 C556 82 558 92 552 102" stroke-width="1.2"/><path d="M528 88 C518 90 512 96 504 96" stroke-width="1"/>
     </g>
-  </g>
-  <!-- 銀針三枚 -->
-  <g stroke-linecap="round" opacity=".7">
-    ${[[372, 196, 48], [386, 200, 40], [400, 206, 32]].map(([x, y, r]) => `<g transform="translate(${x} ${y}) rotate(${r})"><line x1="0" y1="0" x2="0" y2="96" stroke="var(--muted)" stroke-width="1.2"/><rect x="-2.6" y="-26" width="5.2" height="26" rx="2" fill="none" stroke="var(--gold)" stroke-width="1.4"/><line x1="-2.6" y1="-20" x2="2.6" y2="-17" stroke="var(--gold)" stroke-width="1"/><line x1="-2.6" y1="-13" x2="2.6" y2="-10" stroke="var(--gold)" stroke-width="1"/><line x1="-2.6" y1="-6" x2="2.6" y2="-3" stroke="var(--gold)" stroke-width="1"/></g>`).join('')}
-  </g>
-  <!-- 懸壺（葫蘆） -->
-  <g transform="translate(600 0)">
-    <line x1="0" y1="0" x2="0" y2="40" stroke="var(--gold)" stroke-opacity=".6" stroke-width="1.4"/>
-    <path d="M0 40 C8 40 12 46 12 53 C12 60 7 64 5 67 C18 71 26 82 26 94 C26 110 14 118 0 118 C-14 118 -26 110 -26 94 C-26 82 -18 71 -5 67 C-7 64 -12 60 -12 53 C-12 46 -8 40 0 40 Z" fill="var(--red)" fill-opacity=".30" stroke="var(--red)" stroke-opacity=".55" stroke-width="1.2"/>
-    <path d="M-6 66 Q0 69 6 66" fill="none" stroke="var(--gold)" stroke-opacity=".8" stroke-width="2.4"/><path d="M0 118 L0 128 M-3 128 L3 128 M-4 128 C-6 138 -4 146 -2 150 M4 128 C6 138 4 146 2 150" fill="none" stroke="var(--red)" stroke-opacity=".5" stroke-width="1.2"/>
-    <path d="M-15 84 C-18 94 -15 104 -9 110" fill="none" stroke="var(--surface)" stroke-opacity=".5" stroke-width="2"/>
-  </g>
-  <!-- 藥碾 -->
-  <g transform="translate(380 266)" opacity=".75">
-    <path d="M0 0 L150 0 C142 18 120 30 75 30 C30 30 8 18 0 0 Z" fill="var(--ink)" fill-opacity=".12" stroke="var(--ink)" stroke-opacity=".30" stroke-width="1.2"/>
-    <path d="M18 2 C30 16 120 16 132 2" fill="none" stroke="var(--ink)" stroke-opacity=".22" stroke-width="1"/>
-    <circle cx="75" cy="-2" r="20" fill="var(--surface)" fill-opacity=".6" stroke="var(--ink)" stroke-opacity=".35" stroke-width="1.4"/>
-    <circle cx="75" cy="-2" r="4" fill="var(--ink)" fill-opacity=".35"/>
-    <line x1="22" y1="-2" x2="128" y2="-2" stroke="var(--ink)" stroke-opacity=".35" stroke-width="3" stroke-linecap="round"/>
-  </g>
-  <!-- 人參：掌狀複葉＋紅果 -->
-  <g transform="translate(560 300)">
-    <path d="M0 0 C-4 -50 -2 -96 6 -140" fill="none" stroke="var(--accent)" stroke-opacity=".6" stroke-width="2"/>
-    <path d="M2 -96 C-16 -104 -32 -108 -48 -104" fill="none" stroke="var(--accent)" stroke-opacity=".55" stroke-width="1.6"/>
-    <path d="M3 -96 C20 -106 36 -108 54 -100" fill="none" stroke="var(--accent)" stroke-opacity=".55" stroke-width="1.6"/>
-    <g fill="var(--accent)" fill-opacity=".34">
-      <use href="#ha-palm" transform="translate(-48 -104) rotate(-60)"/>
-      <use href="#ha-palm" transform="translate(54 -100) rotate(60)"/>
-      <use href="#ha-palm" transform="translate(4 -112) scale(.9)"/>
-    </g>
-    ${[[6,-146],[0,-152],[12,-152],[6,-158],[-2,-160],[14,-160],[6,-166]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="4" fill="var(--red)" fill-opacity=".65"/>`).join('')}
+    <g fill="#c4553f" opacity=".5"><circle cx="600" cy="2" r="3"/><circle cx="548" cy="42" r="2.6"/><circle cx="552" cy="102" r="2.4"/><circle cx="504" cy="96" r="2.2"/><circle cx="622" cy="26" r="2.4"/><circle cx="574" cy="58" r="2"/></g>
+    <g fill="none" stroke="var(--ink-wash)" stroke-width="1.1" stroke-linecap="round" opacity=".6"><path d="M352 96 q5 -5 10 0 q5 -5 10 0"/><path d="M380 84 q4 -4 8 0 q4 -4 8 0"/><path d="M336 110 q3 -3 6 0 q3 -3 6 0"/></g>
   </g>
 </svg>`;
