@@ -160,7 +160,9 @@ h2.section {
   display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 14px;
 }
 h2.section small { font-family: inherit; font-size: 14px; font-weight: normal; color: var(--muted); letter-spacing: 0; }
-h2.section:has(+ .year-tabs) { border-bottom: 0; padding-bottom: 0; margin-bottom: 6px; }   /* 下面緊接年級分頁（自帶底線）時，不重複畫線 */
+h2.section:has(+ .year-tabs) { margin-bottom: 4px; }
+/* 大標下緊接年級分頁：大標保留整條分隔線；年級分頁的底線左右縮短、改淡金色，表示是下一層（擁有者 10-30 16:17） */
+h2.section + .year-tabs { margin-left: 14px; margin-right: 14px; box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--gold) 30%, transparent); }
 
 /* 科目卡片 */
 .cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
@@ -1150,3 +1152,4 @@ header.compact .logo, header.compact .actions { visibility: hidden; transition: 
 .block-sep + h2.section { margin-top: 28px; }
 /* 頁面大標：大字與小字之間放一塊淡色直條，分開主標與副標（擁有者 10-30 15:55） */
 h2.section > small::before { content: ""; display: inline-block; width: 3px; height: 28px; margin-right: 12px; vertical-align: -5px; border-radius: 2px; background: color-mix(in srgb, var(--gold) 32%, transparent); }   /* 細直條：比 24px 大字長一點點；小字與大字齊底（h2 以 baseline 對齊） */
+@media (max-width: 720px) { h2.section + .year-tabs { margin-left: 8px; margin-right: 8px; } }
