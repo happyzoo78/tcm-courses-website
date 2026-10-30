@@ -69,6 +69,10 @@ const HW_DATA = [
   /* ---------- 樣式 ---------- */
   const css = `
   .hw-menu { border-top: 1px solid var(--line); background: var(--surface); }
+  .hw-crumbs { margin: 0 0 18px; padding-bottom: 10px; border-bottom: 1px dashed color-mix(in srgb, var(--line) 85%, transparent); font-size: 14px; color: var(--muted); }
+  .hw-crumbs ol { display: flex; flex-wrap: wrap; align-items: center; margin: 0; padding: 0; list-style: none; }
+  .hw-crumbs li + li::before { content: "›"; margin: 0 8px; font-weight: 700; color: color-mix(in srgb, var(--muted) 70%, transparent); }
+  .hw-crumbs [aria-current="page"] { color: var(--ink); font-weight: 600; }
   .hw-menu-home { display: none; }   /* 作業專區首頁：頁面本身就有年級／學期／科目選單，不再顯示這條 */
   .hw-row { max-width: 1240px; margin: 0 auto; padding: 6px 20px; display: flex; align-items: center; gap: 8px; min-height: 46px; }
   /* 按鈕與主站一致：次要＝淡綠底＋綠框，目前所在科目＝實心綠 */
@@ -194,6 +198,17 @@ const HW_DATA = [
     : '<div class="hw-empty">尚无作业</div>';
   const subjBox = s => `<div class="hw-subj"><h4>${esc(s.name)}${examTag(s)}</h4>${workList(s)}</div>`;
   const countWorks = se => se.subjects.reduce((n, s) => n + s.works.length, 0);
+
+  /* ---------- 階層路線：首頁 › 作業專區 › 科目 › 作業名稱（只列位置，不做連結；擁有者 10-30 18:27） ---------- */
+  const curWork = curSubj && curSubj.works.find(isCur);
+  const mainEl = document.querySelector('main');
+  if (!atHwHome && curWork && mainEl && !mainEl.querySelector('.hw-crumbs')) {
+    const cr = document.createElement('nav');
+    cr.className = 'hw-crumbs'; cr.setAttribute('aria-label', '目前位置');
+    cr.innerHTML = `<ol><li>首页</li><li>作业专区</li><li>${esc(curSubj.name)}</li><li aria-current="page">${esc(curWork.title)}</li></ol>`;
+    mainEl.insertBefore(cr, mainEl.firstChild);
+    if (window.__hwAfterRender) window.__hwAfterRender(cr);
+  }
 
   /* ---------- 選單 ---------- */
   const nav = document.getElementById('hw-menu');
