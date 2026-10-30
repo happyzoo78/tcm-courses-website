@@ -1,5 +1,5 @@
 {
-  "說明": "Claude 代為上傳到 content/courses/ 的清單。files＝網頁（semester、course、title、path、description、updated）；decks＝依章節圖卡集；syllabi＝各科章節表（試題、圖卡共用的標準章號與章名）；examCategories＝全站試題分類（code 代碼、name 顯示名稱、aliases 舊名稱、note 分類說明；各科可在章節表 categories 增加自己的分類、categoryNotes 改寫說明）。 scope 為 bank 的分類只用在執醫題庫（特別學期 zy_bank）。",
+  "說明": "Claude 代為上傳到 content/courses/ 的清單。files＝網頁（semester、course、title、path、description、updated）；decks＝依章節圖卡集；syllabi＝各科章節表（試題、圖卡共用的標準章號與章名）；examCategories＝全站試題分類（code 代碼、name 顯示名稱、aliases 舊名稱、note 分類說明；各科可在章節表 categories 增加自己的分類、categoryNotes 改寫說明）。 scope 為 bank 的分類只用在執醫考題（特別學期 zy_bank）。",
   "files": [],
   "decks": [
     {
