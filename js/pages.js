@@ -138,11 +138,11 @@ function homePage() {
   </section>
 
   <h2 class="section">學習圖卡 <small class="motto">博觀約取，厚積薄發</small></h2>
-  ${shelfCardsHtml()}
+  <div class="sub-block">${shelfCardsHtml()}</div>
 
   <hr class="block-sep" aria-hidden="true">
   <h2 class="section">最新更新 <small class="motto">日新又新，學無止境</small></h2>
-  <div class="upd-list">
+  <div class="sub-block"><div class="upd-list">
     ${updates.map(u => `
       <a class="upd-row" href="${esc(u.href)}" title="${esc(u.desc || u.title)}">
         <time>${esc(u.date.slice(5))}</time>
@@ -150,15 +150,15 @@ function homePage() {
         <span class="upd-course">${esc(courseName(u.courseId))}</span>
         <span class="upd-title">${esc(u.title)}</span>
       </a>`).join('') || '<p class="empty-note">目前沒有更新紀錄。</p>'}
-  </div>
+  </div></div>
 
   <hr class="block-sep" aria-hidden="true">
   <h2 class="section">使用說明 <small class="motto">按圖索驥，循序漸進</small></h2>
-  <div class="panel prose">
+  <div class="sub-block"><div class="panel prose">
     <p><b>瀏覽方式：</b>本站依科目整理，每個科目收著該科的圖卡與試題。上方「學習科目」依年級找科目；「學習試題」集中所有可線上作答的試題；「作業專區」不用登入也能看。</p>
     ${hasAdminAccess() ? `<p><b>資料管理：</b>點右上角「管理後台」，可以出題${admin.canWrite ? '，或新增修改科目與圖卡' : '（限你負責的科目）'}。</p>` : ''}
     <p><b>使用範圍：</b>本站內容僅供班級成員學習使用，請勿轉貼或外流，並尊重教材著作權。</p>
-  </div>`;
+  </div></div>`;
 }
 
 const zoneCourseSel = {};   // 每個年級目前選的科目
