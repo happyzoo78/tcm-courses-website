@@ -481,7 +481,7 @@ fieldset.owners .check small { color: var(--muted); }
 .adminrow > div:first-child { min-width: 0; overflow-wrap: anywhere; }
 
 /* 中醫執業醫師考科標籤 */
-.exam-tag { display: inline-block; margin-left: 6px; padding: 0 8px; border: 1px solid var(--red); border-radius: var(--r-s); color: var(--red); font-size: 13px; font-family: inherit; font-weight: 600; vertical-align: 3px; white-space: nowrap; }
+.exam-tag { display: inline-block; margin-left: 6px; padding: 1px 9px; border: 0; border-radius: var(--r-s); background: #9e3b2c; color: #fff8ee; font-size: 13px; font-family: inherit; font-weight: 700; letter-spacing: .06em; vertical-align: 3px; white-space: nowrap; box-shadow: inset 0 0 0 1px #fff8ee33; }   /* 執醫考科：實心朱紅＋米白粗字（與 logo 印章同色，固定不隨深色模式變；擁有者 10-30 16:43） */
 
 /* 我的帳號 */
 .account { max-width: 560px; }
