@@ -67,26 +67,54 @@ const EXAM_PROMPT = `請依照下面的格式出題，只輸出題目本身，�
 ${EXAM_FORMAT}`;
 
 /* ---------- 科目頁、後台清單 ---------- */
-const EXAM_CATEGORY_SUGGEST = ['學習通測試題', '期末考試題', '全章節試題'];
+// 分類建議：全站共用分類（manifest.json 的 examCategories）
 const OTHER_CATEGORY = '其他試題';
 let examTab = {};   // 每個科目目前選的分類標籤
 
 // 依分類標籤分組；沒有考卷的標籤不會出現。標籤順序依該標籤最早建立的考卷
+// 依標準分類分組（舊名稱自動對到新分類）；順序依全站分類表，表外的分類接在後面，「其他試題」最後；沒有試題的分類不出現
 function examGroups(courseId) {
   const groups = new Map();
   for (const e of examsOf(courseId)) {
-    const k = e.category || OTHER_CATEGORY;
+    const k = examCatName(courseId, e.category) || OTHER_CATEGORY;
     if (!groups.has(k)) groups.set(k, []);
     groups.get(k).push(e);
   }
-  if (groups.has(OTHER_CATEGORY)) { const o = groups.get(OTHER_CATEGORY); groups.delete(OTHER_CATEGORY); groups.set(OTHER_CATEGORY, o); }
-  return [...groups.entries()];
+  const order = examCatsOf(courseId).map(x => x.name);
+  const rank = k => k === OTHER_CATEGORY ? 1e9 : (order.indexOf(k) + 1 || 1e6);
+  return [...groups.entries()].sort((a, b) => rank(a[0]) - rank(b[0]))
+    .map(([k, list]) => [k, list.slice().sort((x, y) => x.sortOrder - y.sortOrder || x.id - y.id)]);
+}
+// 試題名稱 → 章號、節號：「03 藏象」→ {ch:3, sec:null}；「03 藏象 - 全題」→ sec 0；「03 藏象 - 02 脾肝腎」→ sec 2
+function examKey(e, c) {
+  const parts = shortExamTitle(e, c).split(/\s+-\s+/);
+  const m = /^\s*(\d+)/.exec(parts[0] || '');
+  if (!m) return null;
+  const rest = parts.slice(1).join(' - ');
+  let sec = null;
+  if (rest) { const n = /^\s*(\d+)/.exec(rest); sec = /^(全題|全章)/.test(rest.trim()) ? 0 : n ? Number(n[1]) : undefined; }
+  return { ch: Number(m[1]), sec, chName: parts[0].replace(/^\s*\d+\s*/, ''), secName: rest.replace(/^\s*\d+\s*/, '') };
+}
+// 依章節表組出標準名稱與排序（排序＝章號×100＋節號）
+function examCanon(courseId, ch, sec, fallbackCh = '', fallbackSec = '') {
+  const syl = syllabusOf(courseId);
+  const chap = sylChapter(courseId, ch);
+  if (syl && !chap) return { err: `章號 ${pad2(ch)} 不在章節表上` };
+  const chTitle = chap ? chap.title : fallbackCh;
+  let title = `${pad2(ch)} ${chTitle}`.trim();
+  if (sec === 0) title += ' - 全題';
+  else if (sec > 0) {
+    const s = sylSection(courseId, ch, sec);
+    if (syl && !s && !fallbackSec) return { err: `第 ${pad2(ch)} 章沒有第 ${pad2(sec)} 節（請先更新章節表）` };
+    title += ` - ${pad2(sec)} ${s ? s.title : fallbackSec}`;
+  }
+  return { title, sort: ch * 100 + (sec || 0) };
 }
 
 function examRowHtml(e, label) {
   return `
       <a class="pagerow exam-row" href="#exam/${e.id}" title="${esc(e.title)}">
-        <span class="pr-title">${esc(label || e.title)}${e.published ? '' : ' <span class="role off">草稿</span>'}</span>
+        <span class="pr-title">${esc(label || e.title)}${/^全題/.test(label || '') ? ' <small class="ex-hint">整章一次作答，要分段請做下面各節</small>' : ''}${e.published ? '' : ' <span class="role off">草稿</span>'}</span>
         ${e.description ? `<span class="pr-desc">${esc(cut(e.description, 120))}</span>` : ''}
         <span class="pr-meta">${e.questionCount} 題 · 滿分 ${e.totalPoints} 分${e.myAttempts ? ` · 我作答 ${e.myAttempts} 次，最佳 ${e.myBest}%` : ' · 尚未作答'}</span>
       </a>`;
@@ -129,12 +157,8 @@ function examListHtml(list, c, cat) {
 
 // 同學端考卷瀏覽：分類（｜）→ 章節（內嵌小框）→ 考卷清單。科目頁與模擬考專區共用
 const examFilter = {};   // 每個科目目前選的分類、章節
-// 分類說明：選到該分類時，在章節上方顯示提醒框（名稱含關鍵字即適用，各科通用）
-const EXAM_CAT_NOTES = [
-  [/學習通/, '題目皆取自<strong>學習通上的課間練習測驗題</strong>，可反覆作答、熟悉基本題型，穩紮穩打。'],
-  [/期末/, '本分類題目依照<strong>老師上課提過的考題方向</strong>出題，供期末複習參考。'],
-];
-const examCatNote = cat => { const n = EXAM_CAT_NOTES.find(([re]) => re.test(cat)); return n ? `<div class="note-box ex-note"><span class="note-lab">出題說明</span>${n[1]}</div>` : ''; };
+// 分類說明：全站分類表的 note，各科可在章節表 categoryNotes 改寫（例如中基的「課堂練習」寫明出自學習通）
+const examCatNote = (courseId, cat) => { const n = examCatNoteOf(courseId, cat); return n ? `<div class="note-box ex-note"><span class="note-lab">出題說明</span>${n}</div>` : ''; };
 function examBrowserHtml(c) {
   const groups = examGroups(c.id);
   if (!groups.length) return '<p class="empty-note">這個科目還沒有試題。</p>';
@@ -149,7 +173,7 @@ function examBrowserHtml(c) {
   const showChaps = chapters.length > 1 || chapters.some(g => g.menu);
   return `
     <div class="exnav-cats" role="tablist" aria-label="分類">${groups.map(([name, r]) => `<button type="button" role="tab" class="ex-cat" data-xb-cat="${esc(name)}" data-course="${c.id}" aria-selected="${name === f.cat}">${esc(name)}<small>${r.length}</small></button>`).join('<span class="ex-sep" aria-hidden="true">｜</span>')}</div>
-    ${examCatNote(f.cat)}
+    ${examCatNote(c.id, f.cat)}
     ${showChaps ? `
     <div class="exnav-chaps" aria-label="章節">
       <span class="exnav-cap">${esc(f.cat)} › 章節</span>
@@ -209,8 +233,9 @@ function examsAdminHtml() {
   return `
   ${adminCoursePicker(list, c.id, x => examGroups(x.id).reduce((n, g) => n + g[1].length, 0))}
   <div class="exnav">
-    ${adminCourseTop(c, `<span class="exnav-actions"><button type="button" class="btn secondary" id="bulk-toggle" aria-expanded="${bulkOpen}">批次上傳</button><a class="btn exnav-add" href="#examedit/new/${c.id}" data-new-cat="${esc(f.cat === OTHER_CATEGORY ? '' : f.cat)}" title="把題目整份貼上，網站會自動拆題、批改、統計">＋ 新增試題</a></span>`)}
+    ${adminCourseTop(c, `<span class="exnav-actions">${syllabusOf(c.id) ? `<button type="button" class="btn secondary" id="tidy-toggle" aria-expanded="${tidyOpen}">套用命名規則</button>` : ''}<button type="button" class="btn secondary" id="bulk-toggle" aria-expanded="${bulkOpen}">批次上傳</button><a class="btn exnav-add" href="#examedit/new/${c.id}" data-new-cat="${esc(f.cat === OTHER_CATEGORY ? '' : f.cat)}" title="把題目整份貼上，網站會自動拆題、批改、統計">＋ 新增試題</a></span>`)}
     ${bulkOpen ? bulkPanelHtml(c, f.cat === OTHER_CATEGORY ? '' : f.cat) : ''}
+    ${tidyOpen ? tidyPanelHtml(c) : ''}
     ${groups.length ? `
     <div class="exnav-cats" role="tablist" aria-label="分類">${groups.map(([name, r]) => `<button type="button" role="tab" class="ex-cat" data-ex-cat="${esc(name)}" aria-selected="${name === f.cat}">${esc(name)}<small>${r.length}</small></button>`).join('<span class="ex-sep" aria-hidden="true">｜</span>')}</div>
     <div class="exnav-chaps" aria-label="章節">
@@ -230,27 +255,33 @@ function shortExamTitle(e, c) {
   let t = String(e.title || '');
   const parts = t.split(/\s+-\s+/);
   if (parts.length > 1 && parts[0].trim() === c.title) parts.shift();
-  if (parts.length > 1 && e.category && parts[0].trim().startsWith(e.category)) parts.shift();
+  if (parts.length > 1 && e.category && (parts[0].trim().startsWith(e.category) || examCatDef(c.id, parts[0].trim()))) parts.shift();
   return parts.join(' - ') || t;
 }
 
 let examNewCategory = '';   // 從某個分類按「新增」時，預先填好分類
 
-/* ---------- 批次上傳：一次選多個 txt，依檔名自動命名、排序，原本整章的試題自動改成第 1 個子項 ---------- */
-// 檔名格式：任意前綴-NN-章名[-NN-子項].txt，例如「中基模擬考-03-藏象-01-概論與心肺.txt」
+/* ---------- 批次上傳（2026-10-30 命名規範）----------
+   檔名：[科目代碼-]分類代碼-章號[-節號][-任意說明].txt
+     例：full-03-01.txt（全章模擬考 第 03 章 第 01 節）、class-07.txt（課堂練習 第 07 章）、full-03-00.txt（第 03 章 全題）
+   分類、章名、節名、排序都由網站依分類表與章節表自動決定；舊檔名（任意前綴-NN-章名[-NN-子項].txt）仍可用，分類取自下拉選單 */
 let bulkOpen = false;
 let bulkRows = [];
 function bulkPanelHtml(c, cat) {
+  const cats = examCatsOf(c.id);
+  const syl = syllabusOf(c.id);
   return `
   <div class="panel prose bulk-panel">
-    <div class="panel-head"><h3>批次上傳</h3><p>一次選多個 txt 檔，網站依檔名自動命名與排序；同名試題會更新內容，原有的整章試題可保留並改名為「全題」。</p></div>
+    <div class="panel-head"><h3>批次上傳</h3><p>一次選多個 txt 檔，網站依檔名自動判斷分類、章節、名稱與排序；同一章節已有試題就更新內容（作答紀錄保留）。</p></div>
+    <div class="note-box"><span class="note-lab">檔名規則</span>
+      <code>分類代碼-章號[-節號].txt</code>，例如 <code>full-03-01.txt</code>＝全章模擬考 第 03 章第 01 節；<code>full-03-00.txt</code>＝第 03 章「全題」；<code>class-07.txt</code>＝課堂練習 第 07 章。<br>
+      分類代碼：${cats.map(x => `<code>${esc(x.code)}</code> ${esc(x.name)}`).join('、')}。${syl ? '章名、節名由<strong>章節表</strong>自動帶出，檔名不用寫中文。' : '<strong>這個科目還沒有章節表</strong>，請用舊檔名（含章名）或先請網站管理者建立章節表。'}</div>
     <div class="bulk-fields">
-      <div class="field"><label for="bulk-cat">分類標籤</label><input id="bulk-cat" maxlength="30" value="${esc(cat)}" placeholder="例如：中基全章模擬考"></div>
-      <div class="field"><label for="bulk-base">起始排序</label><input id="bulk-base" type="number" min="0" step="1" value="110"><small class="meta-label">排序＝起始＋章號×10＋子項號，例如 03 藏象 - 01 → 141</small></div>
+      <div class="field"><label for="bulk-cat">分類（檔名沒有分類代碼時使用）</label>
+        <select id="bulk-cat">${cats.map(x => `<option value="${esc(x.name)}" ${x.name === cat ? 'selected' : ''}>${esc(x.name)}（${esc(x.code)}）</option>`).join('')}</select></div>
       <div class="field"><label for="bulk-files">選擇 txt 檔（可多選）</label><input id="bulk-files" type="file" accept=".txt,text/plain" multiple></div>
     </div>
-    <label class="check"><input type="checkbox" id="bulk-pub" checked> 公開給同學作答</label>
-    <label class="check"><input type="checkbox" id="bulk-keep" checked> 已有整章試題時保留，並改名為「NN 章名 - 全題 (要分章節請作下面題目)」（不勾＝整章改成第 1 個子項）</label>
+    <label class="check"><input type="checkbox" id="bulk-pub" checked> 新增的試題公開給同學作答</label>
     <div id="bulk-preview">${bulkTableHtml(c)}</div>
     <div id="bulk-msg"></div>
     <div class="ed-actions"><button type="button" class="btn" id="bulk-go" ${bulkRows.length && bulkRows.every(r => r.ok) ? '' : 'disabled'}>開始上傳</button></div>
@@ -258,45 +289,56 @@ function bulkPanelHtml(c, cat) {
 }
 function bulkTableHtml(c) {
   if (!bulkRows.length) return '';
-  const act = { create: '新增', update: '更新內容（名稱、排序、公開狀態不變）', promote: '原整章改為此子項', rename: '原整章保留，改名為「全題」' };
-  return `<table class="bulk-table"><thead><tr><th>試題名稱</th><th>排序</th><th>題數／總分</th><th>動作</th></tr></thead><tbody>${bulkRows.map((r, i) => `
-    <tr class="${r.ok ? '' : 'bad'}"><td>${esc(r.keepName || shortExamTitle({ title: r.title, category: r.cat }, c))}<br><small>${esc(r.file)}</small></td>
-    <td>${r.action === 'rename' || r.action === 'update' ? r.sort : `<input type="number" class="bulk-sort" data-i="${i}" value="${r.sort}" aria-label="排序">`}</td>
-    <td>${r.ok ? `${r.count} 題／${r.total} 分` : `<span class="unassigned">${esc(r.err)}</span>`}</td>
+  const act = { create: '新增', update: '更新內容（作答紀錄保留）', rename: '原本的整章試題改名為「全題」' };
+  return `<table class="bulk-table"><thead><tr><th>分類 · 試題名稱</th><th>排序</th><th>題數／總分</th><th>動作</th></tr></thead><tbody>${bulkRows.map(r => `
+    <tr class="${r.ok ? '' : 'bad'}"><td><small>${esc(r.cat || '')}</small><br>${esc(r.title || '')}<br><small>${esc(r.file)}</small></td>
+    <td>${esc(r.sort ?? '')}</td>
+    <td>${r.ok ? (r.count != null ? `${r.count} 題／${r.total} 分` : '—') : `<span class="unassigned">${esc(r.err)}</span>`}</td>
     <td>${r.status ? esc(r.status) : act[r.action] || ''}</td></tr>`).join('')}</tbody></table>`;
 }
-function bulkParseName(file) {
+// 檔名解析：回傳 { catName, ch, sec, chName, secName } 或 { err }
+function bulkParseName(c, file, fallbackCat) {
   const parts = file.replace(/\.txt$/i, '').split('-').map(x => x.trim()).filter(Boolean);
+  const cats = examCatsOf(c.id);
+  const ci = parts.findIndex(x => cats.some(k => k.code === x.toLowerCase()));
+  if (ci >= 0 && /^\d{1,3}$/.test(parts[ci + 1] || '')) {
+    const cat = cats.find(k => k.code === parts[ci].toLowerCase());
+    const ch = Number(parts[ci + 1]);
+    const sec = /^\d{1,3}$/.test(parts[ci + 2] || '') ? Number(parts[ci + 2]) : null;
+    return { catName: cat.name, ch, sec };
+  }
+  // 舊檔名：任意前綴-NN-章名[-NN-子項]
   const i = parts.findIndex(x => /^\d{1,3}$/.test(x));
-  if (i < 0 || !parts[i + 1]) return null;
-  const ch = [parts[i], parts[i + 1]], sub = /^\d{1,3}$/.test(parts[i + 2] || '') && parts[i + 3] ? [parts[i + 2], parts[i + 3]] : null;
-  return { chapter: `${ch[0]} ${ch[1]}`, chNo: Number(ch[0]), sub: sub ? `${sub[0]} ${sub[1]}` : '', subNo: sub ? Number(sub[0]) : 0 };
+  if (i < 0 || !parts[i + 1]) return { err: '檔名看不出分類與章節（例如 full-03-01.txt）' };
+  const hasSub = /^\d{1,3}$/.test(parts[i + 2] || '') && parts[i + 3];
+  return { catName: fallbackCat, ch: Number(parts[i]), sec: hasSub ? Number(parts[i + 2]) : null, chName: parts[i + 1], secName: hasSub ? parts[i + 3] : '' };
 }
 async function bulkPrepare(c, files) {
-  const cat = document.getElementById('bulk-cat').value.trim();
-  const base = Number(document.getElementById('bulk-base').value) || 0;
-  const keepWhole = document.getElementById('bulk-keep')?.checked !== false;
-  const existing = examsOf(c.id).filter(e => (e.category || '') === cat);
-  const short = e => shortExamTitle(e, c).trim();
+  const fallbackCat = document.getElementById('bulk-cat').value;
+  const whole = x => x === 0 || x === null;   // 「整章一份」與「全題」視為同一份
+  const sameKey = (e, catName, ch, sec) => { const k = examKey(e, c); return examCatName(c.id, e.category) === catName && k && k.ch === ch && (k.sec === sec || (whole(k.sec) && whole(sec))); };
   bulkRows = [];
   const renames = new Map();
   for (const f of [...files].sort((a, b) => a.name.localeCompare(b.name))) {
-    const n = bulkParseName(f.name);
-    const row = { file: f.name, cat, ok: false };
-    if (!n) { row.err = '檔名看不出章節（要有「-NN-章名」）'; row.title = f.name; row.sort = ''; bulkRows.push(row); continue; }
-    const shortTitle = `${n.chapter}${n.sub ? ' - ' + n.sub : ''}`;
-    row.title = `${c.title} - ${cat} - ${shortTitle}`;
-    row.sort = base + n.chNo * 10 + n.subNo;
+    const row = { file: f.name, ok: false };
+    const n = bulkParseName(c, f.name, fallbackCat);
+    if (n.err) { row.err = n.err; bulkRows.push(row); continue; }
+    const canon = examCanon(c.id, n.ch, n.sec, n.chName, n.secName);
+    row.cat = n.catName;
+    if (canon.err) { row.err = canon.err; bulkRows.push(row); continue; }
+    row.title = canon.title; row.sort = canon.sort;
     row.source = await f.text();
-    // 名稱比對時去掉「科目 - 分類 -」前綴，所以「03 藏象」和「中醫基礎理論 - 分類 - 03 藏象」視為同一份
-    // 整章檔也對得到已改名的「NN 章名 - 全題 (…)」
-    const same = existing.find(e => short(e) === shortTitle) || (!n.sub && existing.find(e => short(e).startsWith(`${n.chapter} - 全題`)));
-    const whole = n.sub ? existing.find(e => short(e) === n.chapter) : null;
-    if (same) { row.action = 'update'; row.targetId = same.id; row.sort = same.sortOrder; row.keepName = shortExamTitle(same, c); }
-    else if (whole && !keepWhole && n.subNo === 1) { row.action = 'promote'; row.targetId = whole.id; }
-    else { row.action = 'create'; row.targetId = null; }
-    if (whole && keepWhole && !renames.has(whole.id)) renames.set(whole.id, { file: '（網站上原有的整章試題）', cat, ok: true, action: 'rename', targetId: whole.id,
-      title: `${n.chapter} - 全題 (要分章節請作下面題目)`, sort: whole.sortOrder, count: whole.questionCount, total: whole.totalPoints });
+    const same = examsOf(c.id).find(e => sameKey(e, n.catName, n.ch, n.sec));
+    if (same) { row.action = 'update'; row.targetId = same.id; }
+    else row.action = 'create';
+    // 新增某章的「節」時，網站上原本只有一份的整章試題自動改名為「全題」
+    if (n.sec > 0) {
+      const single = examsOf(c.id).find(e => { const k = examKey(e, c); return examCatName(c.id, e.category) === n.catName && k && k.ch === n.ch && k.sec === null; });
+      if (single && !renames.has(single.id)) {
+        const w = examCanon(c.id, n.ch, 0, n.chName);
+        renames.set(single.id, { file: '（網站上原有的整章試題）', cat: n.catName, ok: true, action: 'rename', targetId: single.id, title: w.title, sort: w.sort, count: single.questionCount, total: single.totalPoints });
+      }
+    }
     try {
       const p = await api('/api/admin/exams/preview', { method: 'POST', body: { source: row.source } });
       if (p.errors.length) row.err = `格式有 ${p.errors.length} 個問題：${p.errors[0].message}`;
@@ -305,41 +347,69 @@ async function bulkPrepare(c, files) {
     bulkRows.push(row);
   }
   bulkRows.push(...renames.values());
-  bulkRows.sort((a, b) => (Number(a.sort) || 0) - (Number(b.sort) || 0));
+  const dup = new Set();
+  for (const r of bulkRows) { const k = `${r.cat}|${r.title}`; if (r.title && dup.has(k)) { r.ok = false; r.err = '和另一個檔案是同一個章節，請只留一個'; } dup.add(k); }
+  bulkRows.sort((a, b) => String(a.cat).localeCompare(String(b.cat)) || (Number(a.sort) || 0) - (Number(b.sort) || 0));
 }
+
+/* ---------- 套用命名規則：把現有試題的分類、名稱、排序整理成規範（只改名稱與排序，不動題目與作答紀錄）---------- */
+let tidyOpen = false;
+let tidyRows = [];
+function tidyCompute(c) {
+  return examsOf(c.id).map(e => {
+    const cat = examCatName(c.id, e.category) || e.category || '';
+    const k = examKey(e, c);
+    const row = { id: e.id, oldTitle: e.title, oldCat: e.category || '', oldSort: e.sortOrder, cat, title: e.title, sort: e.sortOrder };
+    if (!k || k.sec === undefined) { row.note = '名稱看不出章節，保持原樣'; return row; }
+    const canon = examCanon(c.id, k.ch, k.sec, k.chName, k.secName);
+    if (canon.err) { row.note = canon.err + '，保持原樣'; return row; }
+    row.title = canon.title; row.sort = canon.sort;
+    return row;
+  }).map(r => ({ ...r, changed: r.title !== r.oldTitle || r.cat !== r.oldCat || r.sort !== r.oldSort }))
+    .sort((a, b) => a.cat.localeCompare(b.cat) || a.sort - b.sort);
+}
+function tidyPanelHtml(c) {
+  const ch = tidyRows.filter(r => r.changed);
+  return `
+  <div class="panel prose bulk-panel">
+    <div class="panel-head"><h3>套用命名規則</h3><p>依分類表與章節表，把這個科目所有試題的分類、名稱、排序整理成規範。<strong>只改名稱與排序</strong>，題目內容、公開狀態、作答紀錄都不變。</p></div>
+    ${ch.length ? `<table class="bulk-table"><thead><tr><th>現在</th><th>整理後</th><th>排序</th></tr></thead><tbody>${ch.map(r => `
+      <tr><td><small>${esc(r.oldCat)}</small><br>${esc(r.oldTitle)}</td><td><small>${esc(r.cat)}</small><br><b>${esc(r.title)}</b>${r.status ? `<br><small>${esc(r.status)}</small>` : ''}</td><td>${r.oldSort} → ${r.sort}</td></tr>`).join('')}</tbody></table>`
+      : '<p class="msg ok">這個科目的試題都已符合命名規則。</p>'}
+    ${tidyRows.filter(r => r.note).map(r => `<p class="meta-label">⚠ ${esc(r.oldTitle)}：${esc(r.note)}</p>`).join('')}
+    <div id="tidy-msg"></div>
+    <div class="ed-actions">${ch.length ? `<button type="button" class="btn" id="tidy-go">套用 ${ch.length} 份</button>` : ''}<button type="button" class="btn secondary" id="tidy-close">關閉</button></div>
+  </div>`;
+}
+
 function bindExamsAdmin() {
   bindAdminPicker();
   const bt = document.getElementById('bulk-toggle');
-  if (bt) bt.onclick = () => { bulkOpen = !bulkOpen; if (!bulkOpen) bulkRows = []; render(); };
+  if (bt) bt.onclick = () => { bulkOpen = !bulkOpen; tidyOpen = false; if (!bulkOpen) bulkRows = []; render(); };
   const bf = document.getElementById('bulk-files');
   if (bf) bf.onchange = async () => {
-    const c = getCourse(pagesCourse), msg = document.getElementById('bulk-msg');
-    if (!document.getElementById('bulk-cat').value.trim()) { msg.innerHTML = '<div class="msg error">請先填分類標籤。</div>'; bf.value = ''; return; }
-    msg.innerHTML = '<div class="msg ok">檢查中…</div>';
-    const keep = { cat: document.getElementById('bulk-cat').value, base: document.getElementById('bulk-base').value, pub: document.getElementById('bulk-pub').checked, whole: document.getElementById('bulk-keep').checked };
+    const c = getCourse(pagesCourse);
+    document.getElementById('bulk-msg').innerHTML = '<div class="msg ok">檢查中…</div>';
+    const keep = { cat: document.getElementById('bulk-cat').value, pub: document.getElementById('bulk-pub').checked };
     await bulkPrepare(c, bf.files);
     render();
-    document.getElementById('bulk-cat').value = keep.cat; document.getElementById('bulk-base').value = keep.base; document.getElementById('bulk-pub').checked = keep.pub; document.getElementById('bulk-keep').checked = keep.whole;
+    document.getElementById('bulk-cat').value = keep.cat; document.getElementById('bulk-pub').checked = keep.pub;
     const bad = bulkRows.filter(r => !r.ok).length;
-    document.getElementById('bulk-msg').innerHTML = bad ? `<div class="msg error">${bad} 個檔案有問題，請修正後重新選擇。</div>` : `<div class="msg ok">${bulkRows.length} 個檔案格式都正確，確認名稱與排序後按「開始上傳」。</div>`;
+    document.getElementById('bulk-msg').innerHTML = bad ? `<div class="msg error">${bad} 個檔案有問題，請修正後重新選擇。</div>` : `<div class="msg ok">${bulkRows.length} 個檔案都正確，確認分類、名稱與排序後按「開始上傳」。</div>`;
   };
-  document.querySelectorAll('.bulk-sort').forEach(inp => inp.onchange = () => { bulkRows[inp.dataset.i].sort = Number(inp.value); });
   const go = document.getElementById('bulk-go');
   if (go) go.onclick = async () => {
     const c = getCourse(pagesCourse), pub = document.getElementById('bulk-pub').checked;
-    if (!confirm(`要上傳 ${bulkRows.length} 份試題嗎？\n更新的試題：只改解析或對照圖卡時不會改版；題目、選項、答案、配分有改才會變成新版本（舊作答紀錄保留）。`)) return;
+    if (!confirm(`要上傳 ${bulkRows.length} 份試題嗎？\n已有的試題：只改解析或對照圖卡時不會改版；題目、選項、答案、配分有改才會變成新版本（舊作答紀錄保留）。`)) return;
     go.disabled = true;
     let okN = 0, upd = 0, newV = 0;
     for (const r of bulkRows) {
       r.status = '上傳中…'; document.getElementById('bulk-preview').innerHTML = bulkTableHtml(c);
-      const body = { title: r.title, category: r.cat, sortOrder: Number(r.sort), published: pub, source: r.source };
       try {
         let note = '';
-        if (r.action === 'rename') await api(`/api/admin/exams/${r.targetId}`, { method: 'PUT', body: { title: r.title } });
-        // 更新同名試題：只換題目內容，名稱、排序、公開狀態保持網站上原本的設定
-        else if (r.action === 'update') { const x = await api(`/api/admin/exams/${r.targetId}`, { method: 'PUT', body: { source: r.source } }); upd++; if (x.newVersion) newV++; note = x.newVersion ? '（題目有改，已成新版本）' : '（作答紀錄不受影響）'; }
-        else if (r.targetId) await api(`/api/admin/exams/${r.targetId}`, { method: 'PUT', body: { ...body, description: examsOf(c.id).find(e => e.id === r.targetId)?.description || '' } });
-        else await api('/api/admin/exams', { method: 'POST', body: { ...body, description: '', courseId: c.id } });
+        if (r.action === 'rename') await api(`/api/admin/exams/${r.targetId}`, { method: 'PUT', body: { title: r.title, category: r.cat, sortOrder: Number(r.sort) } });
+        else if (r.action === 'update') { const x = await api(`/api/admin/exams/${r.targetId}`, { method: 'PUT', body: { source: r.source, title: r.title, category: r.cat, sortOrder: Number(r.sort) } }); upd++; if (x.newVersion) newV++; note = x.newVersion ? '（題目有改，已成新版本）' : '（作答紀錄不受影響）'; }
+        else await api('/api/admin/exams', { method: 'POST', body: { title: r.title, category: r.cat, sortOrder: Number(r.sort), published: pub, source: r.source, description: '', courseId: c.id } });
         r.status = '✓ 完成' + note; okN++;
       } catch (err) { r.status = '✗ ' + (err.message || '失敗'); }
       document.getElementById('bulk-preview').innerHTML = bulkTableHtml(c);
@@ -350,6 +420,25 @@ function bindExamsAdmin() {
     examAdminFilter[c.id] = { cat: cat || OTHER_CATEGORY, ch: '' };
     const verNote = upd ? `；更新 ${upd} 份，其中 ${newV ? `${newV} 份題目有改、已成新版本` : '沒有一份改版（同學的作答紀錄都不受影響）'}` : '';
     await reloadAfterChange((failed ? `完成 ${okN} 份，${failed} 份失敗（見下方表格）` : `已上傳 ${okN} 份試題`) + verNote);
+  };
+  const tt = document.getElementById('tidy-toggle');
+  if (tt) tt.onclick = () => { tidyOpen = !tidyOpen; bulkOpen = false; tidyRows = tidyOpen ? tidyCompute(getCourse(pagesCourse)) : []; render(); };
+  const tc = document.getElementById('tidy-close');
+  if (tc) tc.onclick = () => { tidyOpen = false; tidyRows = []; render(); };
+  const tg = document.getElementById('tidy-go');
+  if (tg) tg.onclick = async () => {
+    const list = tidyRows.filter(r => r.changed);
+    if (!confirm(`要整理 ${list.length} 份試題的分類、名稱、排序嗎？\n題目內容與作答紀錄都不會改變。`)) return;
+    tg.disabled = true;
+    let ok = 0;
+    for (const r of list) {
+      try { await api(`/api/admin/exams/${r.id}`, { method: 'PUT', body: { title: r.title, category: r.cat, sortOrder: r.sort } }); r.status = '✓ 完成'; ok++; }
+      catch (err) { r.status = '✗ ' + (err.message || '失敗'); }
+    }
+    const failed = list.length - ok;
+    tidyOpen = failed > 0;
+    await reloadAfterChange(failed ? `整理完成 ${ok} 份，${failed} 份失敗` : `已整理 ${ok} 份試題的名稱與排序`);
+    if (tidyOpen) { tidyRows = tidyCompute(getCourse(pagesCourse)); render(); }
   };
   document.querySelectorAll('[data-ex-cat]').forEach(b => b.onclick = () => { examAdminFilter[pagesCourse] = { cat: b.dataset.exCat, ch: '' }; render(); });
   document.querySelectorAll('[data-ex-ch]').forEach(b => b.onclick = () => { examAdminFilter[pagesCourse].ch = b.dataset.exCh; render(); });
@@ -570,7 +659,7 @@ async function mountExam() {
   root.innerHTML = `
     ${examCrumbs(e.id, e.courseId, e.title)}
     <div class="exam-head">
-      <div class="eyebrow">${esc(course?.title || '')} · ${esc(e.category || OTHER_CATEGORY)}</div>
+      <div class="eyebrow">${esc(course?.title || '')} · ${esc(examCatName(e.courseId, e.category) || OTHER_CATEGORY)}</div>
       <h2>${esc(e.title)}</h2>
       ${e.description ? `<p>${nl2br(e.description)}</p>` : ''}
       <p class="meta-label">共 ${e.questions.length} 題 · 滿分 ${e.totalPoints} 分 · 作答內容會自動暫存在這台電腦，交卷後才批改。</p>
@@ -630,7 +719,7 @@ function examCrumbs(examId, courseId, title, tail = []) {
   const c = getCourse(courseId);
   const e = (data.exams || []).find(x => x.id == examId);
   const name = e && c ? shortExamTitle(e, c) : title;
-  return crumbsHtml([['學習試題', '#examzone'], c && [c.title, `#examzone/${c.id}`], e?.category && [e.category, `#examzone/${c.id}`],
+  return crumbsHtml([['學習試題', '#examzone'], c && [c.title, `#examzone/${c.id}`], e?.category && [examCatName(c.id, e.category), `#examzone/${c.id}`],
     tail.length ? [name, `#exam/${examId}`] : [name], ...tail]);
 }
 
@@ -808,8 +897,8 @@ async function mountExamEdit() {
       <div class="field"><label for="xe-title">試題名稱</label><input id="xe-title" maxlength="200" value="${esc(exam.title)}" placeholder="例如：第一章 陰陽五行 模擬考"></div>
       <div class="field"><label for="xe-desc">說明（選填）</label><input id="xe-desc" maxlength="1000" value="${esc(exam.description)}"></div>
       <div class="field"><label for="xe-cat">分類標籤（科目頁會依標籤分頁顯示；可以從清單選，也可以自己打新的）</label>
-        <input id="xe-cat" maxlength="30" list="xe-cat-list" value="${esc(exam.category || '')}" placeholder="例如：學習通測試題">
-        <datalist id="xe-cat-list">${[...new Set([...examsOf(course.id).map(x => x.category).filter(Boolean), ...EXAM_CATEGORY_SUGGEST])].map(c => `<option value="${esc(c)}">`).join('')}</datalist>
+        <input id="xe-cat" maxlength="30" list="xe-cat-list" value="${esc(exam.category || '')}" placeholder="例如：課堂練習">
+        <datalist id="xe-cat-list">${[...new Set([...examCatsOf(course.id).map(x => x.name), ...examsOf(course.id).map(x => examCatName(course.id, x.category)).filter(Boolean)])].map(c => `<option value="${esc(c)}">`).join('')}</datalist>
         <small class="meta-label">留空會歸在「${OTHER_CATEGORY}」。</small></div>
       <div class="field"><label for="xe-sort">排序（數字小的排前面）</label>
         <input id="xe-sort" style="max-width:220px" type="number" min="0" max="100000" step="1" value="${exam.sortOrder ?? (Math.max(0, ...examsOf(course.id).map(x => x.sortOrder)) + 10)}">
@@ -896,7 +985,7 @@ async function mountExamEdit() {
       }
       examEditDirty = false;
       pagesCourse = course.id; adminType = 'exams';
-      examAdminFilter[course.id] = { cat: body.category.trim() || OTHER_CATEGORY, ch: '' };   // 回到清單時切到剛存的分類
+      examAdminFilter[course.id] = { cat: examCatName(course.id, body.category) || OTHER_CATEGORY, ch: '' };   // 回到清單時切到剛存的分類
       try { data = sortCourses(await api('/api/content')); } catch {}
       adminFlash = `已儲存「${body.title.trim()}」${body.published ? '' : '（草稿，同學還看不到）'}`;
       location.hash = `admin/exams/${course.id}`;

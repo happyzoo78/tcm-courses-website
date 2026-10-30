@@ -62,7 +62,11 @@ async function loadExtraFiles() {
     const res = await fetch('/content/courses/manifest.json', { credentials: 'same-origin', cache: 'no-store' });
     const j = res.ok ? await res.json() : null;
     extraFiles = Array.isArray(j?.files) ? j.files.filter(f => f && f.path && f.title) : [];
-    await loadDecks(Array.isArray(j?.decks) ? j.decks.filter(d => d && d.path) : []);
+    examCatRegistry = Array.isArray(j?.examCategories) ? j.examCategories.filter(x => x && x.code && x.name) : [];
+    await Promise.all([
+      loadDecks(Array.isArray(j?.decks) ? j.decks.filter(d => d && d.path) : []),
+      loadSyllabi(Array.isArray(j?.syllabi) ? j.syllabi.filter(d => d && d.path) : [])
+    ]);
   } catch { extraFiles = []; }
 }
 
@@ -89,6 +93,47 @@ async function loadDecks(list) {
   }));
   decks = got.filter(Boolean);
 }
+/* ---------- 試題分類與章節表（全站共用規範，2026-10-30） ----------
+   分類：manifest.json 的 examCategories（課堂練習／期末重點／全章模擬考…），各科可在章節表 categories 增加自己的分類
+   章節表：各科 syllabus.json，試題與圖卡都只認章號；章名、節名從表上帶出 */
+let examCatRegistry = [];
+let syllabi = [];
+async function loadSyllabi(list) {
+  const got = await Promise.all(list.map(async d => {
+    try {
+      const res = await fetch(d.path, { credentials: 'same-origin', cache: 'no-store' });
+      const j = res.ok ? await res.json() : null;
+      return j && Array.isArray(j.chapters) ? { ...d, ...j, chapters: j.chapters.filter(ch => ch && ch.no) } : null;
+    } catch { return null; }
+  }));
+  syllabi = got.filter(Boolean);
+}
+const matchCourseFile = (list, courseId) => {
+  const c = getCourse(courseId);
+  return c ? list.find(d => d.semester === c.semesterCode && ((c.slug && d.course === c.slug) || d.courseTitle === c.title)) || null : null;
+};
+const syllabusOf = courseId => matchCourseFile(syllabi, courseId);
+// 這個科目可用的分類（全站共用＋該科自訂），依顯示順序
+function examCatsOf(courseId) {
+  const extra = (syllabusOf(courseId)?.categories || []).filter(x => x && x.code && x.name);
+  return [...examCatRegistry.filter(x => !extra.some(y => y.code === x.code)), ...extra];
+}
+// 把資料庫裡的分類名稱（含舊名稱）對到標準分類；對不到就回傳 null
+function examCatDef(courseId, name) {
+  const n = String(name || '').trim();
+  return examCatsOf(courseId).find(x => x.name === n || x.code === n || (x.aliases || []).includes(n)) || null;
+}
+const examCatName = (courseId, name) => examCatDef(courseId, name)?.name || String(name || '').trim();
+function examCatNoteOf(courseId, name) {
+  const d = examCatDef(courseId, name);
+  if (!d) return '';
+  return syllabusOf(courseId)?.categoryNotes?.[d.code] || d.note || '';
+}
+// 章節表查章、節（章號、節號都用兩位數字字串）
+const pad2 = n => String(n).padStart(2, '0');
+const sylChapter = (courseId, no) => (syllabusOf(courseId)?.chapters || []).find(ch => ch.no === pad2(no)) || null;
+const sylSection = (courseId, no, sec) => (sylChapter(courseId, no)?.sections || []).find(x => x.no === pad2(sec)) || null;
+
 // 某科目的圖卡集（依學期＋英文代碼對應，代碼對不上時用科目名稱）
 const deckOf = courseId => {
   const c = getCourse(courseId);
