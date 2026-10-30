@@ -1181,6 +1181,7 @@ h2.section + .year-tabs ~ .sem-title, h2.section + .year-tabs ~ .cards { margin-
 .chap-note { margin: 4px 0 22px; }
 .note-box .note-part + .note-part { margin-top: 12px; padding-top: 12px; border-top: 1px dashed color-mix(in srgb, var(--gold) 45%, transparent); }   /* 同一個說明框裡的兩個話題（例：圖卡「使用方式」＋「提醒」）用虛線分開 */
 .note-box .note-part { padding-left: 14px; padding-right: 14px; }   /* 分段說明框：每段左右縮排，虛線仍貫穿整個框 */
+.note-box .note-part .note-lab::before { content: ""; display: inline-block; width: 6px; height: 1em; margin-right: 8px; vertical-align: -0.12em; border-radius: 2px; background: var(--gold); }   /* 分段說明框：小標前的金色長條裝飾 */
 h2.section > .exam-tag { align-self: center; vertical-align: 0; }   /* 大標裡的「執醫考科」與大字垂直置中（小字仍齊底） */
 /* 小標（首頁圖卡架、科目卡）裡的執醫考科縮小，不比標題搶眼；大標裡維持原大小 */
 /* 執醫考科全站同一尺寸（11px 黑體粗字、實心朱紅），大標小標都一樣（擁有者 10-30 16:52：統一設計元素）；下移 1px 對齊宋體筆畫 */
