@@ -1150,4 +1150,4 @@ header.compact .logo, header.compact .actions { visibility: hidden; transition: 
 .block-sep + h2.section { margin-top: 28px; }
 /* 頁面大標：大字與小字之間放一塊淡色直條，分開主標與副標（擁有者 10-30 15:55） */
 h2.section > small { display: inline-flex; align-items: center; }
-h2.section > small::before { content: ""; flex: none; width: 3px; height: 1.2em; margin-right: 12px; border-radius: 2px; background: color-mix(in srgb, var(--gold) 32%, transparent); }   /* 細直條，只為視覺分隔 */
+h2.section > small::before { content: ""; flex: none; width: 3px; height: 20px; margin-right: 12px; transform: translateY(1px);   /* 比大字（24px）短一點，上下置中對齊大字 */ border-radius: 2px; background: color-mix(in srgb, var(--gold) 32%, transparent); }   /* 細直條，只為視覺分隔 */
