@@ -114,7 +114,7 @@ const matchCourseFile = (list, courseId) => {
 };
 const syllabusOf = courseId => matchCourseFile(syllabi, courseId);
 // 這個科目可用的分類（全站共用＋該科自訂），依顯示順序
-// 分類表的 scope："bank"＝只用在執醫考試題庫，沒寫＝一般科目
+// 分類表的 scope："bank"＝只用在執醫題庫，沒寫＝一般科目
 function examCatsOf(courseId) {
   const extra = (syllabusOf(courseId)?.categories || []).filter(x => x && x.code && x.name);
   const bank = isBankCourse(getCourse(courseId));
@@ -318,8 +318,8 @@ function readHash() {
    ========================================================= */
 const YEAR_NAMES = ['一年級', '二年級', '三年級', '四年級', '五年級'];
 let siteYear = 0;   // 目前選的年級，各頁共用；0＝自動選最新的
-// 執醫考試題庫：不屬於任何學期的獨立題庫，資料庫裡是一個特別的「學期」zy_bank，在年級分頁裡當第 6 個分頁（只在學習試題、後台出現）
-const BANK_SEM = 'zy_bank', BANK_YEAR = 6, BANK_NAME = '執醫考試題庫';
+// 執醫題庫：不屬於任何學期的獨立題庫，資料庫裡是一個特別的「學期」zy_bank，在年級分頁裡當第 6 個分頁（只在學習試題、後台出現）
+const BANK_SEM = 'zy_bank', BANK_YEAR = 6, BANK_NAME = '執醫題庫';
 const yearOf = code => code === BANK_SEM ? BANK_YEAR : Number((/_y(\d)s/.exec(code || '') || [])[1]) || 0;
 const isBankCourse = c => !!c && c.semesterCode === BANK_SEM;
 const latestRegularYear = years => Math.max(0, ...[...years].filter(y => y !== BANK_YEAR)) || Math.max(0, ...years);
@@ -331,7 +331,7 @@ function shortSemLabel(code) {
 }
 // 年級分頁；openYears＝可以點的年級（前台：同學看得到的年級）
 // sub(y)：有給時每個年級都可以點，小字改顯示 sub(y) 的內容（後台用，例如「0 張圖卡」）
-// bank：多一個「執醫考試題庫」分頁（學習試題、後台用）
+// bank：多一個「執醫題庫」分頁（學習試題、後台用）
 function yearTabsHtml(openYears, sub, bank = false) {
   if (sub) {
     // 還沒選過年級時，停在有資料的最新年級（都沒有就一年級）
