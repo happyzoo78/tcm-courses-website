@@ -1156,3 +1156,6 @@ h2.section > small::before { content: ""; display: inline-block; width: 3px; hei
 /* 年級分頁與下面的科目列是同一組選單：左右縮排一致，左邊對齊（擁有者 10-30 16:21） */
 h2.section + .year-tabs + .subj-rows, h2.section + .year-tabs + .subj-rows + .exnav { margin-left: 14px; margin-right: 14px; }   /* 包住試題的外框也一起內縮 */
 @media (max-width: 720px) { h2.section + .year-tabs + .subj-rows, h2.section + .year-tabs + .subj-rows + .exnav { margin-left: 8px; margin-right: 8px; } }
+/* 學習科目頁：年級分頁下的學期標題與科目卡也一起內縮，與年級分頁左右對齊成一體（擁有者 10-30 16:23） */
+h2.section + .year-tabs ~ .sem-title, h2.section + .year-tabs ~ .cards { margin-left: 14px; margin-right: 14px; }
+@media (max-width: 720px) { h2.section + .year-tabs ~ .sem-title, h2.section + .year-tabs ~ .cards { margin-left: 8px; margin-right: 8px; } }
