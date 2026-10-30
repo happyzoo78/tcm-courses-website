@@ -90,7 +90,7 @@ const HW_DATA = [
   .hw-chip.cur { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
   .hw-chip[aria-expanded="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 26%, var(--surface)); }
   .hw-chip.cur[aria-expanded="true"] { background: var(--accent); color: var(--accent-ink); }
-  .hw-chip.cur .hw-exam { display: inline-block; margin-left: 6px; padding: 0 6px; border: 0; border-radius: 4px; background: #9e3b2c; color: #fff8ee; font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "Heiti TC", system-ui, sans-serif; font-size: 11px; font-weight: 700; line-height: 1.7; letter-spacing: .04em; vertical-align: 2px; white-space: nowrap; }
+  .hw-chip.cur .hw-exam { background: #9e3b2c; }
   .hw-panel { position: absolute; left: 0; right: 0; background: var(--surface); border-bottom: 1px solid var(--line); box-shadow: var(--shadow); max-height: 70vh; overflow: auto; }
   .hw-panel[hidden] { display: none; }
   .hw-panel-in { max-width: 1240px; margin: 0 auto; padding: 14px 20px 18px; }
@@ -98,7 +98,7 @@ const HW_DATA = [
   .hw-sem + .hw-grid { margin-bottom: 14px; }
   .hw-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
   .hw-subj { padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); }
-  .hw-exam { display: inline-block; margin-left: 6px; padding: 0 7px; border: 1px solid var(--red, #973d2f); border-radius: 6px; color: var(--red, #973d2f); font-size: 12px; font-weight: 600; line-height: 1.5; vertical-align: 2px; white-space: nowrap; }
+  .hw-exam { display: inline-block; margin-left: 6px; padding: 0 6px; border: 0; border-radius: 4px; background: #9e3b2c; color: #fff8ee; font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "Heiti TC", system-ui, sans-serif; font-size: 11px; font-weight: 700; line-height: 1.7; letter-spacing: .04em; vertical-align: 2px; white-space: nowrap; }
   .hw-chip .hw-exam { margin-left: 5px; font-size: 11px; vertical-align: 1px; }
   .hw-subj h4 { margin: 0 0 6px; font-size: 16px; color: var(--accent); }
   .hw-subj ul { list-style: none; margin: 0; padding: 0; }
