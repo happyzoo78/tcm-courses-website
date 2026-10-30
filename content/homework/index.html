@@ -293,6 +293,7 @@ html[lang="zh-Hant"] .a-note::before { content: "補充說明"; }
 @media (max-width: 720px) { .sub-block { margin: 0 8px; } }
 .note-box { margin: 0 0 18px; padding: 8px 12px; border-left: 3px solid var(--gold); border-radius: 4px; background: var(--surface-2); font-size: 14px; line-height: 1.75; color: var(--muted); }
 .note-box .note-lab { display: block; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid color-mix(in srgb, var(--gold) 35%, transparent); font-size: 15px; font-weight: 700; letter-spacing: .04em; color: var(--gold); }
+.note-box .note-lab::before { content: ""; display: inline-block; width: 4px; height: 1em; margin-right: 8px; vertical-align: -0.12em; border-radius: 2px; background: var(--gold); }   /* 與主網站相同：說明性小標前的金色長條 */
 .note-box strong { color: var(--ink); }
 
 /* 階層路線（作業專區只列出位置、不做連結；擁有者 10-30 18:24） */
