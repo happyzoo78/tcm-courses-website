@@ -312,7 +312,7 @@ function contactHtml() {
   if (!admin || !admin.mailEnabled) return '';
   return `
   <hr class="block-sep" aria-hidden="true">
-  <h2 class="section" id="contact">聯絡管理員 <small class="motto">同窗共讀，教學相長</small></h2>
+  <h2 class="section" id="contact">聯絡管理員 <small class="motto">同窗共勉，教學相長</small></h2>
   <div class="panel prose contact">
     <form id="contactform">
       <div class="field"><label for="c-subject">主旨（選填）</label><input id="c-subject" name="subject" maxlength="60" placeholder="例如：試題有錯字、想協助出題"></div>
