@@ -161,7 +161,7 @@ const HW_DATA = [
   .hwz-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--red, #973d2f); display: inline-block; }
   .hwz-legend { display: flex; align-items: center; gap: 4px; margin: 0 0 12px; font-size: 12.5px; color: var(--muted); }
   .hwz-panel { padding: 16px 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
-  .hwz-title { margin: 0 0 10px; font-size: 20px; font-weight: 700; font-family: "Noto Serif TC", "Noto Serif CJK TC", "Source Han Serif TC", "Songti TC", "STSong", "Songti SC", "SimSun", "PMingLiU", serif; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
+  .hwz-title { margin: 0 0 10px; font-size: 20px; font-weight: 700; font-family: "Noto Serif TC", "Noto Serif CJK TC", "Source Han Serif TC", "Songti TC", "STSong", "Songti SC", "SimSun", "PMingLiU", serif; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; padding-bottom: 10px; border-bottom: 1px solid var(--line); margin-bottom: 12px; }   /* 標題列下分隔線（擁有者 10-30 18:21） */
   .hwz-title small { margin-left: auto; font-size: 13px; font-weight: 400; color: var(--muted); }
   .hwz-list { display: grid; gap: 8px; }
   .hwz-work { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 6px; background: var(--bg); color: var(--ink); text-decoration: none; font-size: 16px; }
