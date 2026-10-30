@@ -19,6 +19,12 @@
       "course": "medical-biology",
       "courseTitle": "醫學生物學",
       "path": "/content/courses/2026_y1s1/medical-biology/cards/cards.json"
+    },
+    {
+      "semester": "2026_y1s1",
+      "course": "anatomy",
+      "courseTitle": "人體解剖學",
+      "path": "/content/courses/2026_y1s1/anatomy/cards/cards.json"
     }
   ],
   "examCategories": [
