@@ -259,11 +259,11 @@ function adminCoursePicker(list, curId, count) {
     ${names.map((name, i) => { const y = i + 1, open = years.has(y);
       return `<button type="button" role="tab" class="year-tab" data-apick-y="${y}" aria-selected="${y === curYear}" ${open ? '' : 'disabled'}>${name}${open ? '' : '<small>尚無科目</small>'}</button>`; }).join('')}
   </div>
-  <div class="subj-rows">
+  ${curYear === BANK_YEAR ? '' : `<div class="subj-rows">
     <div class="subj-chips-wrap">${semsInYear.map(code => `<div class="subj-row"><span class="subj-sem">${half(code)}</span>${list.filter(x => x.semesterCode === code).map(chip).join('')}</div>`).join('')}</div>
     <label class="subj-select-wrap"><span class="sr-only">科目</span>
       <select class="subj-select" data-apick-course>${semsInYear.map(code => `<optgroup label="${half(code)}">${list.filter(x => x.semesterCode === code).map(x => `<option value="${x.id}" ${x.id === cur.id ? 'selected' : ''}>${esc(x.title)}${count ? `（${n(x)}）` : ''}</option>`).join('')}</optgroup>`).join('')}</select></label>
-  </div>`;
+  </div>`}`;
 }
 // 面板標題列：科目名稱（＋執醫考科）＋右側動作按鈕
 function adminCourseTop(c, actionHtml) {

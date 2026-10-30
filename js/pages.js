@@ -188,7 +188,7 @@ function examZonePage() {
   const head = '<h2 class="section">學習試題 <small class="motto">學而時習，溫故知新</small></h2>';
   if (!c) return head + tabs + '<p class="empty-note">目前沒有開放的學期。</p>';
   return `${head}${tabs}
-  <div class="subj-rows">${subjChipsHtml(inYear, c.id, count, 'data-zone-course')}</div>
+  ${siteYear === BANK_YEAR ? '' : `<div class="subj-rows">${subjChipsHtml(inYear, c.id, count, 'data-zone-course')}</div>`}
   <div class="exnav">
     <div class="exnav-top">
       <h3 class="exnav-title">${isBankCourse(c) ? esc(c.title) : `<a class="link" href="#course/${c.id}">${esc(c.title)}</a>`}${isExamSubject(c) ? ' <span class="exam-tag">執醫考科</span>' : ''}</h3>
