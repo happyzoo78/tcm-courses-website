@@ -1153,3 +1153,6 @@ header.compact .logo, header.compact .actions { visibility: hidden; transition: 
 /* 頁面大標：大字與小字之間放一塊淡色直條，分開主標與副標（擁有者 10-30 15:55） */
 h2.section > small::before { content: ""; display: inline-block; width: 3px; height: 28px; margin-right: 12px; vertical-align: -5px; border-radius: 2px; background: color-mix(in srgb, var(--gold) 32%, transparent); }   /* 細直條：比 24px 大字長一點點；小字與大字齊底（h2 以 baseline 對齊） */
 @media (max-width: 720px) { h2.section + .year-tabs { margin-left: 8px; margin-right: 8px; } }
+/* 年級分頁與下面的科目列是同一組選單：左右縮排一致，左邊對齊（擁有者 10-30 16:21） */
+h2.section + .year-tabs + .subj-rows { margin-left: 14px; margin-right: 14px; }
+@media (max-width: 720px) { h2.section + .year-tabs + .subj-rows { margin-left: 8px; margin-right: 8px; } }
