@@ -497,7 +497,7 @@ const HERO_ART_STRAIT = `<svg class="hero-art hero-strait" viewBox="40 56 700 36
   <g fill="none" stroke="var(--ink)" opacity=".45"><path d="M470 72 q8 -7 14 0 q6 -7 14 0" stroke-width="1.6"/><path d="M508 92 q6 -5 11 0 q5 -5 11 0" stroke-width="1.4"/></g>
 </svg>`;
 // 首頁大圖（擁有者 2026-10-31 提供的水墨插畫：福建書院 → 書本石橋 → 台灣，負笈書生過橋）
-const HERO_ART_PAINTING = `<img class="hero-art hero-painting" src="/css/img/hero-strait.webp?v=3" alt="" aria-hidden="true">`;
+const HERO_ART_PAINTING = `<img class="hero-art hero-painting" src="/css/img/hero-strait.webp?v=4" alt="" aria-hidden="true">`;
 // 關於本站大圖（擁有者 2026-10-31 提供：山水旁的講堂，老師指著骨骼掛圖授課）
 const HERO_ART_ABOUT = `<img class="hero-art hero-about-img" src="/css/img/about-class.webp?v=1" alt="" aria-hidden="true">`;
 const HERO_ART = HERO_ART_PAINTING;   // 首頁用；備用：HERO_ART_STRAIT（向量版一水相連）、HERO_ART_LANDSCAPE（水墨山水）
