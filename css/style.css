@@ -863,12 +863,12 @@ fieldset.owners .check small { color: var(--muted); }
 :root[data-theme="dark"] { --sea: #5f8aa3; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --sea: #5f8aa3; } }
 /* 首頁大圖：水墨插畫（2026-10-31）。靠右、填滿高度、左側淡出接標題；插畫偏亮，深色模式壓暗 */
-.hero-art.hero-painting { height: 100%; width: auto; aspect-ratio: 1600 / 893; max-width: 100%; object-fit: cover; object-position: 100% 50%;   /* 依高度等比縮放，整張圖都看得到（台灣不被裁掉，擁有者 2026-10-31）；左緣淡出接標題 */  opacity: .58; -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 40%); mask-image: linear-gradient(to right, transparent 0%, #000 40%); }
+.hero-art.hero-painting { height: 100%; width: auto; aspect-ratio: 1600 / 887; max-width: 100%; object-fit: cover; object-position: 100% 50%;   /* 依高度等比縮放，整張圖都看得到（台灣不被裁掉，擁有者 2026-10-31）；左緣淡出接標題 */  opacity: .58; -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 40%); mask-image: linear-gradient(to right, transparent 0%, #000 40%); }
 .hero:has(.hero-painting) h1, .hero:has(.hero-painting) p { text-shadow: 0 0 10px var(--surface), 0 0 4px var(--surface), 0 0 2px var(--surface); }   /* 標題、副標壓在插畫上時加一圈底色光暈，保持清楚 */
 :root[data-theme="dark"] .hero-art.hero-painting { opacity: .5; filter: brightness(.8) saturate(.9); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .hero-art.hero-painting { opacity: .5; filter: brightness(.8) saturate(.9); } }
 @media (max-width: 720px) { .hero-art.hero-painting { width: 100%; height: 62%; opacity: .3; -webkit-mask-image: linear-gradient(to bottom, transparent, #000 45%); mask-image: linear-gradient(to bottom, transparent, #000 45%); } }
-.about-hero .hero-art.hero-painting { width: auto; height: 100%; aspect-ratio: 1600 / 893; top: 0; bottom: 0; transform: none;; opacity: .32; -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 55%); mask-image: linear-gradient(to right, transparent 0%, #000 55%); }
+.about-hero .hero-art.hero-painting { width: auto; height: 100%; aspect-ratio: 1600 / 887; top: 0; bottom: 0; transform: none;; opacity: .32; -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 55%); mask-image: linear-gradient(to right, transparent 0%, #000 55%); }
 :root[data-theme="dark"] .about-hero .hero-art.hero-painting { opacity: .28; }   /* 關於本站文字多，插畫比首頁更淡（擁有者 2026-10-31） */
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .about-hero .hero-art.hero-painting { opacity: .28; } }   /* 關於本站也用同一張插畫（2026-10-31） */
 @media (max-width: 720px) { .about-hero .hero-art.hero-painting { top: auto; height: 45%; } }
