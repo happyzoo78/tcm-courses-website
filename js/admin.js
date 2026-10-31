@@ -161,10 +161,12 @@ function memberGroupsHtml(roleOptions) {
         <div>
           ${membersMeta.seenSupported ? `<span class="online-dot ${seen.online ? 'on' : ''}" title="${esc(seen.text)}"></span>` : ''}<b>${esc(m.displayName)}</b>${showRole ? `<span class="role">${ROLE_NAME[m.role] || esc(m.role)}</span>` : ''}${m.hasPassword ? '<span class="role" title="可以用 Email＋密碼登入">密碼</span>' : ''}${off ? '<span class="role off">已停用</span>' : ''}${{ need: '<span class="role mail-need" title="沒有密碼、從未登入，信箱不是 Gmail，可能無法用 Google 登入">可能需要密碼</span>', suggest: '<span class="role mail-suggest" title="沒有密碼、從未登入；Gmail 可用 Google 登入">尚未登入</span>', mailed: `<span class="role mail-sent" title="已寄出設定密碼的信">已寄密碼信 ${esc(fmtTime(m.mailedAt))}</span>` }[mailAdvice(m)] || ''}
           <br><small>${membersMeta.seenSupported ? `<span class="${seen.online ? 'seen-on' : ''}">${esc(seen.text)}</span> · ` : ''}${esc(m.email)} · 最後登入：${esc(fmtTime(m.lastLoginAt))}</small>
+          ${m.adminNote ? `<div class="member-note"><span class="member-note-lab">備註</span>${esc(m.adminNote)}</div>` : ''}
         </div>
         <div class="row-actions">
           ${m.isSelf ? '<a class="btn secondary" href="#account">改暱稱</a>' : locked ? '' : `
             <button type="button" class="btn secondary" data-member-rename="${m.id}">改名</button>
+            ${membersMeta.noteSupported ? `<button type="button" class="btn secondary" data-member-note="${m.id}" title="只有管理員看得到，同學看不到">備註</button>` : ''}
             <button type="button" class="btn secondary" data-member-pw="${m.id}">${m.hasPassword ? '重設密碼' : '設定密碼'}</button>
             ${membersMeta.mailEnabled ? `<button type="button" class="btn secondary" data-member-mail="${m.id}" title="寄一封設定密碼的信到 ${esc(m.email)}">寄密碼信</button>` : ''}
             <select data-member-role="${m.id}" aria-label="變更權限">${roleOptions(m.role)}</select>
@@ -184,7 +186,7 @@ function memberGroupsHtml(roleOptions) {
   }).join('');
 }
 
-let membersMeta = { now: null, seenSupported: true, mailEnabled: false, at: 0 };
+let membersMeta = { now: null, seenSupported: true, mailEnabled: false, noteSupported: true, at: 0 };
 const ONLINE_MIN = 5;   // 5 分鐘內有動作就算「線上」
 
 // 上線狀態：線上／幾分鐘前／今天幾點／日期
@@ -204,7 +206,7 @@ async function loadMembers() {
   membersLoading = true;
   try {
     const r = await api('/api/admin/members');
-    members = r.members; membersMeta = { now: r.now, seenSupported: r.seenSupported !== false, mailEnabled: Boolean(r.mailEnabled), at: Date.now() };
+    members = r.members; membersMeta = { now: r.now, seenSupported: r.seenSupported !== false, mailEnabled: Boolean(r.mailEnabled), noteSupported: r.noteSupported !== false, at: Date.now() };
   } catch (err) {
     membersLoading = false;
     members = [];

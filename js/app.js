@@ -92,7 +92,7 @@ function startHeartbeat() {
     if (!admin || document.visibilityState !== 'visible') return;
     try { await api('/api/me'); } catch {}
     if (page === 'admin' && adminType === 'members' && !membersLoading && !document.querySelector('#memberform input:focus, #memberform select:focus')) {
-      try { const r = await api('/api/admin/members'); members = r.members; membersMeta = { now: r.now, seenSupported: r.seenSupported !== false, mailEnabled: Boolean(r.mailEnabled), at: Date.now() }; render(); } catch {}
+      try { const r = await api('/api/admin/members'); members = r.members; membersMeta = { now: r.now, seenSupported: r.seenSupported !== false, mailEnabled: Boolean(r.mailEnabled), noteSupported: r.noteSupported !== false, at: Date.now() }; render(); } catch {}
     }
   }, 60000);
 }
@@ -427,6 +427,21 @@ function bind() {
     try {
       await api(`/api/admin/members/${m.id}`, { method: 'PUT', body: { displayName: name.trim().slice(0, 30) } });
       await reloadMembers(`已將名稱改為「${name.trim().slice(0, 30)}」`);
+    } catch (err) {
+      b.disabled = false;
+      handleError(err, null);
+    }
+  });
+
+  // 擁有者幫成員寫備註（例如：本名、班上座號；同學看不到）
+  document.querySelectorAll('[data-member-note]').forEach(b => b.onclick = async () => {
+    const m = members.find(x => x.id == b.dataset.memberNote);
+    const note = prompt(`「${m.displayName}」（${m.email}）的備註，只有管理員看得到（最多 200 字；清空＝刪除備註）：`, m.adminNote || '');
+    if (note === null || note.trim() === (m.adminNote || '')) return;
+    b.disabled = true;
+    try {
+      await api(`/api/admin/members/${m.id}`, { method: 'PUT', body: { adminNote: note.trim().slice(0, 200) } });
+      await reloadMembers(note.trim() ? `已更新「${m.displayName}」的備註` : `已刪除「${m.displayName}」的備註`);
     } catch (err) {
       b.disabled = false;
       handleError(err, null);

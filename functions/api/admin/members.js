@@ -33,11 +33,19 @@ export async function onRequestGet({ request, env }) {
     const { results: t } = await env.DB.prepare("SELECT user_id, MAX(created_at) AS at FROM password_tokens GROUP BY user_id").all();
     for (const r of t || []) mailed[r.user_id] = r.at;
   } catch {}
+  // 管理員備註（只有能管理成員的人看得到；admin_note 欄位還沒建立時略過，畫面會提示要先執行 SQL）
+  const notes = {};
+  let noteSupported = true;
+  try {
+    const { results: n } = await env.DB.prepare("SELECT id, admin_note FROM admin_users").all();
+    for (const r of n || []) notes[r.id] = r.admin_note || "";
+  } catch { noteSupported = false; }
 
   return jsonResponse({
     now: now?.t || null,
     mailEnabled: mailConfigured(env),
     seenSupported: results.length ? "last_seen_at" in results[0] : true,
+    noteSupported,
     members: results.map(m => ({
       id: m.id,
       email: m.email,
@@ -49,6 +57,7 @@ export async function onRequestGet({ request, env }) {
       lastSeenAt: m.last_seen_at ?? null,
       hasPassword: Boolean(m.password_hash) && m.password_hash !== NO_PASSWORD,
       mailedAt: mailed[m.id] || null,
+      adminNote: notes[m.id] || "",
       isSelf: m.id === auth.admin.id
     }))
   });

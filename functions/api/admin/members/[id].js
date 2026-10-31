@@ -55,6 +55,12 @@ export async function onRequestPut({ request, env, params }) {
     if (!name || name.length > 100) return jsonResponse({ error: "名稱需為 1～100 字" }, 400);
     sets.push("display_name = ?"); values.push(name);
   }
+  // 管理員備註：同學自己取的名稱看不出是誰時，擁有者記一下（同學看不到；空白＝清除）
+  if ("adminNote" in body) {
+    const note = String(body.adminNote ?? "").trim();
+    if (note.length > 200) return jsonResponse({ error: "備註最多 200 字" }, 400);
+    sets.push("admin_note = ?"); values.push(note);
+  }
   // 設定／重設密碼（擁有者幫忘記密碼的同學重設）；password: null 代表取消密碼登入，只能用 Google
   let passwordChanged = false;
   if ("password" in body) {
@@ -88,6 +94,9 @@ export async function onRequestPut({ request, env, params }) {
     return jsonResponse({ success: true });
   } catch (error) {
     console.error("Update member failed", error);
+    if ("adminNote" in body && /admin_note/i.test(String(error?.message || error))) {
+      return jsonResponse({ error: "資料庫還沒有「備註」欄位，請網站擁有者先執行設定 SQL。" }, 500);
+    }
     return jsonResponse({ error: "儲存失敗，請稍後再試" }, 500);
   }
 }
