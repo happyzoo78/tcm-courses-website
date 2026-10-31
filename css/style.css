@@ -853,6 +853,13 @@ fieldset.owners .check small { color: var(--muted); }
 :root { --sea: #6f9ab4; }   /* 首頁大圖的海（陸地外的藍色漸層，取代水紋；擁有者 2026-10-31） */
 :root[data-theme="dark"] { --sea: #5f8aa3; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --sea: #5f8aa3; } }
+/* 首頁大圖：水墨插畫（2026-10-31）。靠右、填滿高度、左側淡出接標題；插畫偏亮，深色模式壓暗 */
+.hero-art.hero-painting { width: min(64%, 760px); height: 100%; object-fit: cover; object-position: 50% 55%; opacity: .72; -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 40%); mask-image: linear-gradient(to right, transparent 0%, #000 40%); }
+.hero:has(.hero-painting) h1, .hero:has(.hero-painting) p { text-shadow: 0 0 10px var(--surface), 0 0 4px var(--surface), 0 0 2px var(--surface); }   /* 標題、副標壓在插畫上時加一圈底色光暈，保持清楚 */
+:root[data-theme="dark"] .hero-art.hero-painting { opacity: .62; filter: brightness(.8) saturate(.9); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .hero-art.hero-painting { opacity: .62; filter: brightness(.8) saturate(.9); } }
+@media (max-width: 720px) { .hero-art.hero-painting { width: 100%; height: 62%; opacity: .3; -webkit-mask-image: linear-gradient(to bottom, transparent, #000 45%); mask-image: linear-gradient(to bottom, transparent, #000 45%); } }
+.hero.hero.has-art:has(.hero-painting)::after { bottom: 4px; opacity: .85; filter: drop-shadow(0 0 3px var(--surface)) drop-shadow(0 0 6px var(--surface)); }
 /* 首頁大圖「一水相連」（2026-10-31）：左側有福建中醫藥大學建築，淡出範圍縮小，避免建築被吃掉 */
 .hero-art.hero-strait { width: min(54%, 640px); -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 30%); mask-image: linear-gradient(to right, transparent 0%, #000 30%); }
 .hero.hero.has-art:has(.hero-strait)::after { bottom: 4px; opacity: .62; }   /* 「台灣 · 福建 · 知識連結」貼底、不壓台灣島，加深讓字清楚（擁有者 2026-10-31） */
