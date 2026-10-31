@@ -184,7 +184,7 @@ h2.section + .year-tabs { margin-left: 14px; margin-right: 14px; box-shadow: ins
 /* 科目卡封面插畫（私塾聽講，2026-10-31）：填滿封面、偏下取景（人物在下半）；浮水印大字加深、加淡色描邊才看得清楚 */
 .cover-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 72%; opacity: .5; pointer-events: none; }   /* 插畫淡化，讓上面的大字清楚（擁有者 2026-10-31） */
 .cover.has-img { background: #f3ede1; }   /* 插畫底一律米白，深色模式淡化後也不會變灰暗 */
-.cover.has-img span { opacity: 1; color: #eea092; -webkit-text-stroke: 2px #9b5f5c; paint-order: stroke fill; filter: drop-shadow(0 0 3px rgba(255,255,255,.95)) drop-shadow(0 0 6px rgba(255,255,255,.7)); }   /* 鮭魚粉字＋2px 棗紅外框（兩色皆混 25% 白變淡）＋白色外光暈（用 filter 才不會蓋掉外框）；插畫本身是淺色，深色模式沿用同一組 */
+.cover.has-img span { font-size: 51px; opacity: 1; color: #eea092; -webkit-text-stroke: 2px #9b5f5c; paint-order: stroke fill; filter: drop-shadow(0 0 3px rgba(255,255,255,.95)) drop-shadow(0 0 6px rgba(255,255,255,.7)); }   /* 鮭魚粉字＋2px 棗紅外框（兩色皆混 25% 白變淡）＋白色外光暈（用 filter 才不會蓋掉外框）；插畫本身是淺色，深色模式沿用同一組 */
 :root[data-theme="dark"] .cover-img { filter: brightness(.9) saturate(.9); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cover-img { filter: brightness(.9) saturate(.9); } }
 :root { --ink-wash: #4d5f6b; }
@@ -453,6 +453,7 @@ footer {
   .course { min-height: 0; }
   .cover { width: 30%; }
   .cover span { font-size: 52px; }
+  .cover.has-img span { font-size: 42px; }   /* 插畫封面大字縮為 80%（2026-10-31） */
   .course-body { padding: 14px 16px; }
   .course h3 { font-size: 19px; }
   .numbers { gap: 14px; flex-wrap: wrap; }
