@@ -172,6 +172,7 @@ function memberGroupsHtml(roleOptions) {
             <select data-member-role="${m.id}" aria-label="變更權限">${roleOptions(m.role)}</select>
             <button type="button" class="btn secondary ${off ? '' : 'danger'}" data-member-status="${m.id}" data-to="${off ? 'active' : 'suspended'}">${off ? '恢復' : '停用'}</button>
             ${m.lastLoginAt ? '' : `<button type="button" class="btn secondary danger" data-member-delete="${m.id}">移除</button>`}`}
+          ${locked && membersMeta.noteSupported ? `<button type="button" class="btn secondary" data-member-note="${m.id}" title="只有管理員看得到，同學看不到">備註</button>` : ''}
         </div>
       </div>`;
   };

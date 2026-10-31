@@ -5,7 +5,7 @@ import { requireAdmin, readJson, audit } from "../../../_lib/content.js";
 import { MEMBER_ROLES, NO_PASSWORD, checkPassword } from "../../../_lib/members.js";
 import { hashPassword } from "../../../_lib/password.js";
 
-async function loadTarget(env, params, auth) {
+async function loadTarget(env, params, auth, noteOnly = false) {
   const id = Number(params.id);
   if (!Number.isInteger(id) || id < 1) return { error: jsonResponse({ error: "Not found" }, 404) };
 
@@ -14,6 +14,8 @@ async function loadTarget(env, params, auth) {
   ).bind(id).first();
 
   if (!target) return { error: jsonResponse({ error: "找不到這位成員" }, 404) };
+  // 只改「管理員備註」時，自己和擁有者也可以（備註不影響權限與登入）
+  if (noteOnly) return { target };
   if (target.id === auth.admin.id) return { error: jsonResponse({ error: "不能修改自己的帳號" }, 403) };
   if (target.role === "owner") return { error: jsonResponse({ error: "不能修改擁有者" }, 403) };
   return { target };
@@ -31,13 +33,14 @@ export async function onRequestPut({ request, env, params }) {
   const auth = await requireAdmin(request, env, "manage_users");
   if (auth.error) return auth.error;
 
-  const found = await loadTarget(env, params, auth);
-  if (found.error) return found.error;
-  const { target } = found;
-
   const parsed = await readJson(request);
   if (parsed.error) return parsed.error;
   const body = parsed.body;
+  const noteOnly = body && typeof body === "object" && Object.keys(body).length === 1 && "adminNote" in body;
+
+  const found = await loadTarget(env, params, auth, noteOnly);
+  if (found.error) return found.error;
+  const { target } = found;
 
   const sets = [];
   const values = [];
