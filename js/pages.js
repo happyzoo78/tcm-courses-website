@@ -10,7 +10,7 @@ function courseCard(c) {
   const k = itemsOf(c.id).length + deckCardCount(c.id);
   return `
   <article class="course">
-    <div class="cover${COVER_IMG[c.slug] ? ' has-img' : ''}" aria-hidden="true">${COVER_IMG[c.slug] ? `<img class="cover-img" src="${COVER_IMG[c.slug]}" alt="" loading="lazy">` : COVER_ART(Number(c.id) - 1)}<span>${esc(c.icon || c.title.slice(0, 2))}</span></div>
+    <div class="cover has-img" aria-hidden="true"><img class="cover-img" src="${coverImgOf(c)}" alt="" loading="lazy"><span>${esc(c.icon || c.title.slice(0, 2))}</span></div>
     <div class="course-body">
       <h3>${esc(c.title)}${isExamSubject(c) ? ' <span class="exam-tag">執醫考科</span>' : ''}</h3>
       <p class="meta-label">${[n ? `${n} 份講義` : '', `${k} 張圖卡`, `${x} 份試題`].filter(Boolean).join(' · ')}</p>

@@ -379,6 +379,18 @@ const COVER_IMG = {
   'medical-biology': '/css/img/covers/medical-biology.webp?v=1',
   'anatomy': '/css/img/covers/anatomy.webp?v=1'
 };
+// 其他科目：8 張插畫輪換（擁有者 2026-10-31 再提供 4 張 extra-5～8）
+const COVER_POOL = [
+  '/css/img/covers/extra-5.webp?v=1', '/css/img/covers/extra-6.webp?v=1', '/css/img/covers/extra-7.webp?v=1', '/css/img/covers/extra-8.webp?v=1',
+  '/css/img/covers/tcm-basic-theory.webp?v=1', '/css/img/covers/histology-embryology.webp?v=1', '/css/img/covers/medical-biology.webp?v=1', '/css/img/covers/anatomy.webp?v=1'
+];
+// 沒有指定插畫的科目，依科目編號排隊輪流取：第 1～4 個先用新的 4 張，之後才和既有 4 張重複
+const coverImgOf = c => {
+  if (COVER_IMG[c.slug]) return COVER_IMG[c.slug];
+  const rest = (data.courses || []).filter(x => !COVER_IMG[x.slug] && x.semesterCode !== BANK_SEM)   // 執醫考題的隱藏容器科目不佔位.map(x => Number(x.id)).sort((a, b) => a - b);
+  const k = Math.max(0, rest.indexOf(Number(c.id)));
+  return COVER_POOL[k % COVER_POOL.length];
+};
 const COVER_ART = (() => {
   const mtn = (d, op, id) => `<path d="${d}" fill="url(#${id})" opacity="${op}"/>`;
   return i => {
