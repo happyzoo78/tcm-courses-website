@@ -955,7 +955,8 @@ h2.section small.motto { font-family: "Noto Serif TC", "Noto Serif CJK TC", "Sou
 h2.section .more-btn { margin-left: auto; align-self: center; }
 .shelf-foot { margin-top: auto; display: flex; align-items: center; gap: 10px; }   /* 科目卡底列：左「展示最新章節圖卡」說明、右 More（擁有者 2026-10-31） */
 .shelf-foot .more-btn { margin-left: auto; }
-.shelf-note { font-size: 13.5px; color: var(--muted); }
+.shelf-note { font-size: 14px; font-weight: 700; color: var(--gold); letter-spacing: .04em; }   /* 告示字（不是內文）：金色粗體＋金色長條，與全站說明性小標同一語言（擁有者 2026-10-31） */
+.shelf-note::before { content: ""; display: inline-block; width: 4px; height: 1em; margin-right: 8px; vertical-align: -0.12em; border-radius: 2px; background: var(--gold); }
 .shelf-list, .shelf .empty-note { margin-bottom: 12px; }
 @media (max-width: 720px) { .shelf-list, .shelf .empty-note { margin-bottom: 8px; } }
 
