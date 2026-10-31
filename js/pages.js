@@ -336,7 +336,7 @@ function accountPage() {
   const flash = adminFlash ? `<div class="msg ok">${esc(adminFlash)}</div>` : '';
   adminFlash = '';
   return `
-  <h2 class="section">我的帳號</h2>
+  <h2 class="section">我的帳號<a class="more-btn back-btn" href="${esc(accountFrom || '#home')}" title="回到進來前的頁面"><span class="arr" aria-hidden="true">‹</span>回上一頁</a></h2>
   ${flash}
   <div class="panel prose account">
     <div class="panel-head"><h3>基本資料</h3><p>暱稱會顯示在科目負責人、網頁的「更新者」等地方，其他成員看得到。</p></div>
