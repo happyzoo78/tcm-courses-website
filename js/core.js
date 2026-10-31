@@ -374,15 +374,15 @@ function subjChipsHtml(sems, curId, count, attr) {
 // 科目卡封面底圖：原創水墨山水（遠山、霧、朱紅日、枝椏、飛鳥），依科目左右翻轉、換日的位置，只當淡淡的底
 // 科目卡封面插畫（擁有者 2026-10-31 提供的私塾聽講插畫，裁成直式 WebP）；依科目代碼對應，沒有的科目用下方水墨山水 COVER_ART
 const COVER_IMG = {
-  'tcm-basic-theory': '/css/img/covers/tcm-basic-theory.webp?v=1',
-  'histology-embryology': '/css/img/covers/histology-embryology.webp?v=1',
-  'medical-biology': '/css/img/covers/medical-biology.webp?v=1',
-  'anatomy': '/css/img/covers/anatomy.webp?v=1'
+  'tcm-basic-theory': '/css/img/covers/tcm-basic-theory.webp?v=2',
+  'histology-embryology': '/css/img/covers/histology-embryology.webp?v=2',
+  'medical-biology': '/css/img/covers/medical-biology.webp?v=2',
+  'anatomy': '/css/img/covers/anatomy.webp?v=2'
 };
 // 其他科目：8 張插畫輪換（擁有者 2026-10-31 再提供 4 張 extra-5～8）
 const COVER_POOL = [
   '/css/img/covers/extra-5.webp?v=1', '/css/img/covers/extra-6.webp?v=1', '/css/img/covers/extra-7.webp?v=1', '/css/img/covers/extra-8.webp?v=1',
-  '/css/img/covers/tcm-basic-theory.webp?v=1', '/css/img/covers/histology-embryology.webp?v=1', '/css/img/covers/medical-biology.webp?v=1', '/css/img/covers/anatomy.webp?v=1'
+  '/css/img/covers/tcm-basic-theory.webp?v=2', '/css/img/covers/histology-embryology.webp?v=2', '/css/img/covers/medical-biology.webp?v=2', '/css/img/covers/anatomy.webp?v=2'
 ];
 // 沒有指定插畫的科目，依科目編號排隊輪流取：第 1～4 個先用新的 4 張，之後才和既有 4 張重複
 const coverImgOf = c => {
