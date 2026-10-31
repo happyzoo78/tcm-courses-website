@@ -73,6 +73,8 @@ const HW_DATA = [
   .hw-crumbs ol { display: flex; flex-wrap: wrap; align-items: center; margin: 0; padding: 0; list-style: none; }
   .hw-crumbs li + li::before { content: "›"; margin: 0 8px; font-weight: 700; color: color-mix(in srgb, var(--muted) 70%, transparent); }
   .hw-crumbs [aria-current="page"] { color: var(--ink); font-weight: 600; }
+  .hw-crumbs a { color: var(--accent); text-decoration: none; }
+  .hw-crumbs a:hover { text-decoration: underline; }
   .hw-menu-home { display: none; }   /* 作業專區首頁：頁面本身就有年級／學期／科目選單，不再顯示這條 */
   .hw-row { max-width: 1240px; margin: 0 auto; padding: 6px 20px; display: flex; align-items: center; gap: 8px; min-height: 46px; }
   /* 按鈕與主站一致：次要＝淡綠底＋綠框，目前所在科目＝實心綠 */
@@ -199,13 +201,13 @@ const HW_DATA = [
   const subjBox = s => `<div class="hw-subj"><h4>${esc(s.name)}${examTag(s)}</h4>${workList(s)}</div>`;
   const countWorks = se => se.subjects.reduce((n, s) => n + s.works.length, 0);
 
-  /* ---------- 階層路線：首頁 › 作業專區 › 科目 › 作業名稱（只列位置，不做連結；擁有者 10-30 18:27） ---------- */
+  /* ---------- 階層路線：首頁 › 作業專區 › 科目 › 作業名稱（擁有者 10-30 18:27；10-31：「作業專區」加連結，首頁不連，因為作業頁不連回主網站） ---------- */
   const curWork = curSubj && curSubj.works.find(isCur);
   const mainEl = document.querySelector('main');
   if (!atHwHome && curWork && mainEl && !mainEl.querySelector('.hw-crumbs')) {
     const cr = document.createElement('nav');
     cr.className = 'hw-crumbs'; cr.setAttribute('aria-label', '目前位置');
-    cr.innerHTML = `<ol><li>首页</li><li>作业专区</li><li>${esc(curSubj.name)}</li><li aria-current="page">${esc(curWork.title)}</li></ol>`;
+    cr.innerHTML = `<ol><li>首页</li><li><a href="${HW_HOME}">作业专区</a></li><li>${esc(curSubj.name)}</li><li aria-current="page">${esc(curWork.title)}</li></ol>`;
     mainEl.insertBefore(cr, mainEl.firstChild);
     if (window.__hwAfterRender) window.__hwAfterRender(cr);
   }
@@ -222,7 +224,6 @@ const HW_DATA = [
         + (sems.length < 2 ? '<p class="hw-note">其他学期开放后，会出现在这里。</p>' : '');
       nav.innerHTML = `
         <div class="hw-row">
-          ${atHwHome ? '' : `<a class="hw-back" href="${HW_HOME}" title="回作业专区" aria-label="回作业专区">←<span class="t"> 作业专区</span></a>`}
           <button class="hw-all" type="button" aria-expanded="false" data-p="all">☰<span class="t"> 科目选单</span></button>
           <button class="hw-cur" type="button" aria-expanded="false" data-p="all"><span class="hw-cur-t">${esc(curSubj ? curSubj.name : '选择科目与作业')}</span><span class="hw-cur-s">${esc(label(active))}</span><span class="car">▾</span></button>
           <button class="hw-sembtn" type="button" aria-expanded="false" data-p="sem" title="${esc(active.name)}">${esc(label(active))}<span class="car">▾</span></button>
