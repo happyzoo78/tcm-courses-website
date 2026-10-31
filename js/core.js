@@ -400,8 +400,8 @@ const COVER_ART = (() => {
 </svg>`;
   };
 })();
-// 首頁／關於本站大圖：原創水墨山水（與科目卡封面同一套語言）。左側淡出，不壓到標題文字
-const HERO_ART = `<svg class="hero-art" viewBox="0 0 640 300" preserveAspectRatio="xMaxYMax slice" aria-hidden="true">
+// 舊版大圖：原創水墨山水（與科目卡封面同一套語言）。擁有者 2026-10-31：保留備用，目前用在「關於本站」
+const HERO_ART_LANDSCAPE = `<svg class="hero-art" viewBox="0 0 640 300" preserveAspectRatio="xMaxYMax slice" aria-hidden="true">
   <defs>
     <linearGradient id="hw-fade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".35" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff"/></linearGradient>
     <mask id="hw-mask"><rect width="640" height="300" fill="url(#hw-fade)"/></mask>
@@ -428,3 +428,47 @@ const HERO_ART = `<svg class="hero-art" viewBox="0 0 640 300" preserveAspectRati
     <g fill="none" stroke="var(--ink-wash)" stroke-width="1.1" stroke-linecap="round" opacity=".6"><path d="M352 96 q5 -5 10 0 q5 -5 10 0"/><path d="M380 84 q4 -4 8 0 q4 -4 8 0"/><path d="M336 110 q3 -3 6 0 q3 -3 6 0"/></g>
   </g>
 </svg>`;
+// 首頁大圖（擁有者 2026-10-31 方案 A「一水相連」＋經絡橋）：福建（福建中醫藥大學）← 經絡穴位橋 ← 台灣（中央山脈、玉山），書生負笈過橋求學
+// 台灣輪廓依約 40 個海岸地標經緯度描繪（cos 23.7° 校正）；深色模式靠 CSS 變數換色，建築與匾額固定色
+const HERO_ART_STRAIT = `<svg class="hero-art hero-strait" viewBox="40 56 700 360" preserveAspectRatio="xMaxYMid meet" aria-hidden="true">
+  <circle cx="420" cy="112" r="36" fill="#c4553f" opacity=".8"/>
+  <path d="M40 300 L80 252 L120 270 L170 188 L210 232 L250 168 L292 222 L340 200 L380 258 L410 300 Z" fill="var(--ink-wash)" opacity=".18"/>
+  <path d="M40 335 L90 292 L140 304 L190 252 L240 282 L280 244 L330 292 L372 304 L420 336 C450 356 480 384 520 440 L40 440 Z" fill="var(--ink-wash)" opacity=".32"/>
+  <g fill="none" stroke="var(--ink-wash)" stroke-width="2"><path d="M380 372 q20 -8 40 0 t40 0 t40 0 t40 0 t40 0 t40 0" opacity=".35"/><path d="M400 392 q20 -8 40 0 t40 0 t40 0 t40 0 t40 0 t40 0" opacity=".28"/><path d="M370 412 q20 -8 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0" opacity=".22"/></g>
+  <g transform="translate(555 66)">
+    <path d="M122.4 4.6 C125.4 3.7 126.4 7.4 129.1 9.6 C131.7 11.7 135.4 15.4 138.6 17.4 C141.8 19.4 144.7 19.7 148.2 21.8 C151.6 23.8 159.3 26.1 159.3 29.6 C159.3 33.1 150.4 38.1 148.2 42.6 C145.9 47.1 145.6 52.8 145.8 56.6 C145.9 60.3 149.6 61.2 149.0 65.2 C148.3 69.3 145.1 71.9 141.8 80.9 C138.5 89.9 132.4 107.6 129.1 119.2 C125.7 130.8 124.1 141.4 121.9 150.5 C119.6 159.6 117.5 166.5 115.5 174.0 C113.5 181.5 112.3 189.5 109.9 195.8 C107.5 202.0 104.2 206.3 101.2 211.4 C98.1 216.5 95.2 220.8 91.6 226.2 C88.0 231.6 83.0 237.8 79.7 243.6 C76.3 249.4 73.6 254.5 71.7 261.0 C69.8 267.5 69.0 276.2 68.5 282.8 C68.0 289.3 69.6 298.0 68.5 300.2 C67.4 302.3 64.0 296.2 62.1 295.8 C60.3 295.4 58.4 299.4 57.4 297.5 C56.3 295.7 56.2 288.4 55.8 284.5 C55.4 280.6 56.4 278.3 55.0 274.1 C53.5 269.8 50.6 263.6 47.0 259.3 C43.4 254.9 37.7 251.3 33.5 248.0 C29.2 244.6 24.6 243.6 21.5 239.2 C18.5 234.9 17.1 227.7 15.1 221.9 C13.1 216.1 11.0 209.5 9.6 204.5 C8.1 199.4 6.0 196.9 6.4 191.4 C6.8 185.9 10.8 177.9 11.9 171.4 C13.1 164.9 12.9 158.3 13.5 152.2 C14.2 146.2 14.2 140.4 15.9 134.9 C17.7 129.3 21.2 123.5 23.9 119.2 C26.6 114.8 29.2 113.1 31.9 108.8 C34.5 104.4 36.9 98.2 39.8 93.1 C42.8 88.0 46.1 83.4 49.4 78.3 C52.7 73.2 55.8 67.7 59.7 62.6 C63.7 57.6 69.3 53.2 73.3 47.9 C77.3 42.5 79.9 34.8 83.6 30.5 C87.4 26.1 90.9 24.4 95.6 21.8 C100.2 19.1 107.1 17.6 111.5 14.8 C116.0 11.9 119.5 5.5 122.4 4.6 Z" fill="var(--accent)" opacity=".62"/>
+    <path d="M123.5 34.8 L115 52 L118 58 L107.5 78.3 L110 84 L99.6 108.8 L102 114 L87.6 143.6 L90 150 L76.5 163.6 L79 172 L71.7 204.5 L74 212 L67.7 248 L65.3 278.4" fill="none" stroke="var(--surface)" stroke-width="1.6" stroke-linejoin="round" opacity=".75"/>
+    <path d="M70 170 L76.5 158 L83 170 Z" fill="var(--surface)" opacity=".9"/>
+  </g>
+  <path d="M250 347 C288 347 300 326 330 302 Q470 176 592 172" fill="none" stroke="var(--gold)" stroke-width="1.5" opacity=".55"/>
+  <path d="M250 341 C288 341 300 320 330 296 Q470 170 592 166" fill="none" stroke="var(--gold)" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="358" cy="272" r="9" fill="#c9a96e" opacity=".25"/><circle cx="358" cy="272" r="4" fill="#b08a4e"/><circle cx="396" cy="243" r="9" fill="#c9a96e" opacity=".25"/><circle cx="396" cy="243" r="4" fill="#b08a4e"/><circle cx="434" cy="218" r="9" fill="#c9a96e" opacity=".25"/><circle cx="434" cy="218" r="4" fill="#b08a4e"/><circle cx="522" cy="178" r="9" fill="#c9a96e" opacity=".25"/><circle cx="522" cy="178" r="4" fill="#b08a4e"/><circle cx="557" cy="170" r="9" fill="#c9a96e" opacity=".25"/><circle cx="557" cy="170" r="4" fill="#b08a4e"/>
+  <g>
+    <rect x="168" y="336" width="144" height="9" fill="#8a6f46" opacity=".6"/>
+    <rect x="180" y="298" width="120" height="38" fill="#ece2cc" stroke="#6b5636" stroke-width="1"/>
+    <rect x="184" y="298" width="5" height="38" fill="#973d2f" opacity=".85"/><rect x="291" y="298" width="5" height="38" fill="#973d2f" opacity=".85"/>
+    <rect x="226" y="320" width="28" height="16" fill="#6b5636" opacity=".75"/>
+    <rect x="190" y="302" width="100" height="16" rx="1" fill="#973d2f"/>
+    <text x="240" y="314" text-anchor="middle" font-family="Noto Serif TC, Noto Serif CJK TC, Source Han Serif TC, Songti TC, serif" font-size="11" font-weight="700" letter-spacing="1" fill="#f3ede1">福建中醫藥大學</text>
+    <path d="M160 300 C174 299 181 293 187 283 L293 283 C299 293 306 299 320 300 C300 297 180 297 160 300 Z" fill="#2b2f2a" opacity=".82" stroke="#c8b08a" stroke-width=".8" stroke-opacity=".6"/>
+    <path d="M190 283 C196 279 200 275 202 271 L278 271 C280 275 284 279 290 283 Z" fill="#2b2f2a" opacity=".82"/>
+    <path d="M198 271 L196 265 M282 271 L284 265" fill="none" stroke="#2b2f2a" stroke-width="2" stroke-linecap="round" opacity=".82"/>
+  </g>
+  <g transform="translate(479 193)">
+    <rect x="3" y="-37" width="11" height="20" rx="1.5" fill="#8a6f46"/>
+    <path d="M1 -39 L17 -41" fill="none" stroke="#6b5636" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M4 -30 L13 -30 M4 -24 L13 -24" fill="none" stroke="#f3ede1" stroke-width="1" opacity=".7"/>
+    <path d="M9 -41 L11 -49" fill="none" stroke="#6b5636" stroke-width="1.6" stroke-linecap="round"/>
+    <path d="M-5 -32 L5 -32 L8 -5 L-10 -5 Z" fill="var(--accent)"/>
+    <path d="M-3 -31 Q-11 -24 -13 -17" fill="none" stroke="var(--accent)" stroke-width="3.2" stroke-linecap="round"/>
+    <path d="M-1 -32 L4 -36" fill="none" stroke="#6b5636" stroke-width="1.4"/>
+    <circle cx="-1" cy="-37" r="4.6" fill="var(--ink)"/>
+    <path d="M-6 -41 L4 -41 L3 -45 L-5 -45 Z" fill="var(--ink)"/>
+    <path d="M3 -43 L8 -40" fill="none" stroke="var(--ink)" stroke-width="1.2"/>
+    <path d="M-5 -5 L-10 0 M3 -5 L6 0" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  <g fill="none" stroke="var(--ink)" opacity=".45"><path d="M470 72 q8 -7 14 0 q6 -7 14 0" stroke-width="1.6"/><path d="M508 92 q6 -5 11 0 q5 -5 11 0" stroke-width="1.4"/></g>
+  <g opacity=".55"><path d="M150 440 C160 410 175 392 200 378" fill="none" stroke="var(--accent)" stroke-width="2"/><ellipse cx="172" cy="402" rx="14" ry="5" transform="rotate(-40 172 402)" fill="var(--accent)"/><ellipse cx="190" cy="384" rx="13" ry="5" transform="rotate(-20 190 384)" fill="var(--accent)"/></g>
+</svg>`;
+const HERO_ART = HERO_ART_STRAIT;   // 首頁用；要換回山水就改成 HERO_ART_LANDSCAPE
+
