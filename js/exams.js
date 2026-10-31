@@ -62,6 +62,7 @@ const EXAM_PROMPT = `請依照下面的格式出題，只輸出題目本身，�
 - 解析寫在「解析：」後面；解析或參考答案裡的分點請用（1）（2），不要用「1.」「2.」。
 - 段落標題可寫「一、單選題（每題 2 分）」，會自動套用配分。
 - （可省略）「圖卡：00-06」＝這題可對照的圖卡編號（章號-張號），多張用「、」分開；同學交卷後在解析下方可點開看大圖。
+- （可省略）「圖片：/content/…/xxx.webp」＝題目附圖（看圖作答用），作答時就顯示在題目下方；圖檔要先放進網站的 content/ 資料夾（例如 content/courses/2026_y1s1/anatomy/exam-img/），多張用「、」分開。
 
 範例：
 ${EXAM_FORMAT}`;
@@ -501,7 +502,7 @@ function questionHtml(q, groups, mode, ctx = {}) {
     const stem = inline ? parts.map((p, i) => nl2br(p) + (i < q.blanks ? field(i) : '')).join('') : nl2br(q.stem);
     const extra = inline ? '' : `<div class="q-blanks">${Array.from({ length: q.blanks }, (_, i) => `<label>第 ${i + 1} 格 ${field(i)}</label>`).join('')}</div>`;
     const answerLine = mode !== 'take' && q.answer ? `<div class="q-answer">正確答案：${q.answer.map(a => esc(a.join(' / '))).join('；')}</div>` : '';
-    return `<div class="q-card" data-q="${q.id}">${head}<div class="q-stem">${stem}</div>${extra}${answerLine}${explainHtml(q, mode, ctx)}</div>`;
+    return `<div class="q-card" data-q="${q.id}">${head}<div class="q-stem">${stem}</div>${qImages(q)}${extra}${answerLine}${explainHtml(q, mode, ctx)}</div>`;
   } else if (q.type === 'essay') {
     body = `<textarea class="q-essay" name="${name}" rows="6" maxlength="5000" ${mode === 'take' ? '' : 'readonly'} placeholder="${mode === 'take' ? '在這裡寫下你的答案' : ''}">${esc(given || '')}</textarea>`;
     if (mode !== 'take') {
@@ -514,8 +515,12 @@ function questionHtml(q, groups, mode, ctx = {}) {
       }
     }
   }
-  return `<div class="q-card" data-q="${q.id}">${head}<div class="q-stem">${nl2br(q.stem)}</div>${yourAnswerHtml(q, mode, given, res)}${body}${explainHtml(q, mode, ctx)}</div>`;
+  return `<div class="q-card" data-q="${q.id}">${head}<div class="q-stem">${nl2br(q.stem)}</div>${qImages(q)}${yourAnswerHtml(q, mode, given, res)}${body}${explainHtml(q, mode, ctx)}</div>`;
 }
+
+// 題目附圖（「圖片：」欄位）：顯示在題目下方，點圖可開新分頁看大圖
+const qImages = q => (q.images && q.images.length)
+  ? `<div class="q-imgs">${q.images.map(src => `<a href="${esc(src)}" target="_blank" rel="noopener"><img src="${esc(src)}" alt="題目附圖" loading="lazy"></a>`).join('')}</div>` : '';
 
 // 選項旁的標示：正確答案／你的選擇
 function optTags(mode, isAnswer, isGiven, compact) {

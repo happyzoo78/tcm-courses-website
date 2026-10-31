@@ -25,11 +25,14 @@ const RE = {
   rubric: /^\s*(?:評分要點|评分要点|得分要點|得分要点)\s*[:：]\s*(.*)$/,
   points: /^\s*(?:配分|分數|分数|分值)\s*[:：]\s*(\d+(?:\.\d+)?)\s*分?\s*$/,
   cards: /^\s*(?:圖卡|图卡|對照圖卡|对照图卡)\s*[:：]\s*(.*)$/,
+  images: /^\s*(?:圖片|图片|附圖|附图)\s*[:：]\s*(.*)$/,
   groupStart: /^\s*(?:\[\s*(?:共用)?選項\s*\]|\[\s*(?:共用)?选项\s*\]|共用選項\s*[:：]?|共用选项\s*[:：]?|共用備選答案\s*[:：]?|共用备选答案\s*[:：]?)\s*$/,
   groupEnd: /^\s*\[\s*\/\s*(?:共用)?(?:選項|选项)\s*\]\s*$/,
   perPoints: /每題\s*(\d+(?:\.\d+)?)\s*分|每题\s*(\d+(?:\.\d+)?)\s*分/,
   blank: /_{2,}|＿{1,}|（\s*）|\(\s*\)/g
 };
+
+const IMAGE_SRC = /^\/content\/[A-Za-z0-9_\-./]+\.(?:webp|png|jpe?g|gif)(?:\?v=\d+)?$/i;
 
 const TRUE_WORDS = ["對", "对", "是", "正確", "正确", "o", "○", "✓", "✔", "v", "t", "true", "√"];
 const FALSE_WORDS = ["錯", "错", "否", "錯誤", "错误", "x", "×", "✗", "✘", "f", "false"];
@@ -144,6 +147,15 @@ export function parseExam(source) {
       field = null; return;
     }
 
+    // 題目附圖：「圖片：/content/…/xxx.webp」，多張用「、」或逗號分開（作答時顯示在題目下方，只接受本站 /content/ 底下的圖檔）
+    if ((m = RE.images.exec(line)) && q) {
+      const srcs = m[1].split(/[\s,，、;；]+/).map(x => x.trim()).filter(Boolean);
+      const bad = srcs.filter(x => !IMAGE_SRC.test(x));
+      if (bad.length) errors.push({ no: q.no, line: lineNo, message: `第 ${lineNo} 行圖片「${bad.join("、")}」不對：要是本站 /content/ 底下的 .webp／.png／.jpg 圖檔，例如 /content/courses/2026_y1s1/anatomy/exam-img/q15.webp` });
+      q.images = [...new Set([...(q.images || []), ...srcs.filter(x => !bad.includes(x))])];
+      field = null; return;
+    }
+
     // 選項：屬於目前題目；題目已有答案（或還沒有題目）時，就是新的共用選項組
     if ((m = RE.option.exec(line)) && !(field && field !== "stem")) {
       const opts = splitOptions(line.trim()) || [{ key: letter(m[1]), text: m[2].trim() }];
@@ -187,7 +199,7 @@ export function parseExam(source) {
     }
 
     const base = { id: `q${q.no}`, no: q.no, type, stem: q.stem.trim(), points: q.points ?? q.sectionPoints ?? (type === "essay" ? 10 : 1),
-                   explanation: q.explanation || "", group: grp ? grp.id : null, ...(q.cards?.length ? { cards: q.cards } : {}) };
+                   explanation: q.explanation || "", group: grp ? grp.id : null, ...(q.cards?.length ? { cards: q.cards } : {}), ...(q.images?.length ? { images: q.images } : {}) };
     if (!(base.points > 0) || base.points > 100) err("配分要在 0～100 之間。");
 
     if (type === "single" || type === "multi") {
@@ -254,7 +266,7 @@ export function gradingSignature(parsed) {
   if (!parsed || !Array.isArray(parsed.questions)) return "";
   return JSON.stringify({
     groups: parsed.groups || [],
-    questions: parsed.questions.map(q => [q.id, q.type, q.stem, q.points, q.group || null, q.options || [], q.answer ?? null, q.blanks ?? null])
+    questions: parsed.questions.map(q => [q.id, q.type, q.stem, q.points, q.group || null, q.options || [], q.answer ?? null, q.blanks ?? null, ...(q.images?.length ? [q.images] : [])])
   });
 }
 
