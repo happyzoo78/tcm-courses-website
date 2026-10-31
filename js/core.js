@@ -431,11 +431,14 @@ const HERO_ART_LANDSCAPE = `<svg class="hero-art" viewBox="0 0 640 300" preserve
 // 首頁大圖（擁有者 2026-10-31 方案 A「一水相連」＋經絡橋）：福建（福建中醫藥大學）← 經絡穴位橋 ← 台灣（中央山脈、玉山），書生負笈過橋求學
 // 台灣輪廓依約 40 個海岸地標經緯度描繪（cos 23.7° 校正）；深色模式靠 CSS 變數換色，建築與匾額固定色
 const HERO_ART_STRAIT = `<svg class="hero-art hero-strait" viewBox="40 56 700 360" preserveAspectRatio="xMaxYMid meet" aria-hidden="true">
-  <defs><linearGradient id="hs-sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--sea)" stop-opacity="0"/><stop offset=".45" stop-color="var(--sea)" stop-opacity=".22"/><stop offset="1" stop-color="var(--sea)" stop-opacity=".55"/></linearGradient></defs>
+  <defs><linearGradient id="hs-sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--sea)" stop-opacity="0"/><stop offset=".45" stop-color="var(--sea)" stop-opacity=".22"/><stop offset="1" stop-color="var(--sea)" stop-opacity=".55"/></linearGradient>
+    <radialGradient id="hs-sun"><stop offset="0" stop-color="#c4553f" stop-opacity=".85"/><stop offset=".55" stop-color="#c4553f" stop-opacity=".7"/><stop offset="1" stop-color="#c4553f" stop-opacity="0"/></radialGradient>
+    <filter id="hs-blur" x="-5%" y="-10%" width="110%" height="120%"><feGaussianBlur stdDeviation="2.5"/></filter>
+    <filter id="hs-mist" x="-20%" y="-200%" width="140%" height="500%"><feGaussianBlur stdDeviation="9"/></filter></defs>
   <rect x="40" y="190" width="700" height="250" fill="url(#hs-sea)"/>
-  <circle cx="420" cy="112" r="36" fill="#c4553f" opacity=".8"/>
+  <circle cx="420" cy="112" r="48" fill="url(#hs-sun)"/>
   <path d="M40 300 L80 252 L120 270 L170 188 L210 232 L250 168 L292 222 L340 200 L380 258 L410 300 L420 336 C450 356 480 384 520 440 L40 440 Z" fill="var(--surface-2)"/>
-  <path d="M40 300 L80 252 L120 270 L170 188 L210 232 L250 168 L292 222 L340 200 L380 258 L410 300 L420 336 C450 356 480 384 520 440 L40 440 Z" fill="var(--ink-wash)" opacity=".18"/>
+  <path d="M40 300 L80 252 L120 270 L170 188 L210 232 L250 168 L292 222 L340 200 L380 258 L410 300 L420 336 C450 356 480 384 520 440 L40 440 Z" fill="var(--ink-wash)" opacity=".2" filter="url(#hs-blur)"/>
   <path d="M40 335 L90 292 L140 304 L190 252 L240 282 L280 244 L330 292 L372 304 L420 336 C450 356 480 384 520 440 L40 440 Z" fill="var(--surface-2)"/>
   <path d="M40 335 L90 292 L140 304 L190 252 L240 282 L280 244 L330 292 L372 304 L420 336 C450 356 480 384 520 440 L40 440 Z" fill="var(--ink-wash)" opacity=".32"/>
     <g transform="translate(555 66)">
@@ -444,6 +447,7 @@ const HERO_ART_STRAIT = `<svg class="hero-art hero-strait" viewBox="40 56 700 36
     <path d="M123.5 34.8 L115 52 L118 58 L107.5 78.3 L110 84 L99.6 108.8 L102 114 L87.6 143.6 L90 150 L76.5 163.6 L79 172 L71.7 204.5 L74 212 L67.7 248 L65.3 278.4" fill="none" stroke="var(--surface)" stroke-width="1.6" stroke-linejoin="round" opacity=".75"/>
     <path d="M70 170 L76.5 158 L83 170 Z" fill="var(--surface)" opacity=".9"/>
   </g>
+  <g filter="url(#hs-mist)" fill="var(--surface)"><ellipse cx="230" cy="262" rx="190" ry="14" opacity=".55"/><ellipse cx="300" cy="318" rx="240" ry="16" opacity=".5"/><ellipse cx="560" cy="300" rx="200" ry="14" opacity=".45"/><ellipse cx="460" cy="372" rx="300" ry="18" opacity=".4"/></g>
   <path d="M250 347 C288 347 300 326 330 302 Q470 176 592 172" fill="none" stroke="var(--gold)" stroke-width="1.5" opacity=".55"/>
   <path d="M250 341 C288 341 300 320 330 296 Q470 170 592 166" fill="none" stroke="var(--gold)" stroke-width="3" stroke-linecap="round"/>
   <circle cx="358" cy="272" r="9" fill="#c9a96e" opacity=".25"/><circle cx="358" cy="272" r="4" fill="#b08a4e"/><circle cx="396" cy="243" r="9" fill="#c9a96e" opacity=".25"/><circle cx="396" cy="243" r="4" fill="#b08a4e"/><circle cx="434" cy="218" r="9" fill="#c9a96e" opacity=".25"/><circle cx="434" cy="218" r="4" fill="#b08a4e"/><circle cx="522" cy="178" r="9" fill="#c9a96e" opacity=".25"/><circle cx="522" cy="178" r="4" fill="#b08a4e"/><circle cx="557" cy="170" r="9" fill="#c9a96e" opacity=".25"/><circle cx="557" cy="170" r="4" fill="#b08a4e"/>
