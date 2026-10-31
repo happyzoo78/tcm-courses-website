@@ -93,7 +93,10 @@ function shelfCardsHtml() {
             <span class="mini-text"><b>${esc(i.title)}</b><small>${esc(i.sub)}</small></span>
           </a>`).join('')}</div>`
           : '<p class="empty-note">這個科目還沒有圖卡。</p>'}
-        <a class="more-btn" href="#course/${c.id}" title="進入「${esc(c.title)}」" aria-label="進入「${esc(c.title)}」">More<span class="arr" aria-hidden="true">›</span></a>
+        <div class="shelf-foot">
+          ${items.length ? '<span class="shelf-note">展示最新章節圖卡</span>' : ''}
+          <a class="more-btn" href="#course/${c.id}" title="進入「${esc(c.title)}」" aria-label="進入「${esc(c.title)}」">More<span class="arr" aria-hidden="true">›</span></a>
+        </div>
       </div>`;
   };
   const start = sems.length - 1;   // 預設停在最新的學期

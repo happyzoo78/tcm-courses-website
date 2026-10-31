@@ -953,7 +953,9 @@ h2.section small.motto { font-family: "Noto Serif TC", "Noto Serif CJK TC", "Sou
 .more-btn:hover { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); text-decoration: none; }
 .more-btn:hover .arr { transform: translate(2px, -1px); }
 h2.section .more-btn { margin-left: auto; align-self: center; }
-.shelf > .more-btn { align-self: flex-end; margin-top: auto; }
+.shelf-foot { margin-top: auto; display: flex; align-items: center; gap: 10px; }   /* 科目卡底列：左「展示最新章節圖卡」說明、右 More（擁有者 2026-10-31） */
+.shelf-foot .more-btn { margin-left: auto; }
+.shelf-note { font-size: 13.5px; color: var(--muted); }
 .shelf-list, .shelf .empty-note { margin-bottom: 12px; }
 @media (max-width: 720px) { .shelf-list, .shelf .empty-note { margin-bottom: 8px; } }
 
