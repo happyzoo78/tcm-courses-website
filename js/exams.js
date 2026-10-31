@@ -501,7 +501,10 @@ function questionHtml(q, groups, mode, ctx = {}) {
     const inline = parts.length - 1 === q.blanks;
     const stem = inline ? parts.map((p, i) => nl2br(p) + (i < q.blanks ? field(i) : '')).join('') : nl2br(q.stem);
     const extra = inline ? '' : `<div class="q-blanks">${Array.from({ length: q.blanks }, (_, i) => `<label>第 ${i + 1} 格 ${field(i)}</label>`).join('')}</div>`;
-    const answerLine = mode !== 'take' && q.answer ? `<div class="q-answer">正確答案：${q.answer.map(a => esc(a.join(' / '))).join('；')}</div>` : '';
+    // 正確答案：一格時寫在同一行；兩格以上逐格分行（(1) 答案；同義答案），避免一整排擠在一起
+    const answerLine = mode !== 'take' && q.answer ? (q.answer.length > 1
+      ? `<div class="q-answer"><div>正確答案：</div><ol class="q-answer-list">${q.answer.map((a, i) => `<li><span class="q-ans-no">(${i + 1})</span>${esc(a.join('；'))}</li>`).join('')}</ol></div>`
+      : `<div class="q-answer">正確答案：${esc((q.answer[0] || []).join('；'))}</div>`) : '';
     return `<div class="q-card" data-q="${q.id}">${head}<div class="q-stem">${stem}</div>${qImages(q)}${extra}${answerLine}${explainHtml(q, mode, ctx)}</div>`;
   } else if (q.type === 'essay') {
     body = `<textarea class="q-essay" name="${name}" rows="6" maxlength="5000" ${mode === 'take' ? '' : 'readonly'} placeholder="${mode === 'take' ? '在這裡寫下你的答案' : ''}">${esc(given || '')}</textarea>`;
