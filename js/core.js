@@ -372,6 +372,13 @@ function subjChipsHtml(sems, curId, count, attr) {
 /* 首頁、關於我們的底圖（原創向量圖，顏色跟著深淺色主題）：
    八卦太極環、懸壺（葫蘆）、銀針三枚、藥碾、人參（掌狀複葉＋紅果） */
 // 科目卡封面底圖：原創水墨山水（遠山、霧、朱紅日、枝椏、飛鳥），依科目左右翻轉、換日的位置，只當淡淡的底
+// 科目卡封面插畫（擁有者 2026-10-31 提供的私塾聽講插畫，裁成直式 WebP）；依科目代碼對應，沒有的科目用下方水墨山水 COVER_ART
+const COVER_IMG = {
+  'tcm-basic-theory': '/css/img/covers/tcm-basic-theory.webp?v=1',
+  'histology-embryology': '/css/img/covers/histology-embryology.webp?v=1',
+  'medical-biology': '/css/img/covers/medical-biology.webp?v=1',
+  'anatomy': '/css/img/covers/anatomy.webp?v=1'
+};
 const COVER_ART = (() => {
   const mtn = (d, op, id) => `<path d="${d}" fill="url(#${id})" opacity="${op}"/>`;
   return i => {
