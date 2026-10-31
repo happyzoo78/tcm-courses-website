@@ -844,6 +844,9 @@ fieldset.owners .check small { color: var(--muted); }
 .hero-art { -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 38%); mask-image: linear-gradient(to right, transparent 0%, #000 38%); }
 .about-hero p { position: relative; }
 @media (max-width: 720px) { .hero-art { -webkit-mask-image: linear-gradient(to bottom, transparent, #000 60%); mask-image: linear-gradient(to bottom, transparent, #000 60%); } .about-hero .hero-art { top: auto; bottom: 0; transform: none; } }
+:root { --sea: #6f9ab4; }   /* 首頁大圖的海（陸地外的藍色漸層，取代水紋；擁有者 2026-10-31） */
+:root[data-theme="dark"] { --sea: #5f8aa3; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --sea: #5f8aa3; } }
 /* 首頁大圖「一水相連」（2026-10-31）：左側有福建中醫藥大學建築，淡出範圍縮小，避免建築被吃掉 */
 .hero-art.hero-strait { width: min(54%, 640px); -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 30%); mask-image: linear-gradient(to right, transparent 0%, #000 30%); }
 .hero.hero.has-art:has(.hero-strait)::after { bottom: 26px; }   /* 「台灣 · 福建 · 知識連結」稍微上移，坐在水紋上方 */
