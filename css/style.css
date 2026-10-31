@@ -864,7 +864,7 @@ fieldset.owners .check small { color: var(--muted); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .about-hero .hero-art.hero-painting { opacity: .28; } }   /* 關於本站也用同一張插畫（2026-10-31） */
 @media (max-width: 720px) { .about-hero .hero-art.hero-painting { top: auto; height: 45%; } }
 /* 關於本站大圖（2026-10-31）：鋪滿整塊，從左到右漸層顯現（左邊文字區幾乎透明，右邊講堂清楚） */
-.about-hero .hero-art.hero-about-img { inset: 0; top: 0; bottom: 0; width: 100%; height: 100%; aspect-ratio: auto; transform: none; object-fit: cover; object-position: 60% 40%; opacity: .55; -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,.12) 40%, rgba(0,0,0,.55) 65%, #000 90%); mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,.12) 40%, rgba(0,0,0,.55) 65%, #000 90%); }
+.about-hero .hero-art.hero-about-img { inset: 0; top: 0; bottom: 0; width: 100%; height: 100%; aspect-ratio: auto; transform: none; object-fit: cover; object-position: 60% 40%; opacity: .55; -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,.08) 45%, rgba(0,0,0,.28) 72%, #000 95%); mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,.08) 45%, rgba(0,0,0,.28) 72%, #000 95%); }   /* 文字區（約到 75%）壓得更淡，右邊講堂才清楚 */
 :root[data-theme="dark"] .about-hero .hero-art.hero-about-img { opacity: .42; filter: brightness(.8) saturate(.9); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .about-hero .hero-art.hero-about-img { opacity: .42; filter: brightness(.8) saturate(.9); } }
 @media (max-width: 720px) { .about-hero .hero-art.hero-about-img { opacity: .3; -webkit-mask-image: linear-gradient(to bottom, transparent, #000 60%); mask-image: linear-gradient(to bottom, transparent, #000 60%); } }
