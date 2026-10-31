@@ -182,10 +182,11 @@ h2.section + .year-tabs { margin-left: 14px; margin-right: 14px; box-shadow: ins
 /* 水墨山水底圖（原創 SVG：遠山、霧、朱紅日、枝椏、飛鳥），在浮水印字後面 */
 .cover-art { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .55; pointer-events: none; }
 /* 科目卡封面插畫（私塾聽講，2026-10-31）：填滿封面、偏下取景（人物在下半）；浮水印大字加深、加淡色描邊才看得清楚 */
-.cover-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 72%; pointer-events: none; }
-.cover.has-img span { opacity: .72; color: #3f5546; text-shadow: 0 0 6px #fbf7efd9, 0 0 2px #fbf7ef; }   /* 插畫本身是淺色，深色模式也用深綠字＋米白描邊 */
-:root[data-theme="dark"] .cover-img { filter: brightness(.82) saturate(.9); }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cover-img { filter: brightness(.82) saturate(.9); } }
+.cover-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 72%; opacity: .5; pointer-events: none; }   /* 插畫淡化，讓上面的大字清楚（擁有者 2026-10-31） */
+.cover.has-img { background: #f3ede1; }   /* 插畫底一律米白，深色模式淡化後也不會變灰暗 */
+.cover.has-img span { opacity: .92; color: #3f5546; text-shadow: 0 0 8px #fbf7ef, 0 0 3px #fbf7ef; }   /* 插畫本身是淺色，深色模式也用深綠字＋米白描邊 */
+:root[data-theme="dark"] .cover-img { filter: brightness(.9) saturate(.9); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .cover-img { filter: brightness(.9) saturate(.9); } }
 :root { --ink-wash: #4d5f6b; }
 :root[data-theme="dark"] { --ink-wash: #9fb1bc; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --ink-wash: #9fb1bc; } }
