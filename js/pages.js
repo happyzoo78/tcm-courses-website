@@ -301,7 +301,7 @@ function detailPage() {
 
 function aboutPage() {
   return `
-  <section class="hero about-hero has-art">${HERO_ART_LANDSCAPE}
+  <section class="hero about-hero has-art">${HERO_ART_PAINTING}
     <div class="eyebrow"><span class="nw">中醫學習</span> · <span class="nw">大醫精誠</span></div>
     <h1>關於本站</h1>
     <p>這是 2026 福建中醫藥大學台灣班同學共同耕耘的學習園地。我們從台灣負笈福建，在經典與臨床、中醫與西醫之間往返求索：把課堂重點整理成講義，把章節考點編成試題，把難記的概念繪成圖卡，也把每一份作業、每一道錯題，都留作彼此的參照。</p>
