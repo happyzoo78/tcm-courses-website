@@ -71,13 +71,13 @@ function recentUpdates(limit) {
 }
 
 // 首頁主角：依年級顯示學習圖卡（每科最多 4 張，其餘到科目頁看）
-// 首頁學習圖卡：輪播以「學期」為一頁，每頁列出該學期所有科目（每科最多 3 項：最新 3 章，章號由小到大）
+// 首頁學習圖卡：輪播以「學期」為一頁，每頁列出該學期所有科目（每科最多 2 項：最新 2 章，章號由小到大）
 function shelfCardsHtml() {
   const sems = visibleSemesters().filter(s => s.code !== BANK_SEM && coursesIn(s.code).length).sort((a, b) => a.sortOrder - b.sortOrder);
   if (!sems.length) return '<p class="empty-note">目前沒有開放的科目。</p>';
   const shelf = c => {
-    // 依章節的圖卡集排前面（取最新 3 章，由上至下照章號小→大排），再接單張圖卡
-    const chaps = (deckOf(c.id)?.chapters || []).slice(-3).map(ch => ({ href: `#cards/${c.id}/${ch.no}`, image: ch.cover.thumb, title: `第 ${ch.no} 章 ${ch.title}`, sub: `${ch.cards.length} 張圖卡` }));
+    // 依章節的圖卡集排前面（取最新 2 章，由上至下照章號小→大排），再接單張圖卡
+    const chaps = (deckOf(c.id)?.chapters || []).slice(-2).map(ch => ({ href: `#cards/${c.id}/${ch.no}`, image: ch.cover.thumb, title: `第 ${ch.no} 章 ${ch.title}`, sub: `${ch.cards.length} 張圖卡` }));
     const singles = itemsOf(c.id).slice().sort(byDateDesc).map(i => ({ href: `#detail/item/${i.id}`, image: i.image, title: i.title, sub: i.date || '' }));
     const items = [...chaps, ...singles];
     const total = itemsOf(c.id).length + deckCardCount(c.id);
@@ -87,7 +87,7 @@ function shelfCardsHtml() {
           <h4><a href="#course/${c.id}">${esc(c.title)}</a>${isExamSubject(c) ? ' <span class="exam-tag">執醫考科</span>' : ''}</h4>
           <span class="shelf-meta">${total} 張圖卡</span>
         </div>
-        ${items.length ? `<div class="shelf-list">${items.slice(0, 3).map(i => `
+        ${items.length ? `<div class="shelf-list">${items.slice(0, 2).map(i => `
           <a class="mini-card" href="${i.href}">
             <span class="mini-thumb">${i.image ? `<img src="${esc(i.image)}" alt="" loading="lazy">` : TAIJI}</span>
             <span class="mini-text"><b>${esc(i.title)}</b><small>${esc(i.sub)}</small></span>
