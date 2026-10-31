@@ -160,7 +160,11 @@ function memberGroupsHtml(roleOptions) {
       <div class="adminrow">
         <div>
           ${membersMeta.seenSupported ? `<span class="online-dot ${seen.online ? 'on' : ''}" title="${esc(seen.text)}"></span>` : ''}<b>${esc(m.displayName)}</b>${showRole ? `<span class="role">${ROLE_NAME[m.role] || esc(m.role)}</span>` : ''}${m.hasPassword ? '<span class="role" title="可以用 Email＋密碼登入">密碼</span>' : ''}${off ? '<span class="role off">已停用</span>' : ''}${{ need: '<span class="role mail-need" title="沒有密碼、從未登入，信箱不是 Gmail，可能無法用 Google 登入">可能需要密碼</span>', suggest: '<span class="role mail-suggest" title="沒有密碼、從未登入；Gmail 可用 Google 登入">尚未登入</span>', mailed: `<span class="role mail-sent" title="已寄出設定密碼的信">已寄密碼信 ${esc(fmtTime(m.mailedAt))}</span>` }[mailAdvice(m)] || ''}
-          <br><small>${membersMeta.seenSupported ? `<span class="${seen.online ? 'seen-on' : ''}">${esc(seen.text)}</span> · ` : ''}${esc(m.email)} · 最後登入：${esc(fmtTime(m.lastLoginAt))}</small>
+          <div class="member-meta">
+            <small class="mm-email">${esc(m.email)}</small>
+            ${membersMeta.seenSupported ? `<small>最近上線：<span class="${seen.online ? 'seen-on' : ''}">${esc(seen.text)}</span></small>` : ''}
+            <small>最後登入：${esc(fmtTime(m.lastLoginAt))}</small>
+          </div>
           ${m.adminNote ? `<div class="member-note"><span class="member-note-lab">備註</span>${esc(m.adminNote)}</div>` : ''}
         </div>
         <div class="row-actions">
