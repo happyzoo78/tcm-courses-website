@@ -432,8 +432,9 @@ const HERO_ART_LANDSCAPE = `<svg class="hero-art" viewBox="0 0 640 300" preserve
 // 台灣輪廓依約 40 個海岸地標經緯度描繪（cos 23.7° 校正）；深色模式靠 CSS 變數換色，建築與匾額固定色
 const HERO_ART_STRAIT = `<svg class="hero-art hero-strait" viewBox="40 56 700 360" preserveAspectRatio="xMaxYMid meet" aria-hidden="true">
   <defs><linearGradient id="hs-sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--sea)" stop-opacity="0"/><stop offset=".45" stop-color="var(--sea)" stop-opacity=".22"/><stop offset="1" stop-color="var(--sea)" stop-opacity=".55"/></linearGradient></defs>
-  <rect x="40" y="150" width="700" height="290" fill="url(#hs-sea)"/>
+  <rect x="40" y="190" width="700" height="250" fill="url(#hs-sea)"/>
   <circle cx="420" cy="112" r="36" fill="#c4553f" opacity=".8"/>
+  <path d="M40 300 L80 252 L120 270 L170 188 L210 232 L250 168 L292 222 L340 200 L380 258 L410 300 L420 336 C450 356 480 384 520 440 L40 440 Z" fill="var(--surface-2)"/>
   <path d="M40 300 L80 252 L120 270 L170 188 L210 232 L250 168 L292 222 L340 200 L380 258 L410 300 Z" fill="var(--ink-wash)" opacity=".18"/>
   <path d="M40 335 L90 292 L140 304 L190 252 L240 282 L280 244 L330 292 L372 304 L420 336 C450 356 480 384 520 440 L40 440 Z" fill="var(--surface-2)"/>
   <path d="M40 335 L90 292 L140 304 L190 252 L240 282 L280 244 L330 292 L372 304 L420 336 C450 356 480 384 520 440 L40 440 Z" fill="var(--ink-wash)" opacity=".32"/>
